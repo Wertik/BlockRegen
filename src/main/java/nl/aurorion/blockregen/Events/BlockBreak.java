@@ -16,6 +16,7 @@ import nl.aurorion.blockregen.Utils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -58,6 +59,7 @@ public class BlockBreak implements Listener {
         }
 
         String blockName = block.getType().name();
+        BlockData blockData = block.getBlockData();
 
         // Block data check
         if (Utils.dataCheck.contains(player.getName())) {
@@ -178,7 +180,7 @@ public class BlockBreak implements Listener {
 
                     event.setDropItems(false);
                     event.setExpToDrop(0);
-                    this.blockBreak(player, block, blockName, bworld, expToDrop);
+                    this.blockBreak(player, block, blockName, blockData, bworld, expToDrop);
                 } else {
                     if (!useRegions) {
 
@@ -207,7 +209,7 @@ public class BlockBreak implements Listener {
 
                         event.setDropItems(false);
                         event.setExpToDrop(0);
-                        this.blockBreak(player, block, blockName, bworld, expToDrop);
+                        this.blockBreak(player, block, blockName, blockData, bworld, expToDrop);
                     }
                 }
             } else {
@@ -283,7 +285,7 @@ public class BlockBreak implements Listener {
         }
     }
 
-    private void blockBreak(Player player, Block block, String blockName, World world, int expToDrop) {
+    private void blockBreak(Player player, Block block, String blockName, BlockData blockData, World world, int expToDrop) {
         Getters getters = plugin.getGetters();
         BlockState state = block.getState();
         Location location = block.getLocation();
@@ -468,6 +470,7 @@ public class BlockBreak implements Listener {
 
         if (regenerateInto != state.getType()) {
             state.setType(regenerateInto);
+            state.setBlockData(blockData);
             plugin.getConsoleOutput().debug("Regenerate into: " + regenerateInto.toString());
         }
 
