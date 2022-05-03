@@ -204,6 +204,14 @@ public class RegenerationProcess implements Runnable {
         }
     }
 
+    public void revertBlockonMain() {
+        Material material = originalMaterial.parseMaterial();
+        if (material != null) {
+            block.setType(material);
+            ConsoleOutput.getInstance().debug(String.format("Reverted block for %s", toString()));
+        }
+    }
+
     // Convert stored Location pointer to the Block at the location.
     public boolean convertLocation() {
 

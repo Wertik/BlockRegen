@@ -64,13 +64,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>vault-repo</id>
-            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <!-- Modules -->
         <dependency>
@@ -122,49 +115,56 @@
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
             <version>7.2.1</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/HAPPYLAND-SkyBlock-3.0/plugins/FastAsyncWorldEdit-Bukkit-2.1.1-SNAPSHOT-134.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <!-- WorldGuard -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
             <version>7.0.4</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/HAPPYLAND-SkyBlock-3.0/plugins/worldguard-bukkit-7.0.6-dist.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <!-- Residence -->
         <dependency>
             <groupId>com.bekvon.bukkit</groupId>
             <artifactId>Residence</artifactId>
             <version>5.0.0.1</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/Lib/Residence5.0.1.5.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <!-- Placeholder API -->
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.10.9</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/HAPPYLAND-SkyBlock-3.0/plugins/PlaceholderAPI-2.11.1.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <!-- Towny Advanced -->
         <dependency>
             <groupId>com.github.LlmDl</groupId>
             <artifactId>Towny</artifactId>
             <version>0.97.0.21</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/Lib/Towny-0.98.1.0.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <!-- Grief Prevention -->
         <dependency>
             <groupId>com.github.TechFortress</groupId>
             <artifactId>GriefPrevention</artifactId>
             <version>16.17.1</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/Lib/GriefPrevention.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <!-- Jobs -->
         <dependency>
             <groupId>com.gamingmesh.jobs</groupId>
             <artifactId>Jobs</artifactId>
             <version>5.0.0.6</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/Lib/Jobs5.0.2.1.jar</systemPath>
+            <scope>system</scope>
         </dependency>
     </dependencies>
 </project>

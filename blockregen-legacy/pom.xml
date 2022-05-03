@@ -31,14 +31,16 @@
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-legacy</artifactId>
             <version>6.2</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/HAPPYLAND-SkyBlock-3.0/plugins/worldguard-bukkit-7.0.6-dist.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <!-- WorldEdit -->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
             <version>6.1.5</version>
-            <scope>provided</scope>
+            <systemPath>/home/xiaozhangup/桌面/Lib/worldedit-bukkit-6.1.5.jar</systemPath>
+            <scope>system</scope>
         </dependency>
     </dependencies>
 </project>

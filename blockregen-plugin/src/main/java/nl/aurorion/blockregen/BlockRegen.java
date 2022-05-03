@@ -193,7 +193,7 @@ public class BlockRegen extends JavaPlugin {
         if (regenerationManager.getAutoSaveTask() != null)
             regenerationManager.getAutoSaveTask().stop();
 
-        regenerationManager.revertAll();
+        regenerationManager.revertAllonMain();
         regenerationManager.save();
 
         regionManager.save();

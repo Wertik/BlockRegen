@@ -129,6 +129,10 @@ public class RegenerationManager {
         cache.forEach(RegenerationProcess::revertBlock);
     }
 
+    public void revertAllonMain() {
+        cache.forEach(RegenerationProcess::revertBlockonMain);
+    }
+
     private void purgeExpired() {
 
         // Clear invalid processes
