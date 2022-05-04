@@ -17,8 +17,7 @@
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.10.9</version>
-            <systemPath>/home/xiaozhangup/桌面/HAPPYLAND-SkyBlock-3.0/plugins/PlaceholderAPI-2.11.1.jar</systemPath>
-            <scope>system</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- Spigot API -->
         <dependency>
