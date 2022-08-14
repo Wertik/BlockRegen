@@ -66,7 +66,7 @@ public class ItemDrop {
     }
 
     @Nullable
-    public ItemStack toItemStack(Player player) {
+    public ItemStack toItemStack(@Nullable Player player) {
 
         // x/100% chance to drop
         if (chance != null) {
@@ -94,8 +94,9 @@ public class ItemDrop {
 
         if (itemMeta == null) return null;
 
-        if (displayName != null)
+        if (displayName != null) {
             itemMeta.setDisplayName(StringUtil.color(TextUtil.parse(displayName, player)));
+        }
 
         if (lore != null) {
             List<String> lore = new ArrayList<>(this.lore);

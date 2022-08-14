@@ -74,16 +74,15 @@ public class RegenerationManager {
     /**
      * Helper for creating regeneration processes.
      */
-    public RegenerationProcess createProcess(Block block, BlockPreset preset, String... regionName) {
+    @NotNull
+    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockPreset preset, String... regionName) {
         RegenerationProcess process = createProcess(block, preset);
-
-        if (process == null)
-            return null;
 
         process.setWorldName(block.getWorld().getName());
 
-        if (regionName.length > 0)
+        if (regionName.length > 0) {
             process.setRegionName(regionName[0]);
+        }
 
         return process;
     }
@@ -91,13 +90,17 @@ public class RegenerationManager {
     /**
      * Helper for creating regeneration processes.
      */
-    @Nullable
-    public RegenerationProcess createProcess(Block block, BlockPreset preset) {
+    @NotNull
+    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockPreset preset) {
+
+        Objects.requireNonNull(block);
+        Objects.requireNonNull(preset);
+
         // Read the original material
         NodeData nodeData = plugin.getVersionManager().createNodeData();
         nodeData.load(block);
 
-        return block == null || preset == null ? null : new RegenerationProcess(block, nodeData, preset);
+        return new RegenerationProcess(block, nodeData, preset);
     }
 
     /**
