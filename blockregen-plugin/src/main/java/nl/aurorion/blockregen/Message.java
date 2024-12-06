@@ -2,10 +2,12 @@ package nl.aurorion.blockregen;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.ryanhamshire.GriefPrevention.Messages;
 import nl.aurorion.blockregen.util.TextUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message system, loaded on enable & reload.
@@ -114,6 +116,16 @@ public enum Message {
     Message(String path, String value) {
         this.path = path;
         this.value = value;
+    }
+
+    @Nullable
+    public static String get(String path, @Nullable Player player) {
+        for (Message message : Message.values()) {
+            if (message.getPath().equals(path)) {
+                return player == null ? message.get() : message.get(player);
+            }
+        }
+        return null;
     }
 
     public String get() {

@@ -20,7 +20,8 @@ public class TextUtil {
             return string;
         }
 
-        string = string.replaceAll("(?i)%prefix%", Message.PREFIX.getValue());
+        string = string.replaceAll("(?i)%prefix%", Message.PREFIX.getValue())
+                .replaceAll("(?i)%version%", BlockRegen.getInstance().getDescription().getVersion());
 
         for (Object o : context) {
             if (o instanceof Player) {

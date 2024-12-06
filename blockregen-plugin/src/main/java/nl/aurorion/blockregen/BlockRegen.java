@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import net.milkbowl.vault.economy.Economy;
-import nl.aurorion.blockregen.commands.Commands;
+import nl.aurorion.blockregen.commands.RaincloudCommands;
 import nl.aurorion.blockregen.configuration.Files;
 import nl.aurorion.blockregen.listeners.RegenerationListener;
 import nl.aurorion.blockregen.listeners.PlayerListener;
@@ -103,6 +103,8 @@ public class BlockRegen extends JavaPlugin implements Listener {
 
     private boolean finishedLoading = false;
 
+    private final RaincloudCommands commands = new RaincloudCommands(this);
+
     private static Logger getParentLogger() {
         return Logger.getLogger(PACKAGE_NAME);
     }
@@ -195,7 +197,8 @@ public class BlockRegen extends JavaPlugin implements Listener {
 
         registerListeners();
 
-        Objects.requireNonNull(getCommand("blockregen")).setExecutor(new Commands(this));
+        // Objects.requireNonNull(getCommand("blockregen")).setExecutor(new Commands(this));
+        commands.register();
 
         String ver = getDescription().getVersion();
 
