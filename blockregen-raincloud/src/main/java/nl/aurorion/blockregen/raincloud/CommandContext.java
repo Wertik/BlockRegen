@@ -2,14 +2,14 @@ package nl.aurorion.blockregen.raincloud;
 
 import lombok.NonNull;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals", "unused"})
 public class CommandContext<C extends CommandSender> {
+
+    private final Command<C> command;
 
     private final C sender;
 
@@ -19,7 +19,8 @@ public class CommandContext<C extends CommandSender> {
 
     private final Map<String, Object> values = new HashMap<>();
 
-    public CommandContext(C sender, String label, String[] args) {
+    public CommandContext(Command<C> command, C sender, String label, String[] args) {
+        this.command = command;
         this.sender = sender;
         this.label = label;
         this.args = args;
@@ -47,5 +48,9 @@ public class CommandContext<C extends CommandSender> {
 
     public String label() {
         return this.label;
+    }
+
+    public Command<C> command() {
+        return this.command;
     }
 }

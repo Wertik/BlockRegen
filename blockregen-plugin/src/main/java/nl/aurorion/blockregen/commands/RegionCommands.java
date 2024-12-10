@@ -39,7 +39,8 @@ public class RegionCommands extends CommandSet {
                 .literal("region")
                 .literal("create", "set")
                 .required("region", "Name of the region to create.", ValueParser.stringParser(), null)
-                .permission("blockregen.region").senderPlayer()
+                .senderPlayer()
+                .permission("blockregen.region")
                 .handler(context -> {
                     Player player = context.sender();
 
@@ -116,7 +117,7 @@ public class RegionCommands extends CommandSet {
                 .required("region", "Region to remove the preset from.", this.regionParser, this.regionProvider)
                 .required("preset", "Name of the preset to add.", this.presetParser, (context, args) -> {
                     RegenerationArea region = context.get("region");
-                    return new ArrayList<>(region.getPresets());
+                    return region == null ? new ArrayList<>() : new ArrayList<>(region.getPresets());
                 })
                 .permission("blockregen.region")
                 .handler(context -> {

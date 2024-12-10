@@ -36,6 +36,13 @@ public class AdminCommands extends CommandSet {
     public void register() {
         manager.command("blockregen", "Help page.")
                 .handler(context -> {
+                    if (manager.getCommands().stream()
+                            .noneMatch(c -> (c.getPermission() == null || context.sender().hasPermission(c.getPermission())) && c != context.command())) {
+                        // todo: lang
+                        context.sender().sendMessage(StringUtil.color("&cNo commands for you."));
+                        return;
+                    }
+
                     context.sender().sendMessage(StringUtil.color(TextUtil.parse("&8&m        &r &3BlockRegen &f%version% &8&m        &r\n" +
                             manager.composeHelp(context.sender(), context.label()))));
                 });

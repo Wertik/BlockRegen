@@ -61,7 +61,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         return commands;
     }
 
-    public <C extends CommandSender> void runCommand(CommandSender sender, String label, String[] args) {
+    public <C extends CommandSender> void runCommand(C sender, String label, String[] args) {
         String[] parts = this.prepareCommand(label, args);
 
         List<Command<?>> commands = this.matchCommands(parts, false);
@@ -90,7 +90,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
         Command<C> command = (Command<C>) commands.get(0);
 
-        CommandContext<C> context = (CommandContext<C>) new CommandContext<>(sender, label, args);
+        CommandContext<C> context = new CommandContext<>(command, sender, label, args);
         command.call(context, parts);
     }
 
@@ -105,7 +105,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     public String composeHelp(CommandSender sender, String label, @NotNull List<Command<?>> commands) {
         StringBuilder builder = new StringBuilder();
         for (Command<? extends CommandSender> command : commands) {
-            if ((command.getPermission() == null || sender.hasPermission(command.getPermission()))) {
+            log.fine(command + " " + command.getPermission() + " " + (command.getPermission() != null ? sender.hasPermission(command.getPermission()) : null));
+            if (command.getPermission() == null || sender.hasPermission(command.getPermission())) {
                 builder.append("&3").append(command.syntax(label)).append(" &8- &7").append(command.getDescription()).append("&r\n");
             }
         }
@@ -170,7 +171,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         }
 
         // Fill context with processes arguments for use in providers
-        CommandContext<C> context = new CommandContext<>(sender, label, args);
+        CommandContext<C> context = new CommandContext<>(command, sender, label, args);
         command.process(context, parts, true);
 
         matched.put(command, context);
@@ -211,7 +212,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
             // Add value suggestions for value flags
             if (index > 1) {
-                String previous = parts[index];
+                String previous = parts[index - 1];
 
                 if (previous.startsWith("--") || previous.startsWith("-")) {
                     String name = previous.replace('-', ' ').trim();

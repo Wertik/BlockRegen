@@ -165,6 +165,16 @@ public class ParserTests {
         assertEquals(newSet("--num3"), new HashSet<>(suggestions));
     }
 
+    @Test
+    public void providesValueSuggestionsForFlags() {
+        String label = "test";
+        String[] args = new String[]{"math", "add", "1", "2", "--num3", ""};
+        CommandSender sender = new MockSender();
+        List<String> suggestions = manager.provideTabComplete(sender, label, args);
+        assert suggestions != null;
+        assertEquals(newSet("1", "2", "3"), new HashSet<>(suggestions));
+    }
+
     private static <T> Set<T> newSet(T... args) {
         return new HashSet<>(Arrays.asList(args));
     }

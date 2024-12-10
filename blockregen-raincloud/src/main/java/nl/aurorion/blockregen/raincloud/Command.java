@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.StringUtil;
 import nl.aurorion.blockregen.raincloud.argument.CommandArgument;
 import nl.aurorion.blockregen.raincloud.argument.LiteralCommandArgument;
 import nl.aurorion.blockregen.raincloud.argument.SuggestionProvider;
@@ -52,13 +53,14 @@ public class Command<C extends CommandSender> extends CommandComponent {
         this.arguments = new ArrayList<>();
     }
 
-    public Command(CommandComponent commandComponent, CommandManager manager, List<CommandArgument> arguments, List<CommandFlag> flags, CommandHandler<C> handler, ExceptionHandler<C, ParseException> parseExceptionHandler, TypeToken<C> senderType) {
-        super(commandComponent);
-        this.parseExceptionHandler = parseExceptionHandler;
+    public Command(CommandComponent component, CommandManager manager, List<CommandArgument> arguments, List<CommandFlag> flags, CommandHandler<C> handler, ExceptionHandler<C, ParseException> parseExceptionHandler, String permission, TypeToken<C> senderType) {
+        super(component);
         this.manager = manager;
         this.arguments = arguments;
-        this.handler = handler;
         this.flags = flags;
+        this.handler = handler;
+        this.parseExceptionHandler = parseExceptionHandler;
+        this.permission = permission;
         this.senderType = senderType;
     }
 
@@ -156,7 +158,11 @@ public class Command<C extends CommandSender> extends CommandComponent {
                 sender.sendMessage(this.manager.getLanguage().get(sender, "Insufficient-Permission"));
                 return;
             }
-            handler.handle(context);
+            try {
+                handler.handle(context);
+            } catch (Exception e) {
+                throw new RuntimeException("An exception occurred when handling command " + this + ": " + e.getMessage(), e);
+            }
         };
         this.manager.registerCommand(this);
     }
@@ -168,7 +174,14 @@ public class Command<C extends CommandSender> extends CommandComponent {
 
     @SuppressWarnings({"unchecked"})
     public Command<Player> senderPlayer() {
-        return new Command<>(this, this.manager, this.arguments, this.flags, (CommandHandler<Player>) this.handler, (ExceptionHandler<Player, ParseException>) parseExceptionHandler, TypeToken.of(Player.class));
+        return new Command<>(this,
+                this.manager,
+                this.arguments,
+                this.flags,
+                (CommandHandler<Player>) this.handler,
+                (ExceptionHandler<Player, ParseException>) parseExceptionHandler,
+                this.permission,
+                TypeToken.of(Player.class));
     }
 
     public Command<C> permission(@NotNull String permission) {
@@ -192,6 +205,10 @@ public class Command<C extends CommandSender> extends CommandComponent {
         while (partIt.hasNext()) {
             String part = partIt.next();
 
+            if (part.trim().isEmpty()) {
+                continue;
+            }
+
             if (part.startsWith("--") || part.startsWith("-")) {
                 String name = part.replace('-', ' ').trim();
 
@@ -212,6 +229,7 @@ public class Command<C extends CommandSender> extends CommandComponent {
             }
 
             if (this.getArguments().size() <= i) {
+                // too many arguments provided
                 return false;
             }
 
@@ -260,15 +278,16 @@ public class Command<C extends CommandSender> extends CommandComponent {
     }
 
     public void call(CommandContext<C> context, String[] parts) {
-        this.process(context, parts);
-        this.handler.handle(context);
+        if (this.process(context, parts)) {
+            this.handler.handle(context);
+        }
     }
 
-    public void process(CommandContext<C> context, String[] parts) {
-        process(context, parts, false);
+    public boolean process(CommandContext<C> context, String[] parts) {
+        return process(context, parts, false);
     }
 
-    public void process(CommandContext<C> context, String[] parts, boolean silent) {
+    public boolean process(CommandContext<C> context, String[] parts, boolean silent) {
         String[] args = Arrays.copyOfRange(parts, 1, parts.length);
 
         log.fine("Processing command " + this);
@@ -285,6 +304,10 @@ public class Command<C extends CommandSender> extends CommandComponent {
                 String part = it.next();
 
                 log.fine("Part " + part);
+
+                if (part.trim().isEmpty()) {
+                    continue;
+                }
 
                 if (part.startsWith("--") || part.startsWith("-")) {
                     String name = part.replace('-', ' ').trim();
@@ -304,7 +327,7 @@ public class Command<C extends CommandSender> extends CommandComponent {
                         log.fine("Switch flag " + commandSwitch);
                     } else if (flag == null) {
                         log.fine("Command " + this + " doesn't allow the flag " + name);
-                        return;
+                        return false;
                     }
 
                     // good
@@ -320,16 +343,21 @@ public class Command<C extends CommandSender> extends CommandComponent {
                 argument.process(context, part);
             } catch (ParseException e) {
                 if (silent) {
-                    return;
+                    log.fine("Ignoring parse exception: " + e.getMessage());
+                    return false;
                 }
+
+                log.fine("ParseException for command " + this + ": " + e.getMessage());
 
                 if (this.parseExceptionHandler != null) {
                     this.parseExceptionHandler.handle(context, new ParseException(Objects.requireNonNull(argument).getName(), e.getValue(), e.getMessage()));
+                } else {
+                    context.sender().sendMessage(StringUtil.color(e.getMessage()));
                 }
-                log.fine("ParseException for command " + this + ": " + e.getMessage());
-                return;
+                return false;
             }
         }
+        return true;
     }
 
     public List<CommandArgument> getArguments() {
