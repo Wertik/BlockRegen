@@ -172,7 +172,7 @@ public class RegenerationListener implements Listener {
 
         log.fine(() -> String.format("Handling %s.", LocationUtil.locationToString(block.getLocation())));
 
-        BlockPreset preset = plugin.getPresetManager().getPreset(block);
+        BlockPreset preset = plugin.getPresetManager().getPreset(block, region);
 
         boolean isConfigured = useRegions ? preset != null && region.hasPreset(preset.getName()) : preset != null;
 

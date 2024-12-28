@@ -11,6 +11,7 @@ import nl.aurorion.blockregen.system.preset.struct.PresetConditions;
 import nl.aurorion.blockregen.system.preset.struct.PresetRewards;
 import nl.aurorion.blockregen.system.preset.struct.material.DynamicMaterial;
 import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.system.region.struct.RegenerationRegion;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -49,7 +50,11 @@ public class PresetManager {
     }
 
     @Nullable
-    public BlockPreset getPreset(@NotNull Block block, @NotNull RegenerationRegion region) {
+    public BlockPreset getPreset(@NotNull Block block, @Nullable RegenerationArea region) {
+        if (region == null) {
+            return getPreset(block);
+        }
+
         for (BlockPreset preset : this.presets.values()) {
             if (preset.getTargetMaterial().check(preset, block) && region.hasPreset(preset.getName())) {
                 return preset;
