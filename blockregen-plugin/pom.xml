@@ -202,5 +202,6 @@
             <version>${project.dependencies.jobs.version}</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 </project>

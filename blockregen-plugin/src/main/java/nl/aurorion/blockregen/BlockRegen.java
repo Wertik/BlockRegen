@@ -19,10 +19,7 @@ import nl.aurorion.blockregen.providers.JobsProvider;
 import nl.aurorion.blockregen.system.GsonHelper;
 import nl.aurorion.blockregen.system.event.EventManager;
 import nl.aurorion.blockregen.system.material.MaterialManager;
-import nl.aurorion.blockregen.system.material.parser.ItemsAdderMaterialParser;
-import nl.aurorion.blockregen.system.material.parser.MMOItemsMaterialParser;
-import nl.aurorion.blockregen.system.material.parser.MinecraftMaterialParser;
-import nl.aurorion.blockregen.system.material.parser.OraxenMaterialParser;
+import nl.aurorion.blockregen.system.material.parser.*;
 import nl.aurorion.blockregen.system.preset.PresetManager;
 import nl.aurorion.blockregen.system.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.system.region.RegionManager;
@@ -304,6 +301,11 @@ public class BlockRegen extends JavaPlugin implements Listener {
 
         if (getServer().getPluginManager().isPluginEnabled("Oraxen")) {
             materialManager.registerParser("oraxen", new OraxenMaterialParser(this));
+            newDeps = true;
+        }
+
+        if (getServer().getPluginManager().isPluginEnabled("Nexo")) {
+            materialManager.registerParser("nexo", new NexoMaterialParser(this));
             newDeps = true;
         }
 
