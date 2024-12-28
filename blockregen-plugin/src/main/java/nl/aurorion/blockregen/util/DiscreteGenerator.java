@@ -15,7 +15,7 @@ public class DiscreteGenerator<T> {
         double sum = probabilityFunction.values().stream().mapToDouble(e -> e).sum();
         // Using a lower eps for comparison has no significant effect on the probability.
         if (Math.abs(sum - 1.0) > 1E-10) {
-            throw new IllegalArgumentException(String.format("Probability function must add to 1 (value: %.2f).", sum));
+            throw new IllegalArgumentException(String.format("Chance of supplied items has to be lower or equal to 100. (current value: %.2f)", sum * 100));
         }
         return new DiscreteGenerator<>(probabilityFunction);
     }

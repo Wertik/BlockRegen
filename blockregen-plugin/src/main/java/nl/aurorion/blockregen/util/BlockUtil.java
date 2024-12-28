@@ -39,6 +39,25 @@ public class BlockUtil {
         }
     }
 
+    public static boolean requiresFarmland(XMaterial material) {
+        switch (material) {
+            case CARROT:
+            case CARROTS:
+            case POTATO:
+            case POTATOES:
+            case PUMPKIN_SEEDS:
+            case WHEAT_SEEDS:
+            case WHEAT:
+            case MELON_SEEDS:
+            case BEETROOT_SEEDS:
+            case BEETROOTS:
+            case SUGAR_CANE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static boolean reliesOnBlockBelow(XMaterial material) {
         if (isMultiblockCrop(material)) {
             return true;

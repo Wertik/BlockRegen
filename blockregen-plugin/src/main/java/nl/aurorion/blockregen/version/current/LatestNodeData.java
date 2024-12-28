@@ -240,7 +240,12 @@ public class LatestNodeData implements NodeData {
         }
 
         if (blockData instanceof Ageable && this.age != null) {
-            ((Ageable) blockData).setAge(this.age);
+            Ageable ageable = (Ageable) blockData;
+            if (this.age > ageable.getMaximumAge()) {
+                ageable.setAge(ageable.getMaximumAge());
+            } else {
+                ageable.setAge(this.age);
+            }
         }
 
         if (blockData instanceof NoteBlock) {
