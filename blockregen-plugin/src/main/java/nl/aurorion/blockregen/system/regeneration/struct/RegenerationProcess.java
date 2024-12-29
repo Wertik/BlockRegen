@@ -108,7 +108,7 @@ public class RegenerationProcess {
             return false;
         }
 
-//        Bukkit.getScheduler().runTask(plugin, this::replaceBlock);
+        Bukkit.getScheduler().runTask(plugin, this::replaceBlock);
 
         replaceBlock();
 
@@ -275,11 +275,11 @@ public class RegenerationProcess {
         }
 
         this.replaceMaterial.place(block);
-        // this.originalData.place(block); // Apply original data
-        // replaceMaterial.applyData(block); // Apply configured data if any
+        this.originalData.place(block); // Apply original data
+        replaceMaterial.applyData(block); // Apply configured data if any
 
         // Otherwise skull textures wouldn't update.
-        // Bukkit.getScheduler().runTaskLater(BlockRegen.getInstance(), () -> block.getState().update(true), 1L);
+        Bukkit.getScheduler().runTaskLater(BlockRegen.getInstance(), () -> block.getState().update(true), 1L);
         log.fine(() -> "Replaced block for " + this);
     }
 
