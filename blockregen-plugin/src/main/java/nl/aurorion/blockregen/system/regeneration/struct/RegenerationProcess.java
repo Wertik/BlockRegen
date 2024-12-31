@@ -110,8 +110,6 @@ public class RegenerationProcess {
 
         Bukkit.getScheduler().runTask(plugin, this::replaceBlock);
 
-        replaceBlock();
-
         startTask();
         return true;
     }

@@ -4,7 +4,7 @@
 
     <groupId>nl.aurorion.blockregen</groupId>
     <artifactId>BlockRegen</artifactId>
-    <version>3.17.1</version>
+    <version>3.17.2-SNAPSHOT</version>
     <modules>
         <module>blockregen-version</module>
         <module>blockregen-common</module>
