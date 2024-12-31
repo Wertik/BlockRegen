@@ -95,12 +95,11 @@ public class AdminCommands extends CommandSet {
                                         "&6Wiki &7https://github.com/Wertik/BlockRegen/wiki&r\n")
                         .replaceAll("(?i)%version%", this.plugin.getDescription().getVersion())));
 
-
         manager.command("blockregen", "Turn on bypass.")
                 .literal("bypass")
-                .optional("player", "Player to target.", ValueParser.playerParser(), SuggestionProvider.playerNameProvider()).onParseException((context, exception) -> {
-                    context.sender().sendMessage(StringUtil.color("%prefix% &c" + exception.getMessage()));
-                })
+                .optional("player", "Player to target.",
+                        ValueParser.playerParser(),
+                        SuggestionProvider.playerNameProvider())
                 .permission("blockregen.bypass")
                 .senderPlayer()
                 .handler(context -> {
@@ -144,16 +143,24 @@ public class AdminCommands extends CommandSet {
                 });
 
         manager.command("blockregen", "Regenerate running processes.")
-                .literal("regen").flag("region", "Region filter.", ValueParser.stringParser(), this.regionProvider).flag("preset", "Preset filter.", ValueParser.stringParser(), (sender, args) -> Lists.newArrayList(plugin.getPresetManager().getPresets().keySet())).flag("world", "World filter.", ValueParser.stringParser(), (sender, args) -> Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()))
+                .literal("regen").flag("region", "Region filter.",
+                        ValueParser.stringParser(),
+                        this.regionProvider)
+                .flag("preset", "Preset filter.",
+                        ValueParser.stringParser(),
+                        (sender, args) -> Lists.newArrayList(plugin.getPresetManager().getPresets().keySet()))
+                .flag("world", "World filter.",
+                        ValueParser.stringParser(),
+                        (sender, args) -> Bukkit.getWorlds().stream()
+                                .map(World::getName)
+                                .collect(Collectors.toList()))
                 .permission("blockregen.regen")
                 .handler(context -> {
                     BlockPreset preset = null;
-                    String worldName = null;
+                    String worldName = context.get("world");
                     RegenerationArea region = null;
 
                     String presetName = context.get("preset");
-                    String regionName = context.get("region");
-
                     if (presetName != null) {
                         preset = plugin.getPresetManager().getPreset(presetName);
 
@@ -163,6 +170,7 @@ public class AdminCommands extends CommandSet {
                         }
                     }
 
+                    String regionName = context.get("region");
                     if (regionName != null) {
                         region = plugin.getRegionManager().getArea(regionName);
 
@@ -172,14 +180,12 @@ public class AdminCommands extends CommandSet {
                         }
                     }
 
-                    if (context.get("world") != null) {
-                        worldName = context.get("world");
-                    }
-
                     Set<RegenerationProcess> toRegen = new HashSet<>();
 
                     for (RegenerationProcess process : plugin.getRegenerationManager().getCache()) {
-                        if ((preset == null || preset.equals(process.getPreset())) && (region == null || region.getName().equalsIgnoreCase(process.getRegionName())) && (worldName == null || worldName.equalsIgnoreCase(process.getWorldName()))) {
+                        if ((preset == null || preset.equals(process.getPreset())) &&
+                                (region == null || region.getName().equalsIgnoreCase(process.getRegionName())) &&
+                                (worldName == null || worldName.equalsIgnoreCase(process.getWorldName()))) {
                             toRegen.add(process);
                         }
                     }

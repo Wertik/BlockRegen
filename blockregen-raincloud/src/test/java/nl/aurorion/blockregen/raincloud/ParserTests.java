@@ -85,39 +85,39 @@ public class ParserTests {
     @Test
     public void matchesSingleLiteralCommands() {
         String input = "test foo";
-        List<Command<?>> commands = manager.matchCommands(input.split(" "), false);
+        List<Command<?>> commands = manager.matchCommands(input.split(" "), false, false).stream().map(MatchResult::getCommand).collect(Collectors.toList());
         assertEquals(1, commands.size());
     }
 
     @Test
     public void matchesMultipleLiteralCommandsWithMissingParts() {
         String input = "test bar";
-        List<Command<?>> commands = manager.matchCommands(input.split(" "), true);
+        List<Command<?>> commands = manager.matchCommands(input.split(" "), true, true).stream().map(MatchResult::getCommand).collect(Collectors.toList());
         assertEquals(commands.size(), 2);
     }
 
     @Test
     public void matchesSingleCommandWithArguments() {
         String input = "test math add 1 2";
-        List<Command<?>> commands = manager.matchCommands(input.split(" "), false);
+        List<Command<?>> commands = manager.matchCommands(input.split(" "), false, false).stream().map(MatchResult::getCommand).collect(Collectors.toList());
         assertEquals(1, commands.size());
     }
 
     @Test
     public void matchesSingleCommandWithOptionalArguments() {
         String input = "test math sub 1 2";
-        List<Command<?>> commands = manager.matchCommands(input.split(" "), false);
+        List<Command<?>> commands = manager.matchCommands(input.split(" "), false, false).stream().map(MatchResult::getCommand).collect(Collectors.toList());
         assertEquals(1, commands.size());
 
         input = "test math sub 1 2 3";
-        commands = manager.matchCommands(input.split(" "), false);
+        commands = manager.matchCommands(input.split(" "), false, false).stream().map(MatchResult::getCommand).collect(Collectors.toList());
         assertEquals(1, commands.size());
     }
 
     @Test
     public void matchesMultipleCommandsWithArguments() {
         String input = "test math";
-        List<Command<?>> commands = manager.matchCommands(input.split(" "), true);
+        List<Command<?>> commands = manager.matchCommands(input.split(" "), true, true).stream().map(MatchResult::getCommand).collect(Collectors.toList());
         assertEquals(commands.size(), 2);
     }
 

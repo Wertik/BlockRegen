@@ -55,30 +55,70 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         return parts;
     }
 
-    public List<Command<?>> matchCommands(String[] parts, boolean allowMissing) {
-        List<Command<?>> commands = new ArrayList<>(this.commands);
-        commands.removeIf(command -> !command.check(parts, allowMissing));
-        return commands;
+    // return commands sorted by longest match
+    // and filtered to only successful matches
+    public List<MatchResult> matchCommands(String[] parts, boolean allowIncompleteArguments, boolean allowMissingArguments) {
+        return this.commands.stream()
+                .map(c -> c.check(parts, allowIncompleteArguments, allowMissingArguments))
+                .filter(c -> c.getResult().isSuccessful())
+                .sorted(Comparator.comparingInt(MatchResult::getLength).reversed())
+                .collect(Collectors.toList());
+    }
+
+    public List<MatchResult> tryCommands(String[] parts, boolean allowIncompleteArguments, boolean allowMissingArguments) {
+        return this.commands.stream()
+                .map(c -> c.check(parts, allowIncompleteArguments, allowMissingArguments))
+                .sorted(Comparator.comparingInt(MatchResult::getLength).reversed())
+                .collect(Collectors.toList());
     }
 
     public <C extends CommandSender> void runCommand(C sender, String label, String[] args) {
         String[] parts = this.prepareCommand(label, args);
 
-        List<Command<?>> commands = this.matchCommands(parts, false);
-
+        List<MatchResult> commands = this.matchCommands(parts, false, false);
+        // There are none that matched completely
         if (commands.isEmpty()) {
-            List<Command<?>> suggestions = this.matchCommands(parts, true);
+            List<MatchResult> suggestions = this.tryCommands(parts, true, false);
 
             if (suggestions.isEmpty()) {
                 return;
             }
 
-            if (suggestions.size() == 1) {
-                sender.sendMessage(StringUtil.color(this.specificHelp(suggestions.get(0))));
+            // Get the longest matched chain.
+            // If there are more commands with same length, return help page consisting of them.
+
+            MatchResult result = suggestions.get(0);
+
+            int length = result.getLength();
+
+            List<MatchResult> sameLen = suggestions.stream()
+                    .filter(s -> s.getLength() == length)
+                    .collect(Collectors.toList());
+
+            log.fine(() -> sameLen.stream()
+                    .map(r -> r.getCommand().toString())
+                    .collect(Collectors.joining()));
+
+            // Only one result with the most length
+            if (sameLen.size() == 1) {
+                switch (result.getResult()) {
+                    case INVALID_ARGUMENT:
+                    case INVALID_FLAG:
+                        sender.sendMessage(StringUtil.color(this.specificHelp(result.getCommand())));
+                        break;
+                    case TOO_MANY_ARGS:
+                        sender.sendMessage("Too many args!");
+                        break;
+                    case NOT_ENOUGH_ARGS:
+                        sender.sendMessage("Not enough args!");
+                        break;
+                }
                 return;
             }
 
-            sender.sendMessage(StringUtil.color(this.composeHelp(sender, label, suggestions)));
+            sender.sendMessage(StringUtil.color(this.composeHelp(sender, label, sameLen.stream()
+                    .map(MatchResult::getCommand)
+                    .collect(Collectors.toList()))));
             return;
         }
 
@@ -88,7 +128,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             return;
         }
 
-        Command<C> command = (Command<C>) commands.get(0);
+        Command<C> command = (Command<C>) commands.get(0).getCommand();
 
         CommandContext<C> context = new CommandContext<>(command, sender, label, args);
         command.call(context, parts);
@@ -166,7 +206,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (!command.check(parts, true)) {
+        if (!command.check(parts, true, true).getResult().isSuccessful()) {
             return;
         }
 

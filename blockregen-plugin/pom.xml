@@ -111,6 +111,12 @@
         <!-- Modules -->
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
+            <artifactId>blockregen-raincloud</artifactId>
+            <version>3.18.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-common</artifactId>
             <version>3.17.2</version>
             <scope>compile</scope>
@@ -202,6 +208,5 @@
             <version>${project.dependencies.jobs.version}</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 </project>

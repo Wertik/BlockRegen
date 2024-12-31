@@ -189,11 +189,7 @@ public class Command<C extends CommandSender> extends CommandComponent {
         return this;
     }
 
-    public boolean check(String[] parts) {
-        return check(parts, false);
-    }
-
-    public boolean check(String[] parts, boolean allowIncomplete) {
+    public MatchResult check(String[] parts, boolean allowIncompleteArguments, boolean allowMissingArguments) {
         String[] args = Arrays.copyOfRange(parts, 1, parts.length);
 
         // Argument index
@@ -216,7 +212,8 @@ public class Command<C extends CommandSender> extends CommandComponent {
 
                 if (flag == null) {
                     // Doesn't have the flag.
-                    return false;
+                    log.fine(() -> this + " Invalid flag.");
+                    return new MatchResult(this, i, ParseResult.INVALID_FLAG);
                 }
 
                 // flags with values have to skip the next part
@@ -230,27 +227,31 @@ public class Command<C extends CommandSender> extends CommandComponent {
 
             if (this.getArguments().size() <= i) {
                 // too many arguments provided
-                return false;
+                log.fine(() -> this + " too many arguments.");
+                return new MatchResult(this, i, ParseResult.TOO_MANY_ARGS);
             }
 
             // Check next argument
             CommandArgument argument = this.getArguments().get(i);
-            i++;
 
-            if (!argument.check(part, allowIncomplete)) {
-                return false;
+            // The literal argument does not match.
+            if (!argument.check(part, allowIncompleteArguments)) {
+                log.fine(() -> this + " invalid argument.");
+                return new MatchResult(this, i, ParseResult.INVALID_ARGUMENT);
             }
+
+            i++;
         }
 
         log.fine(i + " < " + (arguments.size() - arguments.stream().filter(CommandArgument::isOptional).count()));
 
-        if (!allowIncomplete && i < arguments.size() - arguments.stream().filter(CommandArgument::isOptional).count()) {
+        if (!allowMissingArguments && i < arguments.size() - arguments.stream().filter(CommandArgument::isOptional).count()) {
             log.fine("Not enough arguments for command " + this);
-            return false;
+            return new MatchResult(this, i, ParseResult.NOT_ENOUGH_ARGS);
         }
 
         log.fine("Command " + this + " matches " + String.join(" ", parts));
-        return true;
+        return new MatchResult(this, i, ParseResult.SUCCESS);
     }
 
     public String syntax() {
