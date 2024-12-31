@@ -29,10 +29,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -88,9 +85,9 @@ public class RegenerationListener implements Listener {
     }
 
     // Block trampling
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.PHYSICAL) {
+        if (event.getAction() != Action.PHYSICAL || event.useInteractedBlock() == Event.Result.DENY) {
             return;
         }
 
