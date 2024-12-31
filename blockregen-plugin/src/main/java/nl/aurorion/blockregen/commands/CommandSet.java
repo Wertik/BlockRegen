@@ -39,7 +39,7 @@ public abstract class CommandSet {
             BlockPreset preset = this.plugin.getPresetManager().getPreset(input);
 
             if (preset == null) {
-                throw new ParseException(null, input, Message.INVALID_PRESET.get().replace("%preset%", input));
+                throw new ParseException(null, input, Message.INVALID_PRESET.get().placeholder("%preset%", input));
             }
 
             return preset;

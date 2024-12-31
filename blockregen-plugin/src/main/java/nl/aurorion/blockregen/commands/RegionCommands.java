@@ -8,7 +8,6 @@ import nl.aurorion.blockregen.raincloud.CommandManager;
 import nl.aurorion.blockregen.raincloud.ValueParser;
 import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import nl.aurorion.blockregen.system.region.struct.RegenerationArea;
-import nl.aurorion.blockregen.system.region.struct.RegenerationRegion;
 import nl.aurorion.blockregen.system.region.struct.RegionSelection;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -43,7 +42,6 @@ public class RegionCommands extends CommandSet {
                 .permission("blockregen.region")
                 .handler(context -> {
                     Player player = context.sender();
-
                     String name = context.get("name");
 
                     if (plugin.getRegionManager().exists(name)) {
@@ -64,11 +62,14 @@ public class RegionCommands extends CommandSet {
                     }
 
                     if (!plugin.getRegionManager().finishSelection(name, selection)) {
-                        player.sendMessage(Message.COULD_NOT_CREATE_REGION.get(player));
+                        Message.COULD_NOT_CREATE_REGION.send(player);
                         return;
                     }
 
-                    player.sendMessage(StringUtil.color(Message.SET_REGION.get(player).replace("%region%", name)));
+                    Message.SET_REGION.get()
+                            .player(player)
+                            .placeholder("region", name)
+                            .send(player);
                 });
 
         manager.command("blockregen", "Delete a region.")
@@ -89,7 +90,7 @@ public class RegionCommands extends CommandSet {
                 .permission("blockregen.region")
                 .handler(context -> {
                     RegenerationArea region = context.get("region");
-                    context.sender().sendMessage(StringUtil.color(String.format(Message.SET_ALL.get(), region.switchAll() ? "&aall" : "&cnot all")));
+                    context.sender().sendMessage(StringUtil.color(String.format(Message.SET_ALL.raw(), region.switchAll() ? "&aall" : "&cnot all")));
                 });
 
         manager.command("blockregen", "Add preset to region.")
@@ -103,12 +104,12 @@ public class RegionCommands extends CommandSet {
                     BlockPreset preset = context.get("preset");
 
                     if (region.hasPreset(preset.getName())) {
-                        context.sender().sendMessage(Message.HAS_PRESET_ALREADY.get().replace("%region%", region.getName()).replace("%preset%", preset.getName()));
+                        context.sender().sendMessage(Message.HAS_PRESET_ALREADY.get().placeholder("%region%", region.getName()).placeholder("%preset%", preset.getName()));
                         return;
                     }
 
                     region.addPreset(preset.getName());
-                    context.sender().sendMessage(Message.PRESET_ADDED.get().replace("%preset%", preset.getName()).replace("%region%", region.getName()));
+                    context.sender().sendMessage(Message.PRESET_ADDED.get().placeholder("%preset%", preset.getName()).placeholder("%region%", region.getName()));
                 });
 
         manager.command("blockregen", "Remove preset to region.")
@@ -125,12 +126,12 @@ public class RegionCommands extends CommandSet {
                     BlockPreset preset = context.get("preset");
 
                     if (!region.hasPreset(preset.getName())) {
-                        context.sender().sendMessage(Message.DOES_NOT_HAVE_PRESET.get().replace("%region%", region.getName()).replace("%preset%", preset.getName()));
+                        context.sender().sendMessage(Message.DOES_NOT_HAVE_PRESET.get().placeholder("%region%", region.getName()).placeholder("%preset%", preset.getName()));
                         return;
                     }
 
                     region.removePreset(preset.getName());
-                    context.sender().sendMessage(Message.PRESET_REMOVED.get().replace("%preset%", preset.getName()).replace("%region%", region.getName()));
+                    context.sender().sendMessage(Message.PRESET_REMOVED.get().placeholder("%preset%", preset.getName()).placeholder("%region%", region.getName()));
                 });
 
         manager.command("blockregen", "Region to clear presets from.")
@@ -141,33 +142,35 @@ public class RegionCommands extends CommandSet {
                 .handler(context -> {
                     RegenerationArea region = context.get("region");
                     region.clearPresets();
-                    context.sender().sendMessage(Message.PRESETS_CLEARED.get().replace("%region%", region.getName()));
+                    context.sender().sendMessage(Message.PRESETS_CLEARED.get().placeholder("%region%", region.getName()));
                 });
 
         manager.command("blockregen", "Copy preset settings from one region to another.")
                 .literal("region")
                 .literal("copy")
                 .required("from", "Region to copy presets from.", this.regionParser, this.regionProvider)
-                .required("to", "Region to copy presets to.", this.regionParser, (context, args) -> Lists.newArrayList(plugin.getRegionManager().getLoadedAreas().stream().map(RegenerationArea::getName).filter(r -> {
-                    RegenerationRegion from = context.get("from");
-                    return !Objects.equals(r, from.getName());
-                }).collect(Collectors.toSet())))
+                .required("to", "Region to copy presets to.", this.regionParser,
+                        (context, args) -> Lists.newArrayList(plugin.getRegionManager().getLoadedAreas().stream()
+                                .map(RegenerationArea::getName)
+                                .filter(r -> {
+                                    RegenerationArea from = context.get("from");
+                                    return from == null || !Objects.equals(r, from.getName());
+                                }).collect(Collectors.toSet())))
                 .permission("blockregen.region")
                 .handler(context -> {
-                    RegenerationRegion from = context.get("from");
-                    RegenerationRegion to = context.get("to");
+                    RegenerationArea from = context.get("from");
+                    RegenerationArea to = context.get("to");
 
                     to.clearPresets();
 
                     from.getPresets().forEach(to::addPreset);
-                    context.sender().sendMessage(Message.PRESETS_COPIED.get().replace("%regionFrom%", from.getName()).replace("%regionTo%", to.getName()));
+                    context.sender().sendMessage(Message.PRESETS_COPIED.get().placeholder("%regionFrom%", from.getName()).placeholder("%regionTo%", to.getName()));
                 });
     }
 
     private void listRegions(CommandSender sender) {
         StringBuilder message = new StringBuilder("&8&m    &3 BlockRegen Regions &8&m    &r\n");
         for (RegenerationArea area : plugin.getRegionManager().getLoadedAreas()) {
-
             message.append(String.format("&8  - &f%s", area.getName()));
 
             if (area.isAll()) {

@@ -37,7 +37,7 @@ public class EventCommands extends CommandSet {
                     }
 
                     plugin.getEventManager().enableEvent(event);
-                    context.sender().sendMessage(StringUtil.color(Message.ACTIVATE_EVENT.get().replace("%event%", event.getDisplayName())));
+                    context.sender().sendMessage(StringUtil.color(Message.ACTIVATE_EVENT.get().placeholder("%event%", event.getDisplayName())));
                 });
 
         manager.command("blockregen", "Deactivate an event.")
@@ -61,7 +61,7 @@ public class EventCommands extends CommandSet {
                     }
 
                     plugin.getEventManager().disableEvent(event);
-                    context.sender().sendMessage(StringUtil.color(Message.DEACTIVATE_EVENT.get().replace("%event%", event.getDisplayName())));
+                    context.sender().sendMessage(StringUtil.color(Message.DEACTIVATE_EVENT.get().placeholder("%event%", event.getDisplayName())));
                 });
     }
 }

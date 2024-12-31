@@ -105,6 +105,9 @@ public class BlockRegen extends JavaPlugin implements Listener {
 
     private final RaincloudCommands commands = new RaincloudCommands(this);
 
+    @Getter
+    private final LanguageManager languageManager = new LanguageManager(this);
+
     private static Logger getParentLogger() {
         return Logger.getLogger(PACKAGE_NAME);
     }
@@ -184,6 +187,7 @@ public class BlockRegen extends JavaPlugin implements Listener {
         materialManager = new MaterialManager(this);
 
         Message.load();
+        languageManager.load();
 
         materialManager.registerParser(null, new MinecraftMaterialParser(this));
         materialManager.registerParser("minecraft", new MinecraftMaterialParser(this));

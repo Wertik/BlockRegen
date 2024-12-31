@@ -192,7 +192,7 @@ public class AdminCommands extends CommandSet {
 
                     toRegen.forEach(RegenerationProcess::regenerate);
 
-                    context.sender().sendMessage(Message.REGENERATED_PROCESSES.get().replace("%count%", String.valueOf(toRegen.size())));
+                    context.sender().sendMessage(Message.REGENERATED_PROCESSES.get().placeholder("%count%", String.valueOf(toRegen.size())));
                 });
 
         manager.command("blockregen", "List available events.")

@@ -1,2 +1,66 @@
 # BlockRegen Language File, Developer(s): Aurorion & Wertik1206, Version: ${project.version}
 Insert-Prefix: true
+
+Messages:
+  Prefix: '&6[&3BlockRegen&6] &r'
+  Update: |2-
+
+    &7A new update was found!
+    &7Current version: &c%version%
+    &7New version: &a%newVersion%
+  Insufficient-Permission: '&cYou don''t have the permissions to do this!'
+  Console-Sender-Error: '&cI''m sorry but the console can not perform this command!'
+  Invalid-Command: '&cThis is not a valid command!'
+  Too-Many-Arguments: |-
+    &cToo many arguments.
+    &7Use: &f%help%
+  Not-Enough-Arguments: |-
+    &cNot enough arguments.
+    &7Use: &f%help%
+  Argument-Not-A-Number: '&cArgument %arg% has to be a number. &7(provided: %value%).'
+  Reload: '&aSuccessfully reloaded Settings.yml, Messages.yml, Blocklist.yml & re-filled
+    the events!'
+  Tools: '&7Gave you the tools.'
+  Unknown-Argument: '&cUnknown argument.'
+  Bypass-On: '&aBypass toggled on!'
+  Bypass-Off: '&cBypass toggled off!'
+  Debug-On: '&aYou are now listening to debug messages.'
+  Debug-Off: '&cYou are no longer listening to debug messages.'
+  Data-Check: '&eThe correct name to enter in the config is: &d%block%'
+  Data-Check-Node-Data: '&eWith exact block data: &d%data%'
+  Data-Check-On: '&aEntered Data-Check mode!'
+  Data-Check-Off: '&cLeft Data-Check mode!'
+  No-Region-Selected: '&cSelect a region with WorldEdit first.'
+  Duplicated-Region: '&cThere is already a region with that name!'
+  Duplicated-World-Region: '&cThere is already a region for this world!'
+  Set-Region: '&7Region &f%region% &7successfully saved!'
+  Set-World-Region: '&7Region &f%region% &7created for world &3%world%&7!'
+  Region-Priority-Changed: '&7Changed priority for region &f%region% &7to &f%priority%.'
+  Remove-Region: '&aRegion successfully deleted!'
+  Unknown-Region: '&cThere is no region with that name!'
+  Could-Not-Create-Region: '&cCould not created a region.'
+  Select-First: '&7Set first position to &f%x%, %y%, %z%.'
+  Select-Second: '&7Set second position to &f%x%, %y%, %z%.'
+  Set-All: '&7Region set to %s &7presets.'
+  Invalid-Preset: '&cPreset %preset% does not exist.'
+  Has-Preset-Already: '&7Region &f%region% &7has preset &f%preset% &7already.'
+  Does-Not-Have-Preset: '&7Region &f%region% &7does not have preset &f%preset%.'
+  Preset-Added: '&7Added preset &f%preset% &7to region &f%region%.'
+  Preset-Removed: '&7Removed preset &f%preset% &7from region &f%region%.'
+  Presets-Cleared: '&7Presets cleared from region &f%region%.'
+  Presets-Copied: '&7Copied presets from &f%regionFrom% &7to &f%regionTo%.'
+  Regenerated-Processes: '&7Regenerated &f%count% &7process(es).'
+  Activate-Event: '&aYou activated the event: &2%event%'
+  De-Activate-Event: '&cYou de-activated the event: &4%event%'
+  Event-Not-Found: '&cThis event is not found in the system. Reminder: event names
+    are case sensitive!'
+  Event-Already-Active: '&cThis event is already active!'
+  Event-Not-Active: '&cThis event is currently not active!'
+  Tool-Required-Error: '&cYou can only break this block with the following tool(s):
+    &b%tool%&c.'
+  Enchant-Required-Error: '&cYour tool has to have at least one of the following enchantment(s):
+    &b%enchant%&c.'
+  Jobs-Error: '&cYou need to reach following job levels in order to break this block:
+    &b%job%'
+  Permission-Error: '&cYou don''t have the permission to break this block.'
+  Permission-Region-Error: '&cYou don''t have the permission to break in this region.'

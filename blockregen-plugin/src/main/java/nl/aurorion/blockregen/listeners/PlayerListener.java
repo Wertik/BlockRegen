@@ -55,17 +55,17 @@ public class PlayerListener implements Listener {
                 selection.setFirst(event.getClickedBlock().getLocation());
 
                 player.sendMessage(Message.SELECT_FIRST.get(player)
-                        .replace("%x%", String.format("%.0f", selection.getFirst().getX()))
-                        .replace("%y%", String.format("%.0f", selection.getFirst().getY()))
-                        .replace("%z%", String.format("%.0f", selection.getFirst().getZ())));
+                        .placeholder("%x%", String.format("%.0f", selection.getFirst().getX()))
+                        .placeholder("%y%", String.format("%.0f", selection.getFirst().getY()))
+                        .placeholder("%z%", String.format("%.0f", selection.getFirst().getZ())));
             } else {
                 // Selecting second.
                 selection.setSecond(event.getClickedBlock().getLocation());
 
                 player.sendMessage(Message.SELECT_SECOND.get(player)
-                        .replace("%x%", String.format("%.0f", selection.getSecond().getX()))
-                        .replace("%y%", String.format("%.0f", selection.getSecond().getY()))
-                        .replace("%z%", String.format("%.0f", selection.getSecond().getZ())));
+                        .placeholder("%x%", String.format("%.0f", selection.getSecond().getX()))
+                        .placeholder("%y%", String.format("%.0f", selection.getSecond().getY()))
+                        .placeholder("%z%", String.format("%.0f", selection.getSecond().getZ())));
             }
 
             event.setCancelled(true);
@@ -97,31 +97,31 @@ public class PlayerListener implements Listener {
 
                 if (region.hasPreset(preset.getName())) {
                     player.sendMessage(Message.HAS_PRESET_ALREADY.get(player)
-                            .replace("%region%", region.getName())
-                            .replace("%preset%", preset.getName()));
+                            .placeholder("%region%", region.getName())
+                            .placeholder("%preset%", preset.getName()));
                     return;
                 }
 
                 region.addPreset(preset.getName());
 
                 player.sendMessage(Message.PRESET_ADDED.get(player)
-                        .replace("%region%", region.getName())
-                        .replace("%preset%", preset.getName()));
+                        .placeholder("%region%", region.getName())
+                        .placeholder("%preset%", preset.getName()));
             } else {
                 // Remove a block
 
                 if (!region.hasPreset(preset.getName())) {
                     player.sendMessage(Message.DOES_NOT_HAVE_PRESET.get(player)
-                            .replace("%region%", region.getName())
-                            .replace("%preset%", preset.getName()));
+                            .placeholder("%region%", region.getName())
+                            .placeholder("%preset%", preset.getName()));
                     return;
                 }
 
                 region.removePreset(preset.getName());
 
                 player.sendMessage(Message.PRESET_REMOVED.get(player)
-                        .replace("%region%", region.getName())
-                        .replace("%preset%", preset.getName()));
+                        .placeholder("%region%", region.getName())
+                        .placeholder("%preset%", preset.getName()));
             }
 
             return;
@@ -137,9 +137,9 @@ public class PlayerListener implements Listener {
             NodeData data = plugin.getVersionManager().createNodeData();
             data.load(event.getClickedBlock());
 
-            player.sendMessage(Message.DATA_CHECK.get(player).replace("%block%", material == null ? "Unsupported material" : material.name()));
+            player.sendMessage(Message.DATA_CHECK.get(player).placeholder("%block%", material == null ? "Unsupported material" : material.name()));
             if (!data.isEmpty()) {
-                player.sendMessage(Message.DATA_CHECK_NODE_DATA.get(player).replace("%data%", String.format("%s%s", material == null ? "Unsupported material" : material.name(), data.getPrettyString())));
+                player.sendMessage(Message.DATA_CHECK_NODE_DATA.get(player).placeholder("%data%", String.format("%s%s", material == null ? "Unsupported material" : material.name(), data.getPrettyString())));
             }
         }
     }
