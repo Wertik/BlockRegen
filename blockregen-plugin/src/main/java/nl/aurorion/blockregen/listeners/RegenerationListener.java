@@ -54,6 +54,12 @@ public class RegenerationListener implements Listener {
         this.plugin = plugin;
     }
 
+    // Type of the event being handled.
+    enum EventType {
+        BLOCK_BREAK,
+        TRAMPLING
+    }
+
     @EventHandler
     public void onPhysics(BlockPhysicsEvent event) {
         if (plugin.getConfig().isSet("Disable-Physics") && !plugin.getConfig().getBoolean("Disable-Physics", false)) {
@@ -106,7 +112,7 @@ public class RegenerationListener implements Listener {
         Player player = event.getPlayer();
         Block cropBlock = block.getRelative(BlockFace.UP);
 
-        handleEvent(cropBlock, player, event);
+        handleEvent(cropBlock, player, event, EventType.TRAMPLING);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -114,10 +120,10 @@ public class RegenerationListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
-        handleEvent(block, player, event);
+        handleEvent(block, player, event, EventType.BLOCK_BREAK);
     }
 
-    public <E extends Cancellable> void handleEvent(Block block, Player player, E event) {
+    private <E extends Cancellable> void handleEvent(Block block, Player player, E event, EventType type) {
         // Check if the block is regenerating already
         RegenerationProcess existingProcess = plugin.getRegenerationManager().getProcess(block);
         if (existingProcess != null) {
@@ -149,7 +155,7 @@ public class RegenerationListener implements Listener {
         }
 
         // If the block is protected, do nothing.
-        if (checkProtection(player, block)) {
+        if (checkProtection(player, block, type)) {
             return;
         }
 
@@ -286,7 +292,8 @@ public class RegenerationListener implements Listener {
 
     // Check for supported protection plugins' regions and settings.
     // If any of them are protecting this block, allow them to handle this and do nothing.
-    private boolean checkProtection(Player player, Block block) {
+    // We do this just in case some protection plugins fire after us and the event wouldn't be cancelled.
+    private boolean checkProtection(Player player, Block block, EventType type) {
         // Towny
         if (plugin.getConfig().getBoolean("Towny-Support", true) &&
                 plugin.getServer().getPluginManager().getPlugin("Towny") != null) {
@@ -313,9 +320,16 @@ public class RegenerationListener implements Listener {
         if (plugin.getConfig().getBoolean("WorldGuard-Support", true)
                 && plugin.getVersionManager().getWorldGuardProvider() != null) {
 
-            if (!plugin.getVersionManager().getWorldGuardProvider().canBreak(player, block.getLocation())) {
-                log.fine(() -> "Let WorldGuard handle this.");
-                return true;
+            if (type == EventType.BLOCK_BREAK) {
+                if (!plugin.getVersionManager().getWorldGuardProvider().canBreak(player, block.getLocation())) {
+                    log.fine(() -> "Let WorldGuard handle block break.");
+                    return true;
+                }
+            } else if (type == EventType.TRAMPLING) {
+                if (!plugin.getVersionManager().getWorldGuardProvider().canTrample(player, block.getLocation())) {
+                    log.fine(() -> "Let WorldGuard handle trampling.");
+                    return true;
+                }
             }
         }
 
@@ -326,11 +340,19 @@ public class RegenerationListener implements Listener {
             if (residence != null) {
                 ResidencePermissions permissions = residence.getPermissions();
 
-                // has neither build nor destroy
-                // let residence run its protection
-                if (!permissions.playerHas(player, Flags.destroy, true) && !permissions.playerHas(player, Flags.build, true)) {
-                    log.fine(() -> "Let Residence handle this.");
-                    return true;
+                if (type == EventType.BLOCK_BREAK) {
+                    // has neither build nor destroy
+                    // let residence run its protection
+                    if (!permissions.playerHas(player, Flags.destroy, true) &&
+                            !permissions.playerHas(player, Flags.build, true)) {
+                        log.fine(() -> "Let Residence handle block break.");
+                        return true;
+                    }
+                } else if (type == EventType.TRAMPLING) {
+                    if (!permissions.playerHas(player, Flags.trample, true)) {
+                        log.fine(() -> "Let Residence handle trample.");
+                        return true;
+                    }
                 }
             }
         }

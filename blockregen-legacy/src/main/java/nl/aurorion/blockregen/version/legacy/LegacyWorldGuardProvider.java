@@ -20,4 +20,10 @@ public class LegacyWorldGuardProvider implements WorldGuardProvider {
         ProtectionQuery protectionQuery = worldGuard.createProtectionQuery();
         return protectionQuery.testBlockBreak(player, location.getBlock());
     }
+
+    @Override
+    public boolean canTrample(@NotNull Player player, @NotNull Location location) {
+        // No block-trampling flag on this version of WG. Simply respect block break.
+        return this.canBreak(player, location);
+    }
 }
