@@ -76,7 +76,7 @@ public class LatestNodeData implements NodeData {
 
         if (this.skull != null && block.getState() instanceof Skull) {
             try {
-                String profileString = XSkull.of(block).getProfileString();
+                String profileString = XSkull.of(block).getDelegateProfile().getProfileValue();
 
                 if (profileString != null && !profileString.equals(this.skull)) {
                     return false;
@@ -168,7 +168,7 @@ public class LatestNodeData implements NodeData {
         BlockData data = block.getBlockData();
 
         if (block.getState() instanceof Skull) {
-            this.skull = XSkull.of(block).getProfileString();
+            this.skull = XSkull.of(block).getDelegateProfile().getProfileValue();
         }
 
         if (data instanceof Directional) {

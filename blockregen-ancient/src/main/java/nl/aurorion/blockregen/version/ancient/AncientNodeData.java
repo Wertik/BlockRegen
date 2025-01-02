@@ -43,7 +43,7 @@ public class AncientNodeData implements NodeData {
 
         if (this.skull != null) {
             try {
-                String profileString = XSkull.of(block).getProfileString();
+                String profileString = XSkull.of(block).getDelegateProfile().getProfileValue();
 
                 if (profileString != null && !profileString.equals(this.skull)) {
                     return false;
@@ -94,7 +94,7 @@ public class AncientNodeData implements NodeData {
         MaterialData data = block.getState().getData();
 
         try {
-            this.skull = XSkull.of(block).getProfileString();
+            this.skull = XSkull.of(block).getDelegateProfile().getProfileValue();
         } catch (InvalidProfileContainerException e) {
             // not a skull
         }
