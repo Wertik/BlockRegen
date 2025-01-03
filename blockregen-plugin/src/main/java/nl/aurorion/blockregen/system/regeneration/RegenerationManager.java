@@ -98,7 +98,7 @@ public class RegenerationManager {
         Objects.requireNonNull(process);
 
         if (this.getProcess(process.getBlock()) != null) {
-            log.fine(() -> String.format("Cache already contains process for location %s", process.getLocation()));
+            log.fine(() -> String.format("Cache already contains process %s", process.getId()));
             return;
         }
 
@@ -166,7 +166,7 @@ public class RegenerationManager {
     private void purgeExpired() {
         // Clear invalid processes
         for (RegenerationProcess process : new HashSet<>(cache)) {
-            if (process.getTimeLeft() < 0) {
+            if (process.getTimeLeft() < 0 && process.shouldRegenerate()) {
                 if (Bukkit.isPrimaryThread()) {
                     process.regenerateBlock();
                 } else {

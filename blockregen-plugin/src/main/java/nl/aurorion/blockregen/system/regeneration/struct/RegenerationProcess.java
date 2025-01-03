@@ -1,6 +1,5 @@
 package nl.aurorion.blockregen.system.regeneration.struct;
 
-import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.Data;
 import lombok.Getter;
@@ -90,28 +89,39 @@ public class RegenerationProcess {
 
         // Register that the process is actually running now
         // #start() can be called even on a process already in cache due to #contains() checks (which use #equals()) in RegenerationManager.
-        // Two processes with the same location cannot be added.
         plugin.getRegenerationManager().registerProcess(this);
 
-        // If timeLeft is -1, generate a new one from preset regen delay.
-        if (timeLeft == -1) {
-            int regenDelay = preset.getDelay().getInt();
-            this.timeLeft = regenDelay * 1000L;
-        }
+        if (shouldRegenerate()) {
+            // If timeLeft is -1, generate a new one from preset regen delay.
+            if (timeLeft == -1) {
+                int regenDelay = preset.getDelay().getInt();
+                this.timeLeft = regenDelay * 1000L;
+            }
 
-        this.regenerationTime = System.currentTimeMillis() + timeLeft;
+            this.regenerationTime = System.currentTimeMillis() + timeLeft;
 
-        // No need to start a task when it's time to regenerate already.
-        if (timeLeft == 0 || regenerationTime <= System.currentTimeMillis()) {
-            Bukkit.getScheduler().runTask(plugin, this::regenerate);
-            log.fine(() -> "Regenerated the process upon start.");
-            return false;
+            // No need to start a task when it's time to regenerate already.
+            if (timeLeft == 0 || regenerationTime <= System.currentTimeMillis()) {
+                Bukkit.getScheduler().runTask(plugin, this::regenerate);
+                log.fine(() -> "Regenerated the process upon start.");
+                return false;
+            }
         }
 
         Bukkit.getScheduler().runTask(plugin, this::replaceBlock);
 
+        // No regeneration will be happening. Don't start the task.
+        if (!shouldRegenerate()) {
+            return true;
+        }
+
         startTask();
         return true;
+    }
+
+    // <0 => don't regenerate. wait for manual regeneration.
+    public boolean shouldRegenerate() {
+        return !(preset.getDelay().isFixed() && preset.getDelay().getFixedValue() < 0);
     }
 
     private void startTask() {
@@ -194,7 +204,6 @@ public class RegenerationProcess {
             }
         });
 
-        // Null the task
         this.task = null;
     }
 
@@ -215,7 +224,7 @@ public class RegenerationProcess {
             XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
 
             if (underType != XMaterial.FARMLAND) {
-                under.setType(Objects.requireNonNull(XMaterial.FARMLAND.parseMaterial()));
+                under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
             }
         }
 
@@ -237,15 +246,15 @@ public class RegenerationProcess {
 
     // Revert block to original state
     public void revertBlock() {
-        Material material = originalMaterial.parseMaterial();
+        Material material = originalMaterial.get();
 
         if (material != null) {
             // -- Place farmland under crops
-            if (XBlock.isCrop(originalMaterial)) {
+            if (BlockUtil.requiresFarmland(originalMaterial)) {
                 Block under = block.getRelative(BlockFace.DOWN);
                 XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
                 if (underType != XMaterial.FARMLAND) {
-                    under.setType(Objects.requireNonNull(XMaterial.FARMLAND.parseMaterial()));
+                    under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
                 }
             }
 
@@ -268,7 +277,7 @@ public class RegenerationProcess {
             Block under = block.getRelative(BlockFace.DOWN);
             XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
             if (underType != XMaterial.FARMLAND) {
-                under.setType(Objects.requireNonNull(XMaterial.FARMLAND.parseMaterial()));
+                under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
             }
         }
 
@@ -335,7 +344,7 @@ public class RegenerationProcess {
         this.timeLeft = timeLeft;
         if (timeLeft > 0) {
             start();
-        } else {
+        } else if (timeLeft == 0) {
             regenerate();
         }
     }

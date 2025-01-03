@@ -8,8 +8,13 @@ import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Log
 public class Amount {
+
+    private static final Pattern DASH_PATTERN = Pattern.compile("(-?\\\\d+)\\\\-(-?\\\\d+)");
 
     @Getter
     @Setter
@@ -42,19 +47,17 @@ public class Amount {
     // Load Amount from yaml
     public static Amount load(ConfigurationSection root, String path, double defaultValue) {
 
-        if (root == null || root.get(path) == null)
+        if (root == null || root.get(path) == null) {
             return new Amount(defaultValue);
+        }
 
         // low & high section syntax
         if (root.isConfigurationSection(path)) {
-
             ConfigurationSection section = root.getConfigurationSection(path);
 
-            if (section == null || !section.contains("high") || !section.contains("low"))
+            if (section == null || !(section.get("low") instanceof Number) || !(section.get("high") instanceof Number)) {
                 return new Amount(defaultValue);
-
-            if (!(section.get("low") instanceof Number) || !(section.get("high") instanceof Number))
-                return new Amount(defaultValue);
+            }
 
             double low = section.getDouble("low");
             double high = section.getDouble("high");
@@ -63,19 +66,19 @@ public class Amount {
         } else {
             String data = root.getString(path);
 
-            if (Strings.isNullOrEmpty(data))
+            if (Strings.isNullOrEmpty(data)) {
                 return new Amount(defaultValue);
+            }
 
-            // low-high syntax
-            if (data.contains("-")) {
-                double low = ParseUtil.nullOrDefault(() -> Double.parseDouble(data.split("-")[0]),
+            Matcher matcher = DASH_PATTERN.matcher(data);
+            if (matcher.matches()) {
+                double low = ParseUtil.nullOrDefault(() -> Double.parseDouble(matcher.group(1)),
                         defaultValue,
                         e -> log.warning("Could not parse low amount at " + root.getCurrentPath() + "." + path));
 
-                double high = ParseUtil.nullOrDefault(() -> Double.parseDouble(data.split("-")[1]),
+                double high = ParseUtil.nullOrDefault(() -> Double.parseDouble(matcher.group(2)),
                         defaultValue,
                         e -> log.warning("Could not parse high amount at " + root.getCurrentPath() + "." + path));
-
                 return new Amount(low, high);
             }
 

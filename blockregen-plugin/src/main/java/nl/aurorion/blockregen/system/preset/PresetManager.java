@@ -222,9 +222,11 @@ public class PresetManager {
 
         PresetEvent event = PresetEvent.load(section.getConfigurationSection("event"), name, preset);
 
-        if (event != null)
+        if (event != null) {
             plugin.getEventManager().addEvent(event);
+        }
 
         presets.put(name, preset);
+        log.fine(() -> "Loaded preset " + preset);
     }
 }
