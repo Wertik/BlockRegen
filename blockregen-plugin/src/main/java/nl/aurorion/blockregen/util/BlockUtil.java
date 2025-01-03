@@ -33,6 +33,7 @@ public class BlockUtil {
             case KELP_PLANT:
             case KELP:
             case TALL_SEAGRASS:
+            case SUGAR_CANE:
                 return true;
             default:
                 return false;
@@ -51,7 +52,6 @@ public class BlockUtil {
             case MELON_SEEDS:
             case BEETROOT_SEEDS:
             case BEETROOTS:
-            case SUGAR_CANE:
                 return true;
             default:
                 return false;

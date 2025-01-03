@@ -291,7 +291,6 @@ public class RegionManager {
     public RegenerationArea getArea(@NotNull Block block) {
         for (RegenerationArea area : this.loadedAreas) {
             if (area.contains(block)) {
-                log.fine(() -> String.format("Found area: %s", area));
                 return area;
             }
         }
