@@ -1,8 +1,8 @@
 package nl.aurorion.blockregen.system.material.parser;
 
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.struct.material.MMOIItemsMaterial;
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.material.MMOIItemsMaterial;
+import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import org.jetbrains.annotations.NotNull;
 
 public class MMOItemsMaterialParser implements MaterialParser {
@@ -14,7 +14,7 @@ public class MMOItemsMaterialParser implements MaterialParser {
     }
 
     @Override
-    public @NotNull TargetMaterial parseMaterial(String input) throws IllegalArgumentException {
+    public @NotNull BlockRegenMaterial parseMaterial(String input) throws IllegalArgumentException {
         try {
             int id = Integer.parseInt(input);
             return new MMOIItemsMaterial(plugin, id);

@@ -2,8 +2,8 @@ package nl.aurorion.blockregen.system.material.parser;
 
 import com.nexomc.nexo.api.NexoBlocks;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.struct.material.NexoMaterial;
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.material.NexoMaterial;
+import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import org.jetbrains.annotations.NotNull;
 
 public class NexoMaterialParser implements MaterialParser {
@@ -15,7 +15,7 @@ public class NexoMaterialParser implements MaterialParser {
     }
 
     @Override
-    public @NotNull TargetMaterial parseMaterial(String input) throws IllegalArgumentException {
+    public @NotNull BlockRegenMaterial parseMaterial(String input) throws IllegalArgumentException {
         if (!NexoBlocks.isCustomBlock(input)) {
             throw new IllegalArgumentException(String.format("'%s' is not a Nexo block.", input));
         }

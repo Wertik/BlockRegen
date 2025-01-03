@@ -4,7 +4,7 @@ import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.system.material.parser.MaterialParser;
-import nl.aurorion.blockregen.system.preset.struct.material.DynamicMaterial;
+import nl.aurorion.blockregen.system.preset.struct.material.PlacementMaterial;
 import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 
 @Log
 public class MaterialManager {
+
+    private static final Pattern COLON_PATTERN = Pattern.compile("(?<!http(?s)):(?!//)");
 
     private final BlockRegen plugin;
 
@@ -46,9 +48,9 @@ public class MaterialManager {
     }
 
     @NotNull
-    private Pair<TargetMaterial, Double> parseMaterialAndChance(MaterialParser parser, String input) throws IllegalArgumentException {
+    private Pair<BlockRegenMaterial, Double> parseMaterialAndChance(MaterialParser parser, String input) throws IllegalArgumentException {
         // The part until the last colon that's not part of 'https://'
-        Matcher matcher = Pattern.compile("(?<!http(?s)):(?!//)").matcher(input);
+        Matcher matcher = COLON_PATTERN.matcher(input);
 
         log.fine(() -> "Input for parseMaterialAndChance: '" + input + "'");
 
@@ -78,7 +80,7 @@ public class MaterialManager {
                 withChance = false;
             }
 
-            TargetMaterial material = parser.parseMaterial(rawMaterialInput);
+            BlockRegenMaterial material = parser.parseMaterial(rawMaterialInput);
 
             if (withChance) {
                 String rawChanceInput = input.substring(lastColon);
@@ -94,21 +96,39 @@ public class MaterialManager {
             }
         } else {
             log.fine(() -> "Single material input for parseMaterialAndChance: '" + input + "'");
-            TargetMaterial material = parser.parseMaterial(input);
+            BlockRegenMaterial material = parser.parseMaterial(input);
             return new Pair<>(material, null);
         }
     }
 
+    // <prefix:?><material>;<prefix:?><material>;...
     @NotNull
-    public DynamicMaterial parseDynamicMaterial(String input) throws IllegalArgumentException {
+    public TargetMaterial parseTargetMaterial(String input) throws IllegalArgumentException {
+        List<String> materials = Arrays.asList(input.split(";"));
+
+        if (materials.isEmpty()) {
+            throw new IllegalArgumentException("Target material " + input + " doesn't have the correct syntax.");
+        }
+
+        List<BlockRegenMaterial> targetMaterials = new ArrayList<>();
+
+        for (String materialInput : materials) {
+            BlockRegenMaterial material = parseMaterial(materialInput);
+            targetMaterials.add(material);
+        }
+        return TargetMaterial.of(targetMaterials);
+    }
+
+    @NotNull
+    public PlacementMaterial parsePlacementMaterial(String input) throws IllegalArgumentException {
         List<String> materials = Arrays.asList(input.split(";"));
 
         // Materials without a chance.
-        List<TargetMaterial> restMaterials = new ArrayList<>();
-        Map<TargetMaterial, Double> valuedMaterials = new HashMap<>();
+        List<BlockRegenMaterial> restMaterials = new ArrayList<>();
+        Map<BlockRegenMaterial, Double> valuedMaterials = new HashMap<>();
 
         if (materials.isEmpty()) {
-            throw new IllegalArgumentException("Dynamic material " + input + " doesn't have the correct syntax");
+            throw new IllegalArgumentException("Placement material " + input + " doesn't have the correct syntax.");
         }
 
         for (String materialInput : materials) {
@@ -142,7 +162,7 @@ public class MaterialManager {
                 log.fine(() -> "No prefix");
 
                 // Not a prefix.
-                Pair<TargetMaterial, Double> result = parseMaterialAndChance(parser, materialInput);
+                Pair<BlockRegenMaterial, Double> result = parseMaterialAndChance(parser, materialInput);
 
                 if (result.getSecond() == null) {
                     restMaterials.add(result.getFirst());
@@ -154,7 +174,7 @@ public class MaterialManager {
                 String rest = materialInput.substring(firstColon + 1);
                 log.fine(() -> "Prefix: '" + prefix + "'");
                 log.fine(() -> "Rest: '" + rest + "'");
-                Pair<TargetMaterial, Double> result = parseMaterialAndChance(parser, rest);
+                Pair<BlockRegenMaterial, Double> result = parseMaterialAndChance(parser, rest);
 
                 if (result.getSecond() == null) {
                     restMaterials.add(result.getFirst());
@@ -176,7 +196,7 @@ public class MaterialManager {
             restMaterials.forEach(mat -> valuedMaterials.put(mat, chance));
         }
 
-        return DynamicMaterial.from(valuedMaterials);
+        return PlacementMaterial.from(valuedMaterials);
     }
 
     /**
@@ -187,7 +207,7 @@ public class MaterialManager {
      * @throws IllegalArgumentException When the parser is unable to parse the material.
      */
     @NotNull
-    public TargetMaterial parseMaterial(@NotNull String input) throws IllegalArgumentException {
+    public BlockRegenMaterial parseMaterial(@NotNull String input) throws IllegalArgumentException {
 
         // Separate parts
         String[] parts = new String[]{input};

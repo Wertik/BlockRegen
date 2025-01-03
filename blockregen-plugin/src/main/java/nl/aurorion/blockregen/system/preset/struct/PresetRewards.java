@@ -159,4 +159,14 @@ public class PresetRewards {
     public void setDrops(List<ItemDrop> drops) {
         this.drops = drops == null ? new ArrayList<>() : drops;
     }
+
+    @Override
+    public String toString() {
+        return "PresetRewards{" +
+                "money=" + money +
+                ", consoleCommands=" + consoleCommands +
+                ", playerCommands=" + playerCommands +
+                ", drops=" + drops +
+                '}';
+    }
 }

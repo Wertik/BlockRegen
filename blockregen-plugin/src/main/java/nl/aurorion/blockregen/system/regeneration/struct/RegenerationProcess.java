@@ -7,16 +7,17 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
+import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
+import nl.aurorion.blockregen.system.material.MinecraftMaterial;
 import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
 import nl.aurorion.blockregen.util.BlockUtil;
 import nl.aurorion.blockregen.util.LocationUtil;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -31,9 +32,7 @@ public class RegenerationProcess {
 
     private transient Block block;
 
-    @Getter
     private XMaterial originalMaterial;
-
     @Getter
     private NodeData originalData;
 
@@ -54,13 +53,13 @@ public class RegenerationProcess {
     @Getter
     private transient long regenerationTime;
 
-    private transient TargetMaterial replaceMaterial;
+    private transient BlockRegenMaterial replaceMaterial;
 
     @Getter
     private long timeLeft = -1;
 
     @Setter
-    private transient TargetMaterial regenerateInto;
+    private transient BlockRegenMaterial regenerateInto;
 
     private transient BukkitTask task;
 
@@ -75,8 +74,6 @@ public class RegenerationProcess {
 
         this.originalData = originalData;
         this.originalMaterial = XMaterial.matchXMaterial(block.getType());
-        this.regenerateInto = preset.getRegenMaterial().get();
-        this.replaceMaterial = preset.getReplaceMaterial().get();
     }
 
     // Return true if the process started, false otherwise.
@@ -157,7 +154,7 @@ public class RegenerationProcess {
         //
         // Otherwise, throw this process away.
 
-        TargetMaterial regenerateInto = getRegenerateInto();
+        BlockRegenMaterial regenerateInto = getRegenerateInto();
 
         if (regenerateInto.requiresSolidGround() && preset.isCheckSolidGround()) {
             Block below = this.block.getRelative(BlockFace.DOWN);
@@ -212,11 +209,7 @@ public class RegenerationProcess {
      */
     public void regenerateBlock() {
         // Set type
-        TargetMaterial regenerateInto = getRegenerateInto();
-        if (regenerateInto == null) {
-            log.fine(() -> "Found no regeneration material for " + this);
-            return;
-        }
+        BlockRegenMaterial regenerateInto = getRegenerateInto();
 
         // -- Regenerate farmland under crops
         if (regenerateInto.requiresFarmland()) {
@@ -228,8 +221,8 @@ public class RegenerationProcess {
             }
         }
 
-        regenerateInto.place(block);
-        originalData.place(block); // Apply original data
+        regenerateInto.setType(block);
+        originalData.apply(block); // Apply original data
         regenerateInto.applyData(block); // Override with configured data if any
         log.fine(() -> "Regenerated " + this);
     }
@@ -246,31 +239,24 @@ public class RegenerationProcess {
 
     // Revert block to original state
     public void revertBlock() {
-        Material material = originalMaterial.get();
+        BlockRegenMaterial original = getOriginalMaterial();
 
-        if (material != null) {
-            // -- Place farmland under crops
-            if (BlockUtil.requiresFarmland(originalMaterial)) {
-                Block under = block.getRelative(BlockFace.DOWN);
-                XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
-                if (underType != XMaterial.FARMLAND) {
-                    under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
-                }
+        // -- Place farmland under crops
+        if (BlockUtil.requiresFarmland(originalMaterial)) {
+            Block under = block.getRelative(BlockFace.DOWN);
+            XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
+            if (underType != XMaterial.FARMLAND) {
+                under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
             }
-
-            block.setType(material);
-            originalData.place(this.block);
-            log.fine(() -> String.format("Reverted block for %s", this));
         }
+
+        original.place(block);
+        log.fine(() -> String.format("Reverted block for %s", this));
     }
 
     // Has to be synchronized to run on the next tick. Otherwise, the block does not get replaced.
     public void replaceBlock() {
-        TargetMaterial replaceMaterial = getReplaceMaterial();
-
-        if (replaceMaterial == null) {
-            return;
-        }
+        BlockRegenMaterial replaceMaterial = getReplaceMaterial();
 
         // -- Place farmland under crops
         if (replaceMaterial.requiresFarmland()) {
@@ -281,8 +267,8 @@ public class RegenerationProcess {
             }
         }
 
-        this.replaceMaterial.place(block);
-        this.originalData.place(block); // Apply original data
+        replaceMaterial.setType(block);
+        this.originalData.apply(block); // Apply original data
         replaceMaterial.applyData(block); // Apply configured data if any
 
         // Otherwise skull textures wouldn't update.
@@ -290,20 +276,36 @@ public class RegenerationProcess {
         log.fine(() -> "Replaced block for " + this);
     }
 
-    public TargetMaterial getRegenerateInto() {
+    @NotNull
+    public BlockRegenMaterial getRegenerateInto() {
         // Make sure we always get something.
         if (regenerateInto == null) {
-            this.regenerateInto = preset.getRegenMaterial().get();
+            // No regen material set in the preset. Regenerate into the original.
+            if (preset.getRegenMaterial() == null) {
+                this.regenerateInto = new MinecraftMaterial(BlockRegen.getInstance(), this.originalMaterial, this.originalData);
+            } else {
+                this.regenerateInto = preset.getRegenMaterial().get();
+            }
         }
         return regenerateInto;
     }
 
-    public TargetMaterial getReplaceMaterial() {
+    @NotNull
+    public BlockRegenMaterial getReplaceMaterial() {
         // Make sure we always get something.
         if (replaceMaterial == null) {
-            this.replaceMaterial = preset.getReplaceMaterial().get();
+            if (preset.getReplaceMaterial() == null) {
+                this.replaceMaterial = new MinecraftMaterial(BlockRegen.getInstance(), XMaterial.AIR, null);
+            } else {
+                this.replaceMaterial = preset.getReplaceMaterial().get();
+            }
         }
         return replaceMaterial;
+    }
+
+    @NotNull
+    public BlockRegenMaterial getOriginalMaterial() {
+        return new MinecraftMaterial(BlockRegen.getInstance(), this.originalMaterial, this.originalData);
     }
 
     // Convert stored Location pointer to the Block at the location.

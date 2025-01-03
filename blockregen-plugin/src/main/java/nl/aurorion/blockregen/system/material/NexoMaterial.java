@@ -1,17 +1,16 @@
-package nl.aurorion.blockregen.system.preset.struct.material;
+package nl.aurorion.blockregen.system.material;
 
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.mechanics.Mechanic;
 import lombok.Getter;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class NexoMaterial implements TargetMaterial {
+public class NexoMaterial implements BlockRegenMaterial {
 
     private final BlockRegen plugin;
 
@@ -47,7 +46,7 @@ public class NexoMaterial implements TargetMaterial {
     }
 
     @Override
-    public boolean check(BlockPreset preset, Block block) {
+    public boolean check(Block block) {
         Mechanic mechanic = getNexoBlock(block);
         if (mechanic == null) {
             return false;
@@ -56,7 +55,7 @@ public class NexoMaterial implements TargetMaterial {
     }
 
     @Override
-    public void place(Block block) {
+    public void setType(Block block) {
         NexoBlocks.place(this.itemId, block.getLocation());
     }
 

@@ -1,35 +1,50 @@
 package nl.aurorion.blockregen.system.preset.struct.material;
 
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
+import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.NotNull;
 
-public interface TargetMaterial {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-    /**
-     * Return true if the block matches this material, false otherwise.
-     */
-    boolean check(BlockPreset preset, Block block);
+// A collection of BlockRegen materials to match against.
+public class TargetMaterial {
+    private final List<BlockRegenMaterial> materials;
 
-    /**
-     * Change the block to this material.
-     */
-    void place(Block block);
+    private TargetMaterial(Collection<BlockRegenMaterial> materials) {
+        this.materials = new ArrayList<>(materials);
+    }
 
-    /**
-     * Whether the material requires a block underneath it.
-     * */
-    default boolean requiresSolidGround() {
+    private TargetMaterial(BlockRegenMaterial material) {
+        this.materials = new ArrayList<>();
+        this.materials.add(material);
+    }
+
+    @NotNull
+    public static TargetMaterial of(@NotNull BlockRegenMaterial material) {
+        return new TargetMaterial(material);
+    }
+
+    @NotNull
+    public static TargetMaterial of(@NotNull Collection<BlockRegenMaterial> materials) {
+        return new TargetMaterial(materials);
+    }
+
+    // Returns whether any of the target materials match.
+    public boolean matches(@NotNull Block block) {
+        for (BlockRegenMaterial targetMaterial : this.materials) {
+            if (targetMaterial.check(block)) {
+                return true;
+            }
+        }
         return false;
     }
 
-    /**
-     * Whether this material requires farmland.
-     */
-    default boolean requiresFarmland() {
-        return false;
-    }
-
-    default void applyData(Block block) {
-        //
+    @Override
+    public String toString() {
+        return "TargetMaterial{" +
+                "materials=" + materials +
+                '}';
     }
 }

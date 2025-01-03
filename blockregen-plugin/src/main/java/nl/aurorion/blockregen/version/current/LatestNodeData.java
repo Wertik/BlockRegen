@@ -69,7 +69,7 @@ public class LatestNodeData implements NodeData {
     }
 
     @Override
-    public boolean check(Block block) {
+    public boolean matches(Block block) {
         BlockData data = block.getBlockData();
 
         log.fine(() -> String.format("Checking %s against block %s", this, data.getAsString()));
@@ -220,7 +220,7 @@ public class LatestNodeData implements NodeData {
     }
 
     @Override
-    public void place(Block block) {
+    public void apply(Block block) {
         BlockData blockData = block.getBlockData();
 
         if (blockData instanceof Directional && this.facing != null) {

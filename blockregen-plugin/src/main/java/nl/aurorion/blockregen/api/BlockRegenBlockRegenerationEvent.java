@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.api;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.system.regeneration.struct.RegenerationProcess;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -46,11 +46,11 @@ public class BlockRegenBlockRegenerationEvent extends BlockRegenBlockEvent imple
      * Shortcuts.
      * */
 
-    public TargetMaterial getRegenerateInto() {
+    public BlockRegenMaterial getRegenerateInto() {
         return regenerationProcess.getRegenerateInto();
     }
 
-    public void setRegenerateInto(TargetMaterial material) {
+    public void setRegenerateInto(BlockRegenMaterial material) {
         regenerationProcess.setRegenerateInto(material);
     }
 }

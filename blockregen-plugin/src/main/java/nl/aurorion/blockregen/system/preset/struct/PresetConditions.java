@@ -136,9 +136,9 @@ public class PresetConditions {
     }
 
     public void setToolsRequired(@Nullable String input) {
-
-        if (Strings.isNullOrEmpty(input))
+        if (Strings.isNullOrEmpty(input)) {
             return;
+        }
 
         String[] arr = input.split(", ");
 
@@ -205,5 +205,14 @@ public class PresetConditions {
 
             jobsRequired.put(job, level);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "PresetConditions{" +
+                "toolsRequired=" + toolsRequired +
+                ", enchantsRequired=" + enchantsRequired +
+                ", jobsRequired=" + jobsRequired +
+                '}';
     }
 }

@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.system.material.parser;
 
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import org.jetbrains.annotations.NotNull;
 
 public interface MaterialParser {
@@ -13,7 +13,7 @@ public interface MaterialParser {
      * @throws IllegalArgumentException if the provided {@code input} is not a valid oraxen block id
      */
     @NotNull
-    TargetMaterial parseMaterial(String input) throws IllegalArgumentException;
+    BlockRegenMaterial parseMaterial(String input) throws IllegalArgumentException;
 
     /**
      * @return True if the material syntax contains colons.

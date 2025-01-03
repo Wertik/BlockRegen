@@ -1,12 +1,11 @@
-package nl.aurorion.blockregen.system.preset.struct.material;
+package nl.aurorion.blockregen.system.material;
 
 import dev.lone.itemsadder.api.CustomBlock;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import org.bukkit.block.Block;
 
 @Log
-public class ItemsAdderMaterial implements TargetMaterial {
+public class ItemsAdderMaterial implements BlockRegenMaterial {
 
     private final String id;
 
@@ -15,7 +14,7 @@ public class ItemsAdderMaterial implements TargetMaterial {
     }
 
     @Override
-    public boolean check(BlockPreset preset, Block block) {
+    public boolean check(Block block) {
         CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
 
         if (customBlock == null) {
@@ -27,7 +26,7 @@ public class ItemsAdderMaterial implements TargetMaterial {
     }
 
     @Override
-    public void place(Block block) {
+    public void setType(Block block) {
         CustomBlock customBlock = CustomBlock.getInstance(this.id);
         customBlock.place(block.getLocation());
     }

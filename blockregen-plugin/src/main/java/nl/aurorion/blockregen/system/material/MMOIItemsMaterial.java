@@ -1,17 +1,16 @@
-package nl.aurorion.blockregen.system.preset.struct.material;
+package nl.aurorion.blockregen.system.material;
 
 import lombok.extern.java.Log;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.block.CustomBlock;
 import net.Indyuce.mmoitems.api.util.MushroomState;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import org.bukkit.block.Block;
 
 import java.util.Optional;
 
 @Log
-public class MMOIItemsMaterial implements TargetMaterial {
+public class MMOIItemsMaterial implements BlockRegenMaterial {
 
     private final BlockRegen plugin;
 
@@ -23,13 +22,13 @@ public class MMOIItemsMaterial implements TargetMaterial {
     }
 
     @Override
-    public boolean check(BlockPreset preset, Block block) {
+    public boolean check(Block block) {
         Optional<CustomBlock> customBlock = MMOItems.plugin.getCustomBlocks().getFromBlock(block.getBlockData());
         return customBlock.isPresent();
     }
 
     @Override
-    public void place(Block block) {
+    public void setType(Block block) {
         MushroomState customState = MMOItems.plugin.getCustomBlocks().getBlock(id).getState();
 
         block.setType(customState.getType(), false);

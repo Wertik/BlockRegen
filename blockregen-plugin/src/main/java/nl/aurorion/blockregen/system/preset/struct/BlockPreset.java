@@ -2,8 +2,9 @@ package nl.aurorion.blockregen.system.preset.struct;
 
 import com.cryptomorin.xseries.XSound;
 import lombok.Data;
-import nl.aurorion.blockregen.system.preset.struct.material.DynamicMaterial;
+import nl.aurorion.blockregen.system.preset.struct.material.PlacementMaterial;
 import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import org.jetbrains.annotations.Nullable;
 
 @Data
 public class BlockPreset {
@@ -12,8 +13,10 @@ public class BlockPreset {
 
     private TargetMaterial targetMaterial;
 
-    private DynamicMaterial replaceMaterial;
-    private DynamicMaterial regenMaterial;
+    @Nullable
+    private PlacementMaterial replaceMaterial;
+    @Nullable
+    private PlacementMaterial regenMaterial;
 
     private Amount delay;
 

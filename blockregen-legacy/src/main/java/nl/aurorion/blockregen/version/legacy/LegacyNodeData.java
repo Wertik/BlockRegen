@@ -38,7 +38,7 @@ public class LegacyNodeData implements NodeData {
     private String skull;
 
     @Override
-    public boolean check(Block block) {
+    public boolean matches(Block block) {
         MaterialData data = block.getState().getData();
 
         if (this.skull != null) {
@@ -131,7 +131,7 @@ public class LegacyNodeData implements NodeData {
     }
 
     @Override
-    public void place(Block block) {
+    public void apply(Block block) {
         BlockState state = block.getState();
         MaterialData data = state.getData();
 

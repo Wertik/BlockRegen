@@ -1,16 +1,15 @@
-package nl.aurorion.blockregen.system.preset.struct.material;
+package nl.aurorion.blockregen.system.material;
 
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.mechanics.Mechanic;
 import lombok.Getter;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import org.bukkit.block.Block;
 
 import java.util.Objects;
 
 // Check using the Oraxen API whether the destroyed block matches.
-public class OraxenMaterial implements TargetMaterial {
+public class OraxenMaterial implements BlockRegenMaterial {
 
     private final BlockRegen plugin;
 
@@ -23,7 +22,7 @@ public class OraxenMaterial implements TargetMaterial {
     }
 
     @Override
-    public boolean check(BlockPreset preset, Block block) {
+    public boolean check(Block block) {
         Mechanic oraxenBlock = OraxenBlocks.getOraxenBlock(block.getLocation());
 
         if (oraxenBlock == null) {
@@ -35,7 +34,7 @@ public class OraxenMaterial implements TargetMaterial {
     }
 
     @Override
-    public void place(Block block) {
+    public void setType(Block block) {
         OraxenBlocks.place(this.oraxenId, block.getLocation());
     }
 

@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -248,23 +248,23 @@ public class RegenerationListener implements Listener {
         // Handle those blocks as well (cancel drops, rewards, etc.), but don't start regeneration processes for those.
         // Only start a regeneration process if the bottom block is broken. (configurable)
         if (BlockUtil.isMultiblockCrop(plugin, block) && preset.isHandleCrops()) {
-            handleMultiblockCrop(block, player, preset, isInRegion ? region.getName() : null);
+            handleMultiblockCrop(block, player, preset, region);
             return;
         }
 
         // Crop possibly above this block.
-        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above);
+        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, region);
         if (abovePreset != null && abovePreset.isHandleCrops()) {
             XMaterial aboveType = plugin.getVersionManager().getMethods().getType(above);
 
             if (BlockUtil.isMultiblockCrop(plugin, above)) {
                 // Multiblock crops (cactus, sugarcane,...)
-                handleMultiblockCrop(above, player, abovePreset, isInRegion ? region.getName() : null);
+                handleMultiblockCrop(above, player, abovePreset, region);
             } else if (XBlock.isCrop(aboveType) || BlockUtil.reliesOnBlockBelow(aboveType)) {
                 // Single crops (wheat, carrots,...)
                 List<ItemStack> vanillaDrops = new ArrayList<>(block.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
-                RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, isInRegion ? region.getName() : null);
+                RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, region);
                 process.start();
 
                 // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
@@ -286,7 +286,7 @@ public class RegenerationListener implements Listener {
             blockBreakEvent.setExpToDrop(0);
         }
 
-        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, isInRegion ? region.getName() : null);
+        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, region);
         handleBreak(process, preset, block, player, vanillaExperience);
     }
 
@@ -383,12 +383,10 @@ public class RegenerationListener implements Listener {
                 && player.getGameMode() == GameMode.CREATIVE);
     }
 
-    private void handleMultiblockCrop(Block block, Player player, BlockPreset preset, @Nullable String region) {
+    private void handleMultiblockCrop(Block block, Player player, BlockPreset preset, @Nullable RegenerationArea region) {
         boolean regenerateWhole = preset.isRegenerateWhole();
 
-        handleMultiblockAbove(block, player, above -> BlockUtil.isMultiblockCrop(plugin, above), (b) -> {
-            BlockPreset abovePreset = plugin.getPresetManager().getPreset(b);
-
+        handleMultiblockAbove(block, player, above -> BlockUtil.isMultiblockCrop(plugin, above), (b, abovePreset) -> {
             if (regenerateWhole && abovePreset != null && abovePreset.isHandleCrops()) {
                 RegenerationProcess process = plugin.getRegenerationManager().createProcess(b, abovePreset, region);
                 process.start();
@@ -396,7 +394,7 @@ public class RegenerationListener implements Listener {
                 // Just destroy...
                 b.setType(Material.AIR);
             }
-        });
+        }, region);
 
         Block base = findBase(block);
 
@@ -432,21 +430,22 @@ public class RegenerationListener implements Listener {
         return findBase(below);
     }
 
-    private void handleMultiblockAbove(Block block, Player player, Predicate<Block> filter, Consumer<Block> startProcess) {
+    private void handleMultiblockAbove(Block block, Player player, Predicate<Block> filter, BiConsumer<Block, BlockPreset> startProcess, RegenerationArea area) {
         Block above = block.getRelative(BlockFace.UP);
 
         // break the blocks manually, handle them separately.
         if (filter.test(above)) {
 
             // recurse from top to bottom
-            handleMultiblockAbove(above, player, filter, startProcess);
+            handleMultiblockAbove(above, player, filter, startProcess, area);
 
-            BlockPreset abovePreset = plugin.getPresetManager().getPreset(above);
+            BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, area);
 
             if (abovePreset != null) {
                 List<ItemStack> vanillaDrops = new ArrayList<>(block.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
-                startProcess.accept(above);
+                // Needs to be started here due to replacement.
+                startProcess.accept(above, abovePreset);
 
                 // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
                 handleRewards(above.getState(), abovePreset, player, vanillaDrops, 0);

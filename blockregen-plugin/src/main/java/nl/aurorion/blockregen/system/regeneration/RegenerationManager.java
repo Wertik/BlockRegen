@@ -6,6 +6,7 @@ import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.system.AutoSaveTask;
 import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import nl.aurorion.blockregen.system.regeneration.struct.RegenerationProcess;
+import nl.aurorion.blockregen.system.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -75,7 +76,7 @@ public class RegenerationManager {
     /**
      * Helper for creating regeneration processes.
      */
-    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockPreset preset, @Nullable String regionName) {
+    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockPreset preset, @Nullable RegenerationArea region) {
         Objects.requireNonNull(block);
         Objects.requireNonNull(preset);
 
@@ -86,8 +87,9 @@ public class RegenerationManager {
         RegenerationProcess process = new RegenerationProcess(block, nodeData, preset);
 
         process.setWorldName(block.getWorld().getName());
-        process.setRegionName(regionName);
-
+        if (region != null) {
+            process.setRegionName(region.getName());
+        }
         return process;
     }
 

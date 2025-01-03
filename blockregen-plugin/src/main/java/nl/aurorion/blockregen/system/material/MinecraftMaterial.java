@@ -1,22 +1,22 @@
-package nl.aurorion.blockregen.system.preset.struct.material;
+package nl.aurorion.blockregen.system.material;
 
-import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import nl.aurorion.blockregen.util.BlockUtil;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.Nullable;
 
-public class MinecraftMaterial implements TargetMaterial {
+public class MinecraftMaterial implements BlockRegenMaterial {
 
     private final BlockRegen plugin;
 
     private final XMaterial material;
 
+    @Nullable
     private final NodeData nodeData;
 
-    public MinecraftMaterial(BlockRegen plugin, XMaterial material, NodeData nodeData) {
+    public MinecraftMaterial(BlockRegen plugin, XMaterial material, @Nullable NodeData nodeData) {
         this.plugin = plugin;
         this.material = material;
         this.nodeData = nodeData;
@@ -29,11 +29,11 @@ public class MinecraftMaterial implements TargetMaterial {
     }
 
     @Override
-    public boolean check(BlockPreset preset, Block block) {
+    public boolean check(Block block) {
         boolean res = this.plugin.getVersionManager().getMethods().compareType(block, this.material);
 
         if (this.nodeData != null) {
-            res &= this.nodeData.check(block);
+            res &= this.nodeData.matches(block);
         }
 
         return res;
@@ -42,12 +42,12 @@ public class MinecraftMaterial implements TargetMaterial {
     @Override
     public void applyData(Block block) {
         if (this.nodeData != null) {
-            this.nodeData.place(block);
+            this.nodeData.apply(block);
         }
     }
 
     @Override
-    public void place(Block block) {
+    public void setType(Block block) {
         plugin.getVersionManager().getMethods().setType(block, this.material);
     }
 

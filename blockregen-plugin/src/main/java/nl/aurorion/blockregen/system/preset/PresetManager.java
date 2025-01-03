@@ -9,10 +9,8 @@ import nl.aurorion.blockregen.system.preset.struct.Amount;
 import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
 import nl.aurorion.blockregen.system.preset.struct.PresetConditions;
 import nl.aurorion.blockregen.system.preset.struct.PresetRewards;
-import nl.aurorion.blockregen.system.preset.struct.material.DynamicMaterial;
 import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
 import nl.aurorion.blockregen.system.region.struct.RegenerationArea;
-import nl.aurorion.blockregen.system.region.struct.RegenerationRegion;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -42,7 +40,7 @@ public class PresetManager {
     @Nullable
     public BlockPreset getPreset(@NotNull Block block) {
         for (BlockPreset preset : this.presets.values()) {
-            if (preset.getTargetMaterial().check(preset, block)) {
+            if (preset.getTargetMaterial().matches(block)) {
                 return preset;
             }
         }
@@ -56,7 +54,7 @@ public class PresetManager {
         }
 
         for (BlockPreset preset : this.presets.values()) {
-            if (preset.getTargetMaterial().check(preset, block) && region.hasPreset(preset.getName())) {
+            if (preset.getTargetMaterial().matches(block) && region.hasPreset(preset.getName())) {
                 return preset;
             }
         }
@@ -81,14 +79,18 @@ public class PresetManager {
         }
 
         for (String key : blocks.getKeys(false)) {
-            load(key);
+            try {
+                load(key);
+            } catch (Exception e) {
+                log.warning(String.format("Could not load preset %s: %s", key, e.getMessage()));
+            }
         }
 
         log.info("Loaded " + presets.size() + " block preset(s)...");
         log.info("Added " + plugin.getEventManager().getLoadedEvents().size() + " event(s)...");
     }
 
-    public void load(String name) {
+    public void load(String name) throws IllegalArgumentException {
         FileConfiguration file = plugin.getFiles().getBlockList().getFileConfiguration();
 
         ConfigurationSection section = file.getConfigurationSection("Blocks." + name);
@@ -102,45 +104,30 @@ public class PresetManager {
         String targetMaterialInput = section.getString("target-material", name);
 
         // Target material
-        TargetMaterial targetMaterial;
-        try {
-            targetMaterial = this.plugin.getMaterialManager().parseMaterial(targetMaterialInput);
-            preset.setTargetMaterial(targetMaterial);
-        } catch (IllegalArgumentException e) {
-            log.warning(String.format("Could not load preset %s: %s", name, e.getMessage()));
-            return;
-        }
+        TargetMaterial targetMaterial = this.plugin.getMaterialManager().parseTargetMaterial(targetMaterialInput);
+        preset.setTargetMaterial(targetMaterial);
         log.fine(() -> String.format("target-material: %s", preset.getTargetMaterial()));
 
         // Replace material
         String replaceMaterial = section.getString("replace-block");
 
-        if (Strings.isNullOrEmpty(replaceMaterial)) {
-            replaceMaterial = "AIR";
-        }
-
-        try {
-            preset.setReplaceMaterial(this.plugin.getMaterialManager().parseDynamicMaterial(replaceMaterial));
-            // preset.setReplaceMaterial(this.loadDynamicMaterial(replaceMaterial));
-        } catch (IllegalArgumentException e) {
-            log.warning("Dynamic material ( " + replaceMaterial + " ) in replace-block material for " + name
-                    + " is invalid: " + e.getMessage());
-            return;
+        if (!Strings.isNullOrEmpty(replaceMaterial)) {
+            try {
+                preset.setReplaceMaterial(this.plugin.getMaterialManager().parsePlacementMaterial(replaceMaterial));
+            } catch (IllegalArgumentException e) {
+                log.warning("Dynamic material ( " + replaceMaterial + " ) in 'replace-block' for " + name + " is invalid: " + e.getMessage());
+            }
         }
         log.fine(() -> String.format("replace-material: %s", preset.getReplaceMaterial()));
 
         // Regenerate into
         String regenerateIntoInput = section.getString("regenerate-into");
 
-        if (Strings.isNullOrEmpty(regenerateIntoInput)) {
-            preset.setRegenMaterial(DynamicMaterial.withOnlyDefault(targetMaterial));
-        } else {
+        if (!Strings.isNullOrEmpty(regenerateIntoInput)) {
             try {
-                preset.setRegenMaterial(this.plugin.getMaterialManager().parseDynamicMaterial(regenerateIntoInput));
+                preset.setRegenMaterial(this.plugin.getMaterialManager().parsePlacementMaterial(regenerateIntoInput));
             } catch (IllegalArgumentException e) {
-                log.warning("Dynamic material ( " + regenerateIntoInput + " ) in regenerate-into material for " + name
-                        + " is invalid: " + e.getMessage());
-                return;
+                log.warning("Dynamic material ( " + replaceMaterial + " ) in 'regenerate-into' for " + name + " is invalid: " + e.getMessage());
             }
         }
         log.fine(() -> String.format("regenerate-into: %s", preset.getRegenMaterial()));
@@ -172,23 +159,24 @@ public class PresetManager {
         String sound = section.getString("sound");
 
         if (!Strings.isNullOrEmpty(sound)) {
-            Optional<XSound> xSound = XSound.matchXSound(sound);
+            Optional<XSound> xSound = XSound.of(sound);
             if (!xSound.isPresent()) {
-                log.warning("Sound " + sound + " in preset " + name + " is invalid.");
-            } else
+                log.warning("Sound '" + sound + "' in preset " + name + " is invalid.");
+            } else {
                 preset.setSound(xSound.get());
+            }
         }
 
         // Particle
         String particleName = section.getString("particles");
-
-        if (!Strings.isNullOrEmpty(particleName))
+        if (!Strings.isNullOrEmpty(particleName)) {
             preset.setParticle(particleName);
+        }
 
         String regenParticle = section.getString("regeneration-particles");
-
-        if (!Strings.isNullOrEmpty(regenParticle))
+        if (!Strings.isNullOrEmpty(regenParticle)) {
             preset.setRegenerationParticle(regenParticle);
+        }
 
         // Conditions
         PresetConditions conditions = new PresetConditions();

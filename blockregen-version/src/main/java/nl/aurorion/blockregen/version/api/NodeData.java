@@ -11,10 +11,10 @@ public interface NodeData {
     void load(Block block);
 
     // Place the block with corresponding Block data.
-    void place(Block block);
+    void apply(Block block);
 
     // Check NodeData against a placed block.
-    boolean check(Block block);
+    boolean matches(Block block);
 
     boolean isEmpty();
 
