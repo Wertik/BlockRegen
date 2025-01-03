@@ -22,11 +22,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class Commands implements CommandExecutor {
 
@@ -48,6 +46,7 @@ public class Commands implements CommandExecutor {
             + "\n&3/%label% region delete <region> &8- &7Delete a region."
             + "\n&3/%label% regen (-p <preset>) (-r <region>) (-w <world>) &8- &7Regenerate presets based on argument switches."
             + "\n&3/%label% events &8- &7Event management."
+            + "\n&3/%label% stats &8- &7Print statistics about currently running regeneration processes."
             + "\n&3/%label% discord &8- &7BlockRegen discord invite. Ask for support there.";
 
     private final BlockRegen plugin;
@@ -511,6 +510,63 @@ public class Commands implements CommandExecutor {
 
                 sender.sendMessage(Message.REGENERATED_PROCESSES.get()
                         .replace("%count%", String.valueOf(toRegen.size())));
+                break;
+            }
+            case "stats": {
+                if (!sender.hasPermission("blockregen.admin")) {
+                    Message.NO_PERM.send(sender);
+                    return false;
+                }
+
+                // Compile statistics
+                StringBuilder stats = new StringBuilder("&8&m        &r &3BlockRegen processes &8&m        &r\n");
+
+                // Per-world, per-region, per-preset
+
+                /*
+                 * world (100):
+                 *   region (100): preset (92), preset (20)
+                 *   region (200): 24 (preset)
+                 *
+                 * */
+
+                Collection<RegenerationProcess> processes = plugin.getRegenerationManager().getCache();
+
+                if (processes.isEmpty()) {
+                    stats.append("&7None to show.");
+                    sender.sendMessage(StringUtil.color(stats.toString()));
+                    break;
+                }
+
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    Map<String, List<RegenerationProcess>> byWorldCollect = processes.stream()
+                            .collect(Collectors.groupingBy(RegenerationProcess::getWorldName));
+
+                    for (Map.Entry<String, List<RegenerationProcess>> byWorld : byWorldCollect.entrySet()) {
+                        int byWorldCount = byWorld.getValue().size();
+
+                        stats.append("&f").append(byWorld.getKey()).append(" &7(&f").append(byWorldCount).append("&7)&8:&7\n");
+
+                        Map<String, List<RegenerationProcess>> byRegionCollect = processes.stream()
+                                .collect(Collectors.groupingBy(RegenerationProcess::getRegionName));
+
+                        for (Map.Entry<String, List<RegenerationProcess>> byRegion : byRegionCollect.entrySet()) {
+                            int byRegionCount = byRegion.getValue().size();
+
+                            stats.append(" &f").append(byRegion.getKey()).append(" &7(&f").append(byRegionCount).append("&7)&8:&7 ");
+
+                            Map<String, List<RegenerationProcess>> byPresetCollect = processes.stream()
+                                    .collect(Collectors.groupingBy(RegenerationProcess::getPresetName));
+
+                            for (Map.Entry<String, List<RegenerationProcess>> byPreset : byPresetCollect.entrySet()) {
+                                int byPresetCount = byPreset.getValue().size();
+                                stats.append("&f").append(byPreset.getKey()).append(" &7(&f").append(byPresetCount).append("&7) ");
+                            }
+                            stats.append("\n");
+                        }
+                    }
+                    sender.sendMessage(StringUtil.color(stats.toString()));
+                });
                 break;
             }
             case "debug":
