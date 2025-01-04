@@ -9,9 +9,9 @@ import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
 import nl.aurorion.blockregen.system.event.struct.PresetEvent;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
-import nl.aurorion.blockregen.system.preset.struct.drop.ExperienceDrop;
-import nl.aurorion.blockregen.system.preset.struct.drop.ItemDrop;
+import nl.aurorion.blockregen.system.preset.BlockPreset;
+import nl.aurorion.blockregen.system.preset.drop.DropItem;
+import nl.aurorion.blockregen.system.preset.drop.ExperienceDrop;
 import nl.aurorion.blockregen.system.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.system.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.util.BlockUtil;
@@ -456,8 +456,13 @@ public class RegenerationListener implements Listener {
 
                 experience += vanillaExperience;
             } else {
-                for (ItemDrop drop : preset.getRewards().getDrops()) {
-                    ItemStack itemStack = drop.toItemStack(player, parser);
+                for (DropItem drop : preset.getRewards().getDrops()) {
+
+                    if (!drop.shouldDrop()) {
+                        continue;
+                    }
+
+                    ItemStack itemStack = drop.toItemStack(parser);
 
                     if (itemStack == null) {
                         continue;
@@ -493,11 +498,11 @@ public class RegenerationListener implements Listener {
 
                 // Item reward
                 if (plugin.getRandom().nextInt(presetEvent.getItemRarity().getInt()) == 0) {
-                    ItemDrop eventDrop = presetEvent.getItem();
+                    DropItem eventDrop = presetEvent.getItem();
 
                     // Event item
                     if (eventDrop != null) {
-                        ItemStack eventStack = eventDrop.toItemStack(player, parser);
+                        ItemStack eventStack = eventDrop.toItemStack(parser);
 
                         if (eventStack != null) {
                             drops.put(eventStack, eventDrop.isDropNaturally());
@@ -505,8 +510,8 @@ public class RegenerationListener implements Listener {
                     }
 
                     // Add items from presetEvent
-                    for (ItemDrop drop : presetEvent.getRewards().getDrops()) {
-                        ItemStack item = drop.toItemStack(player, parser);
+                    for (DropItem drop : presetEvent.getRewards().getDrops()) {
+                        ItemStack item = drop.toItemStack(parser);
 
                         if (item != null) {
                             drops.put(item, drop.isDropNaturally());

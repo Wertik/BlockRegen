@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.system.preset.struct.drop;
+package nl.aurorion.blockregen.system.preset.drop;
 
 import com.cryptomorin.xseries.XEnchantment;
 import lombok.Getter;

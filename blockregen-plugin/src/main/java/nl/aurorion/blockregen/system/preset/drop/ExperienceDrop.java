@@ -1,8 +1,8 @@
-package nl.aurorion.blockregen.system.preset.struct.drop;
+package nl.aurorion.blockregen.system.preset.drop;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nl.aurorion.blockregen.system.preset.struct.Amount;
+import nl.aurorion.blockregen.system.preset.Amount;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +15,7 @@ public class ExperienceDrop {
     private Amount amount = new Amount(1);
 
     @Nullable
-    public static ExperienceDrop load(@Nullable ConfigurationSection section, ItemDrop itemDrop) {
+    public static ExperienceDrop load(@Nullable ConfigurationSection section, MinecraftDropItem itemDrop) {
 
         if (section == null)
             return null;

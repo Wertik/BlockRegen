@@ -9,7 +9,7 @@ import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
 import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.system.material.MinecraftMaterial;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
+import nl.aurorion.blockregen.system.preset.BlockPreset;
 import nl.aurorion.blockregen.util.BlockUtil;
 import nl.aurorion.blockregen.util.LocationUtil;
 import nl.aurorion.blockregen.version.api.NodeData;

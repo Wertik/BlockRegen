@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.providers.impl.*;
+import nl.aurorion.blockregen.system.drop.ItemProvider;
 import nl.aurorion.blockregen.system.material.parser.MaterialParser;
 
 import java.util.ArrayList;
@@ -90,6 +91,12 @@ public class CompatibilityManager {
             // Register parsers
             if (provider instanceof MaterialParser && provider.getPrefix() != null) {
                 plugin.getMaterialManager().registerParser(provider.getPrefix(), (MaterialParser) provider);
+                reloadPresets = true;
+            }
+
+            // Register ItemProviders
+            if (provider instanceof ItemProvider && provider.getPrefix() != null) {
+                plugin.getItemManager().registerProvider(provider.getPrefix(), (ItemProvider) provider);
                 reloadPresets = true;
             }
             log.info("Loaded support for " + container.getPluginName() + "!" + (provider.getFeatures() == null ? "" : " Features: &a" + String.join("&7, &a", provider.getFeatures()) + "&7."));

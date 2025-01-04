@@ -13,6 +13,7 @@ import nl.aurorion.blockregen.particles.impl.FlameCrown;
 import nl.aurorion.blockregen.particles.impl.WitchSpell;
 import nl.aurorion.blockregen.providers.CompatibilityManager;
 import nl.aurorion.blockregen.system.GsonHelper;
+import nl.aurorion.blockregen.system.drop.ItemManager;
 import nl.aurorion.blockregen.system.event.EventManager;
 import nl.aurorion.blockregen.system.material.MaterialManager;
 import nl.aurorion.blockregen.system.material.parser.MinecraftMaterialParser;
@@ -81,6 +82,9 @@ public class BlockRegen extends JavaPlugin implements Listener {
 
     @Getter
     private final MaterialManager materialManager = new MaterialManager(this);
+
+    @Getter
+    private final ItemManager itemManager = new ItemManager(this);
 
     @Getter
     private GsonHelper gsonHelper;

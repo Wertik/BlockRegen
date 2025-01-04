@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.api;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
+import nl.aurorion.blockregen.system.preset.BlockPreset;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.BlockBreakEvent;

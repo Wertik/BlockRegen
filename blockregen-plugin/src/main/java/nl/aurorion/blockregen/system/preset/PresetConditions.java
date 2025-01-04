@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.system.preset.struct;
+package nl.aurorion.blockregen.system.preset;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;

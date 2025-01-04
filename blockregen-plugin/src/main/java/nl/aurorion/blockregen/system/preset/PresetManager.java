@@ -1,26 +1,27 @@
 package nl.aurorion.blockregen.system.preset;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.system.drop.ItemProvider;
+import nl.aurorion.blockregen.system.event.struct.EventBossBar;
 import nl.aurorion.blockregen.system.event.struct.PresetEvent;
-import nl.aurorion.blockregen.system.preset.struct.Amount;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
-import nl.aurorion.blockregen.system.preset.struct.PresetConditions;
-import nl.aurorion.blockregen.system.preset.struct.PresetRewards;
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.preset.drop.*;
+import nl.aurorion.blockregen.system.preset.material.TargetMaterial;
 import nl.aurorion.blockregen.system.region.struct.RegenerationArea;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemFlag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log
 public class PresetManager {
@@ -180,7 +181,6 @@ public class PresetManager {
 
         // Conditions
         PresetConditions conditions = new PresetConditions();
-
         // Tools
         String toolsRequired = section.getString("tool-required");
         if (!Strings.isNullOrEmpty(toolsRequired)) {
@@ -200,21 +200,186 @@ public class PresetManager {
                 conditions.setJobsRequired(jobsRequired);
             }
         }
-
         preset.setConditions(conditions);
 
         // Rewards
-        PresetRewards rewards = PresetRewards.load(section, preset);
-
+        PresetRewards rewards = loadRewards(section, preset);
         preset.setRewards(rewards);
 
-        PresetEvent event = PresetEvent.load(section.getConfigurationSection("event"), name, preset);
-
-        if (event != null) {
-            plugin.getEventManager().addEvent(event);
+        try {
+            PresetEvent event = loadEvent(section.getConfigurationSection("event"), preset);
+            if (event != null) {
+                plugin.getEventManager().addEvent(event);
+            }
+        } catch (IllegalStateException e) {
+            log.warning("Failed to load event for preset " + preset.getName() + ": " + e.getMessage());
         }
 
         presets.put(name, preset);
         log.fine(() -> "Loaded preset " + preset);
+    }
+
+    private PresetEvent loadEvent(ConfigurationSection section, BlockPreset preset) throws IllegalStateException {
+        if (section == null) {
+            return null;
+        }
+
+        PresetEvent event = new PresetEvent(preset.getName());
+
+        String displayName = section.getString("event-name");
+        if (displayName == null) {
+            throw new IllegalStateException("Event name is missing.");
+        }
+
+        event.setDisplayName(displayName);
+
+        event.setDoubleDrops(section.getBoolean("double-drops", false));
+        event.setDoubleExperience(section.getBoolean("double-exp", false));
+
+        if (BlockRegen.getInstance().getVersionManager().isCurrentAbove("1.8", false))
+            event.setBossBar(EventBossBar.load(section.getConfigurationSection("bossbar"), "&eEvent &6" + displayName + " &eis active!"));
+
+        // Load legacy custom item option
+        event.setItem(loadDrop(section.getConfigurationSection("custom-item"), preset));
+
+        if (section.contains("custom-item.rarity")) {
+            Amount rarity = Amount.load(section, "custom-item.rarity", 1);
+            event.setItemRarity(rarity);
+        } else event.setItemRarity(new Amount(1));
+
+        event.setRewards(loadRewards(section, preset));
+
+        return event;
+    }
+
+    private PresetRewards loadRewards(ConfigurationSection section, BlockPreset preset) throws IllegalStateException {
+        if (section == null) {
+            return new PresetRewards();
+        }
+
+        PresetRewards rewards = new PresetRewards();
+
+        rewards.parseConsoleCommands(
+                getStringOrList(section, "console-commands", "console-command", "commands", "command"));
+        rewards.parsePlayerCommands(getStringOrList(section, "player-commands", "player-command"));
+        rewards.setMoney(Amount.load(section, "money", 0));
+
+        ConfigurationSection dropSection = section.getConfigurationSection("drop-item");
+
+        // Items Drops
+        if (dropSection != null) {
+            // Single drop
+            if (dropSection.contains("material") || dropSection.contains("item")) {
+                try {
+                    DropItem drop = loadDrop(dropSection, preset);
+                    if (drop != null) {
+                        rewards.getDrops().add(drop);
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warning("Failed to load drop item for event " + section.getName() + ": " + e.getMessage());
+                    return rewards;
+                }
+            } else {
+                // Multiple drops
+                for (String dropName : dropSection.getKeys(false)) {
+                    DropItem drop = loadDrop(dropSection.getConfigurationSection(dropName), preset);
+                    if (drop != null) {
+                        rewards.getDrops().add(drop);
+                    }
+                }
+            }
+
+            log.fine(() -> "Loaded drops " + rewards.getDrops().stream()
+                    .map(DropItem::toString)
+                    .collect(Collectors.joining()));
+        }
+        return rewards;
+    }
+
+    private DropItem loadDrop(ConfigurationSection section, BlockPreset preset) throws IllegalStateException {
+        if (section == null) {
+            return null;
+        }
+
+        // External item id provided.
+        if (section.contains("item")) {
+            String item = section.getString("item");
+            if (item == null) {
+                return null;
+            }
+
+            String[] parts = new String[]{item};
+
+            int index = item.indexOf(':');
+            if (index != -1) {
+                parts = new String[]{item.substring(0, index), item.substring(index + 1)};
+            }
+
+            String prefix = parts[0];
+            String id = parts[1];
+
+            ItemProvider provider = plugin.getItemManager().getProvider(prefix.toLowerCase());
+            if (provider == null) {
+                throw new IllegalStateException("Invalid prefix '" + prefix + "'");
+            }
+
+            if (!provider.exists(parts[1])) {
+                throw new IllegalStateException("External item '" + id + "' doesn't exist with the providing plugin.");
+            }
+
+            DropItem drop = new ExternalDropItem(provider, id);
+            drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
+            drop.setChance(Amount.load(section, "chance", 100));
+            drop.setAmount(Amount.load(section, "amount", 1));
+            return drop;
+        }
+
+        XMaterial material = ParseUtil.parseMaterial(section.getString("material"));
+        if (material == null) {
+            throw new IllegalStateException("Material is invalid.");
+        }
+
+        MinecraftDropItem drop = new MinecraftDropItem(material);
+
+        drop.setAmount(Amount.load(section, "amount", 1));
+        drop.setDisplayName(section.getString("name"));
+        drop.setLore(section.getStringList("lores"));
+
+        drop.setEnchants(Enchant.load(section.getStringList("enchants")));
+        drop.setItemFlags(section.getStringList("flags").stream()
+                .map(str -> ParseUtil.parseEnum(str, ItemFlag.class,
+                        e -> log.warning("Could not parse ItemFlag from " + str)))
+                .collect(Collectors.toSet()));
+
+        drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
+
+        drop.setExperienceDrop(ExperienceDrop.load(section.getConfigurationSection("exp"), drop));
+        drop.setChance(Amount.load(section, "chance", 100));
+
+        drop.setCustomModelData(ParseUtil.parseInteger(section.getString("custom-model-data")));
+
+        if (section.isSet("item-model")) {
+            String key = section.getString("item-model");
+            drop.setItemModel(NamespacedKey.fromString(Objects.requireNonNull(key)));
+        }
+
+        return drop;
+    }
+
+    @NotNull
+    private static List<String> getStringOrList(ConfigurationSection section, String... keys) {
+        for (String key : keys) {
+            if (section.get(key) == null) {
+                continue;
+            }
+
+            if (section.isList(key)) {
+                return section.getStringList(key);
+            } else if (section.isString(key)) {
+                String str = section.getString(key);
+                return Collections.singletonList(str);
+            }
+        }
+        return new ArrayList<>();
     }
 }

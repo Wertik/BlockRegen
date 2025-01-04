@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.system.region;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
+import nl.aurorion.blockregen.system.preset.BlockPreset;
 import nl.aurorion.blockregen.system.region.struct.*;
 import nl.aurorion.blockregen.util.LocationUtil;
 import org.bukkit.Location;

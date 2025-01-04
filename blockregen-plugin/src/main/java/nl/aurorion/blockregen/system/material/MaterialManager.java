@@ -4,8 +4,8 @@ import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.system.material.parser.MaterialParser;
-import nl.aurorion.blockregen.system.preset.struct.material.PlacementMaterial;
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.preset.material.PlacementMaterial;
+import nl.aurorion.blockregen.system.preset.material.TargetMaterial;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,9 +1,9 @@
-package nl.aurorion.blockregen.system.preset.struct;
+package nl.aurorion.blockregen.system.preset;
 
 import com.cryptomorin.xseries.XSound;
 import lombok.Data;
-import nl.aurorion.blockregen.system.preset.struct.material.PlacementMaterial;
-import nl.aurorion.blockregen.system.preset.struct.material.TargetMaterial;
+import nl.aurorion.blockregen.system.preset.material.PlacementMaterial;
+import nl.aurorion.blockregen.system.preset.material.TargetMaterial;
 import org.jetbrains.annotations.Nullable;
 
 @Data

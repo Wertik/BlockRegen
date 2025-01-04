@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.system.preset.struct.material;
+package nl.aurorion.blockregen.system.preset.material;
 
 import java.util.*;
 

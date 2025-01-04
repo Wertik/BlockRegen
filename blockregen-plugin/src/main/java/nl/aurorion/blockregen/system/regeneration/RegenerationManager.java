@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.system.AutoSaveTask;
-import nl.aurorion.blockregen.system.preset.struct.BlockPreset;
+import nl.aurorion.blockregen.system.preset.BlockPreset;
 import nl.aurorion.blockregen.system.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.system.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.version.api.NodeData;

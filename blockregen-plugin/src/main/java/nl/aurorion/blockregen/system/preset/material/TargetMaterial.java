@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.system.preset.struct.material;
+package nl.aurorion.blockregen.system.preset.material;
 
 import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
