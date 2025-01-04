@@ -1,17 +1,18 @@
-package nl.aurorion.blockregen.system.material.parser;
+package nl.aurorion.blockregen.providers.impl;
 
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.material.OraxenMaterial;
+import nl.aurorion.blockregen.providers.CompatibilityProvider;
 import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
+import nl.aurorion.blockregen.system.material.OraxenMaterial;
+import nl.aurorion.blockregen.system.material.parser.MaterialParser;
 import org.jetbrains.annotations.NotNull;
 
-public class OraxenMaterialParser implements MaterialParser {
+public class OraxenProvider extends CompatibilityProvider implements MaterialParser {
 
-    private final BlockRegen plugin;
-
-    public OraxenMaterialParser(BlockRegen plugin) {
-        this.plugin = plugin;
+    public OraxenProvider(BlockRegen plugin) {
+        super(plugin, "oraxen");
+        setFeatures("materials");
     }
 
     @Override

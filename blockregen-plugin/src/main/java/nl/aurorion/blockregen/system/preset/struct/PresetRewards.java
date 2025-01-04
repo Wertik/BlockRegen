@@ -101,11 +101,10 @@ public class PresetRewards {
     }
 
     public void give(Player player, Function<String, String> parser) {
-
-        if (BlockRegen.getInstance().getEconomy() != null) {
+        if (BlockRegen.getInstance().getCompatibilityManager().getEconomy().isLoaded()) {
             double money = this.money.getDouble();
             if (money > 0) {
-                BlockRegen.getInstance().getEconomy().depositPlayer(player, money);
+                BlockRegen.getInstance().getCompatibilityManager().getEconomy().get().depositPlayer(player, money);
             }
         }
 

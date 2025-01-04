@@ -6,10 +6,10 @@ import org.jetbrains.annotations.NotNull;
 public interface MaterialParser {
 
     /**
-     * Parse a TargetMaterial from an input string.
+     * Parse a BlockRegenMaterial from an input string.
      *
      * @param input String to parse from with the material prefix already removed. (ex.: 'oraxen:caveblock', input = 'caveblock').
-     * @return Parsed TargetMaterial
+     * @return Parsed BlockRegenMaterial
      * @throws IllegalArgumentException if the provided {@code input} is not a valid oraxen block id
      */
     @NotNull

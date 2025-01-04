@@ -1,25 +1,21 @@
 package nl.aurorion.blockregen;
 
-import com.bekvon.bukkit.residence.Residence;
-import com.bekvon.bukkit.residence.api.ResidenceApi;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import net.milkbowl.vault.economy.Economy;
 import nl.aurorion.blockregen.commands.Commands;
 import nl.aurorion.blockregen.configuration.Files;
-import nl.aurorion.blockregen.listeners.RegenerationListener;
 import nl.aurorion.blockregen.listeners.PlayerListener;
+import nl.aurorion.blockregen.listeners.RegenerationListener;
 import nl.aurorion.blockregen.particles.ParticleManager;
 import nl.aurorion.blockregen.particles.impl.FireWorks;
 import nl.aurorion.blockregen.particles.impl.FlameCrown;
 import nl.aurorion.blockregen.particles.impl.WitchSpell;
-import nl.aurorion.blockregen.providers.JobsProvider;
+import nl.aurorion.blockregen.providers.CompatibilityManager;
 import nl.aurorion.blockregen.system.GsonHelper;
 import nl.aurorion.blockregen.system.event.EventManager;
 import nl.aurorion.blockregen.system.material.MaterialManager;
-import nl.aurorion.blockregen.system.material.parser.*;
+import nl.aurorion.blockregen.system.material.parser.MinecraftMaterialParser;
 import nl.aurorion.blockregen.system.preset.PresetManager;
 import nl.aurorion.blockregen.system.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.system.region.RegionManager;
@@ -33,7 +29,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,47 +48,39 @@ public class BlockRegen extends JavaPlugin implements Listener {
         return BlockRegen.instance;
     }
 
-    // Dependencies
     @Getter
-    private Economy economy;
-    @Getter
-    private GriefPrevention griefPrevention;
-    @Getter
-    private ResidenceApi residence;
-    @Getter
-    private JobsProvider jobsProvider;
-
-    @Getter
-    private VersionManager versionManager;
-
-    @Getter
-    private boolean usePlaceholderAPI = false;
-
-    @Getter
-    private Files files;
-
-    @Getter
-    private Random random;
+    private final Random random = new Random();
 
     public String newVersion = null;
 
     @Getter
-    private PresetManager presetManager;
+    private boolean usePlaceholderAPI = false;
+
+    private boolean finishedLoading = false;
 
     @Getter
-    private ParticleManager particleManager;
+    private final VersionManager versionManager = new VersionManager(this);
 
     @Getter
-    private RegenerationManager regenerationManager;
+    private final Files files = new Files(this);
 
     @Getter
-    private RegionManager regionManager;
+    private final PresetManager presetManager = new PresetManager(this);
 
     @Getter
-    private EventManager eventManager;
+    private final ParticleManager particleManager = new ParticleManager();
 
     @Getter
-    private MaterialManager materialManager;
+    private final RegenerationManager regenerationManager = new RegenerationManager(this);
+
+    @Getter
+    private final RegionManager regionManager = new RegionManager(this);
+
+    @Getter
+    private final EventManager eventManager = new EventManager(this);
+
+    @Getter
+    private final MaterialManager materialManager = new MaterialManager(this);
 
     @Getter
     private GsonHelper gsonHelper;
@@ -101,7 +88,158 @@ public class BlockRegen extends JavaPlugin implements Listener {
     @Getter
     private ConsoleHandler consoleHandler;
 
-    private boolean finishedLoading = false;
+    @Getter
+    private CompatibilityManager compatibilityManager;
+
+    @Override
+    public void onEnable() {
+        BlockRegen.instance = this;
+
+        setupLogger();
+        files.load();
+        configureLogger();
+
+        log.info("Running on version " + versionManager.getVersion());
+
+        versionManager.load();
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeHierarchyAdapter(NodeData.class, new NodeDataAdapter<>())
+                .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()))
+                .setPrettyPrinting();
+        gsonHelper = new GsonHelper(gsonBuilder);
+
+        // Add default particles
+        new FireWorks().register();
+        new FlameCrown().register();
+        new WitchSpell().register();
+
+        Message.load();
+
+        // Default material parsers for minecraft materials
+        materialManager.registerParser(null, new MinecraftMaterialParser(this));
+        materialManager.registerParser("minecraft", new MinecraftMaterialParser(this));
+
+        checkPlaceholderAPI();
+
+        this.compatibilityManager = new CompatibilityManager(this);
+        compatibilityManager.discover(false);
+
+        presetManager.load();
+        regionManager.load();
+        regenerationManager.load();
+
+        finishedLoading = true;
+
+        registerListeners();
+
+        Objects.requireNonNull(getCommand("blockregen")).setExecutor(new Commands(this));
+
+        String ver = getDescription().getVersion();
+
+        log.info("&bYou are using" + (ver.contains("-SNAPSHOT") || ver.contains("-b") ? " &cDEVELOPMENT&b" : "")
+                + " version &f" + getDescription().getVersion());
+        log.info("&bReport bugs or suggestions to discord only please. &f( /blockregen discord )");
+        log.info("&bAlways backup if you are not sure about things.");
+
+        enableMetrics();
+
+        if (getConfig().getBoolean("Update-Checker", false)) {
+            getServer().getScheduler().runTaskLaterAsynchronously(this, () -> {
+                UpdateCheck updater = new UpdateCheck(this, 9885);
+                try {
+                    if (updater.checkForUpdates()) {
+                        newVersion = updater.getLatestVersion();
+                    }
+                } catch (Exception e) {
+                    log.warning("Could not check for updates.");
+                }
+            }, 20L);
+        }
+
+        // Check for deps and start auto save once the server is done loading.
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            compatibilityManager.discover(true);
+
+            if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
+                regenerationManager.startAutoSave();
+            }
+
+            regenerationManager.reattemptLoad();
+            regionManager.reattemptLoad();
+        }, 1L);
+    }
+
+    public void reload(CommandSender sender) {
+
+        if (!(sender instanceof ConsoleCommandSender))
+            this.consoleHandler.addListener(sender);
+
+        eventManager.disableAll();
+        eventManager.clearBars();
+
+        versionManager.load();
+
+        compatibilityManager.discover(false);
+        checkPlaceholderAPI();
+
+        files.getSettings().load();
+
+        configureLogger();
+
+        files.getMessages().load();
+        Message.load();
+
+        files.getBlockList().load();
+        presetManager.load();
+
+        regionManager.reload();
+
+        if (getConfig().getBoolean("Auto-Save.Enabled", false))
+            regenerationManager.reloadAutoSave();
+
+        this.consoleHandler.removeListener(sender);
+        sender.sendMessage(Message.RELOAD.get());
+    }
+
+    @Override
+    public void onDisable() {
+        if (regenerationManager.getAutoSaveTask() != null) {
+            regenerationManager.getAutoSaveTask().stop();
+        }
+
+        if (finishedLoading) {
+            regenerationManager.revertAll();
+            regenerationManager.save(true);
+
+            regionManager.save();
+        }
+
+        this.teardownLogger();
+    }
+
+    private void registerListeners() {
+        PluginManager pluginManager = this.getServer().getPluginManager();
+        pluginManager.registerEvents(new RegenerationListener(this), this);
+        pluginManager.registerEvents(new PlayerListener(this), this);
+    }
+
+    public void checkDependencies(boolean reloadPresets) {
+        log.info("Checking dependencies...");
+
+    }
+
+    private void checkPlaceholderAPI() {
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI") && !usePlaceholderAPI) {
+            usePlaceholderAPI = true;
+            log.info("Found PlaceholderAPI! &aUsing it for placeholders.");
+        }
+    }
+
+    public void enableMetrics() {
+        new MetricsLite(this);
+        log.info("&8MetricsLite enabled");
+    }
 
     private static Logger getParentLogger() {
         return Logger.getLogger(PACKAGE_NAME);
@@ -141,245 +279,6 @@ public class BlockRegen extends JavaPlugin implements Listener {
     public void setLogLevel(Level level) {
         Logger parentLogger = getParentLogger();
         parentLogger.setLevel(level);
-    }
-
-    @Override
-    public void onEnable() {
-        BlockRegen.instance = this;
-
-        random = new Random();
-
-        this.setupLogger();
-
-        this.files = new Files(this);
-        this.files.load();
-
-        this.configureLogger();
-
-        versionManager = new VersionManager(this);
-        log.info("Running on version " + versionManager.getVersion());
-
-        versionManager.load();
-
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeHierarchyAdapter(NodeData.class, new NodeDataAdapter<>())
-                .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()))
-                .setPrettyPrinting();
-
-        gsonHelper = new GsonHelper(gsonBuilder);
-
-        particleManager = new ParticleManager();
-
-        // Add default particles
-        new FireWorks().register();
-        new FlameCrown().register();
-        new WitchSpell().register();
-
-        presetManager = new PresetManager(this);
-        regenerationManager = new RegenerationManager(this);
-        regionManager = new RegionManager(this);
-        eventManager = new EventManager(this);
-        materialManager = new MaterialManager(this);
-
-        Message.load();
-
-        materialManager.registerParser(null, new MinecraftMaterialParser(this));
-        materialManager.registerParser("minecraft", new MinecraftMaterialParser(this));
-        checkDependencies(false);
-
-        presetManager.loadAll();
-        regionManager.load();
-        regenerationManager.load();
-
-        finishedLoading = true;
-
-        registerListeners();
-
-        Objects.requireNonNull(getCommand("blockregen")).setExecutor(new Commands(this));
-
-        String ver = getDescription().getVersion();
-
-        log.info("&bYou are using" + (ver.contains("-SNAPSHOT") || ver.contains("-b") ? " &cDEVELOPMENT&b" : "")
-                + " version &f" + getDescription().getVersion());
-        log.info("&bReport bugs or suggestions to discord only please. &f( /blockregen discord )");
-        log.info("&bAlways backup if you are not sure about things.");
-
-        enableMetrics();
-
-        if (getConfig().getBoolean("Update-Checker", false)) {
-            getServer().getScheduler().runTaskLaterAsynchronously(this, () -> {
-                UpdateCheck updater = new UpdateCheck(this, 9885);
-                try {
-                    if (updater.checkForUpdates()) {
-                        newVersion = updater.getLatestVersion();
-                    }
-                } catch (Exception e) {
-                    log.warning("Could not check for updates.");
-                }
-            }, 20L);
-        }
-
-        // Check for deps and start auto save once the server is done loading.
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            checkDependencies(true);
-
-            if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
-                regenerationManager.startAutoSave();
-            }
-
-            regenerationManager.reattemptLoad();
-            regionManager.reattemptLoad();
-        }, 1L);
-    }
-
-    public void reload(CommandSender sender) {
-
-        if (!(sender instanceof ConsoleCommandSender))
-            this.consoleHandler.addListener(sender);
-
-        eventManager.disableAll();
-        eventManager.clearBars();
-
-        // Load again in case something got installed.
-        versionManager.load();
-
-        checkDependencies(false);
-
-        files.getSettings().load();
-
-        configureLogger();
-
-        files.getMessages().load();
-        Message.load();
-
-        files.getBlockList().load();
-        presetManager.loadAll();
-
-        regionManager.reload();
-
-        if (getConfig().getBoolean("Auto-Save.Enabled", false))
-            regenerationManager.reloadAutoSave();
-
-        this.consoleHandler.removeListener(sender);
-        sender.sendMessage(Message.RELOAD.get());
-    }
-
-    @Override
-    public void onDisable() {
-        if (regenerationManager.getAutoSaveTask() != null) {
-            regenerationManager.getAutoSaveTask().stop();
-        }
-
-        if (finishedLoading) {
-            regenerationManager.revertAll();
-            regenerationManager.save(true);
-
-            regionManager.save();
-        }
-
-        this.teardownLogger();
-    }
-
-    private void registerListeners() {
-        PluginManager pluginManager = this.getServer().getPluginManager();
-        pluginManager.registerEvents(new RegenerationListener(this), this);
-        pluginManager.registerEvents(new PlayerListener(this), this);
-    }
-
-    public void checkDependencies(boolean reloadPresets) {
-        log.info("Checking dependencies...");
-        setupEconomy();
-        setupJobs(reloadPresets);
-        setupResidence();
-        setupGriefPrevention();
-        setupPlaceholderAPI();
-        setupMaterialParsers(reloadPresets);
-    }
-
-    private void setupMaterialParsers(boolean reloadPresets) {
-        boolean newDeps = false;
-
-        if (getServer().getPluginManager().isPluginEnabled("Oraxen")) {
-            materialManager.registerParser("oraxen", new OraxenMaterialParser(this));
-            newDeps = true;
-        }
-
-        if (getServer().getPluginManager().isPluginEnabled("Nexo")) {
-            materialManager.registerParser("nexo", new NexoMaterialParser(this));
-            newDeps = true;
-        }
-
-        if (getServer().getPluginManager().isPluginEnabled("MMOItems")) {
-            materialManager.registerParser("mmoitems", new MMOItemsMaterialParser(this));
-            newDeps = true;
-        }
-
-        if (getServer().getPluginManager().isPluginEnabled("ItemsAdder")) {
-            materialManager.registerParser("ia", new ItemsAdderMaterialParser());
-            newDeps = true;
-        }
-
-        if (reloadPresets && newDeps) {
-            log.info("Reloading presets to add material parsers requirements...");
-            this.presetManager.loadAll();
-        }
-    }
-
-    private void setupEconomy() {
-        if (economy != null)
-            return;
-
-        if (!getServer().getPluginManager().isPluginEnabled("Vault"))
-            return;
-
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-
-        if (rsp == null) {
-            log.info("Found Vault, but no Economy Provider is registered.");
-            return;
-        }
-
-        economy = rsp.getProvider();
-        log.info("Vault & economy plugin found! &aEnabling economy functions.");
-    }
-
-    private void setupJobs(boolean reloadPresets) {
-        if (getServer().getPluginManager().isPluginEnabled("Jobs") && jobsProvider == null) {
-            this.jobsProvider = new JobsProvider();
-            log.info("Jobs found! &aEnabling Jobs requirements and rewards.");
-
-            if (reloadPresets) {
-                // Load presets again because of jobs check.
-                this.presetManager.loadAll();
-                log.info("Reloading presets to add jobs requirements...");
-            }
-        }
-    }
-
-    private void setupGriefPrevention() {
-        if (getServer().getPluginManager().isPluginEnabled("GriefPrevention") && griefPrevention == null) {
-            this.griefPrevention = GriefPrevention.instance;
-            log.info("GriefPrevention found! &aSupporting it's protection.");
-        }
-    }
-
-    private void setupResidence() {
-        if (getServer().getPluginManager().isPluginEnabled("Residence") && residence == null) {
-            this.residence = Residence.getInstance().getAPI();
-            log.info("Found Residence! &aRespecting it's protection.");
-        }
-    }
-
-    private void setupPlaceholderAPI() {
-        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI") && !usePlaceholderAPI) {
-            usePlaceholderAPI = true;
-            log.info("Found PlaceholderAPI! &aUsing it for placeholders.");
-        }
-    }
-
-    public void enableMetrics() {
-        new MetricsLite(this);
-        log.info("&8MetricsLite enabled");
     }
 
     @Override

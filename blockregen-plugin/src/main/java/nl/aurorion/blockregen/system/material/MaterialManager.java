@@ -38,8 +38,15 @@ public class MaterialManager {
      * We could use a different separator, but screw it, a colon looks cool.
      */
     public void registerParser(@Nullable String prefix, @NotNull MaterialParser parser) {
-        registeredParsers.put((prefix == null ? null : prefix.toLowerCase()), parser);
-        log.fine(() -> String.format("Registered material parser with prefix %s", prefix));
+        prefix = (prefix == null ? null : prefix.toLowerCase());
+
+        MaterialParser registeredParser = registeredParsers.get(prefix);
+        if (registeredParser != null && registeredParser.getClass() == parser.getClass()) {
+            return;
+        }
+
+        registeredParsers.put(prefix, parser);
+        log.fine(String.format("Registered material parser with prefix %s", prefix));
     }
 
     @Nullable

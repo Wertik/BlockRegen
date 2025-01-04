@@ -23,6 +23,7 @@ public class VersionManager {
     @Getter
     private final String version = loadNMSVersion();
 
+    // Main plugin classes are the same across versions
     private WorldEditPlugin worldEdit;
     private WorldGuardPlugin worldGuard;
 
@@ -35,7 +36,6 @@ public class VersionManager {
 
     @Getter
     private NodeDataProvider nodeProvider;
-
     @Getter
     private NodeDataParser nodeDataParser;
 
@@ -47,7 +47,7 @@ public class VersionManager {
     }
 
     public void load() {
-
+        // todo: ideally move to CompatibilityManager as well.
         setupWorldEdit();
         setupWorldGuard();
 
@@ -148,7 +148,6 @@ public class VersionManager {
     }
 
     private void setupWorldEdit() {
-
         if (worldEditProvider != null) {
             return;
         }
@@ -160,20 +159,22 @@ public class VersionManager {
         }
 
         this.worldEdit = (WorldEditPlugin) worldEditPlugin;
-        log.info("WorldEdit found! &aEnabling regions.");
+        log.info("WorldEdit found! &aUsing it for regions.");
     }
 
     private void setupWorldGuard() {
-        if (worldGuardProvider != null)
+        if (worldGuardProvider != null) {
             return;
+        }
 
         Plugin worldGuardPlugin = plugin.getServer().getPluginManager().getPlugin("WorldGuard");
 
-        if (!(worldGuardPlugin instanceof WorldGuardPlugin))
+        if (!(worldGuardPlugin instanceof WorldGuardPlugin)) {
             return;
+        }
 
         this.worldGuard = (WorldGuardPlugin) worldGuardPlugin;
-        log.info("WorldGuard found! &aSupporting it's Region protection.");
+        log.info("WorldGuard found! &aRespecting it's protection.");
     }
 
     public boolean useCustomModelData() {

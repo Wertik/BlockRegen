@@ -55,7 +55,7 @@ public class PresetConditions {
         player.sendMessage(Message.TOOL_REQUIRED_ERROR.get(player)
                 .replace("%tool%", requirements));
         log.fine(() -> String.format("Player doesn't have the required tools. Tool: %s, required: %s",
-                tool.getType().toString(), requirements));
+                tool.getType(), requirements));
         return false;
     }
 
@@ -84,7 +84,7 @@ public class PresetConditions {
 
             for (Map.Entry<XEnchantment, Integer> entry : enchantsRequired.entrySet()) {
 
-                Enchantment enchantment = entry.getKey().getEnchant();
+                Enchantment enchantment = entry.getKey().get();
 
                 if (enchantment == null)
                     continue;
@@ -108,9 +108,9 @@ public class PresetConditions {
     }
 
     public boolean checkJobs(Player player) {
-
-        if (BlockRegen.getInstance().getJobsProvider() == null || jobsRequired.isEmpty())
+        if (BlockRegen.getInstance().getCompatibilityManager().getJobs().isLoaded() || jobsRequired.isEmpty()) {
             return true;
+        }
 
         JobsPlayer jobsPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 

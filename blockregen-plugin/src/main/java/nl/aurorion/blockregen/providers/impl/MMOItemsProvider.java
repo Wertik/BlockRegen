@@ -1,16 +1,16 @@
-package nl.aurorion.blockregen.system.material.parser;
+package nl.aurorion.blockregen.providers.impl;
 
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.material.MMOIItemsMaterial;
+import nl.aurorion.blockregen.providers.CompatibilityProvider;
 import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
+import nl.aurorion.blockregen.system.material.MMOIItemsMaterial;
+import nl.aurorion.blockregen.system.material.parser.MaterialParser;
 import org.jetbrains.annotations.NotNull;
 
-public class MMOItemsMaterialParser implements MaterialParser {
-
-    private final BlockRegen plugin;
-
-    public MMOItemsMaterialParser(BlockRegen plugin) {
-        this.plugin = plugin;
+public class MMOItemsProvider extends CompatibilityProvider implements MaterialParser {
+    public MMOItemsProvider(BlockRegen plugin) {
+        super(plugin, "mmoitems");
+        setFeatures("materials");
     }
 
     @Override

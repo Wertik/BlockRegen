@@ -1,17 +1,17 @@
-package nl.aurorion.blockregen.system.material.parser;
+package nl.aurorion.blockregen.providers.impl;
 
 import com.nexomc.nexo.api.NexoBlocks;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.material.NexoMaterial;
+import nl.aurorion.blockregen.providers.CompatibilityProvider;
 import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
+import nl.aurorion.blockregen.system.material.NexoMaterial;
+import nl.aurorion.blockregen.system.material.parser.MaterialParser;
 import org.jetbrains.annotations.NotNull;
 
-public class NexoMaterialParser implements MaterialParser {
-
-    private final BlockRegen plugin;
-
-    public NexoMaterialParser(BlockRegen plugin) {
-        this.plugin = plugin;
+public class NexoProvider extends CompatibilityProvider implements MaterialParser {
+    public NexoProvider(BlockRegen plugin) {
+        super(plugin, "nexo");
+        setFeatures("materials");
     }
 
     @Override

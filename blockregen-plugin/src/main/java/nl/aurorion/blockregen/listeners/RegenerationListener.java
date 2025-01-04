@@ -1,9 +1,5 @@
 package nl.aurorion.blockregen.listeners;
 
-import com.bekvon.bukkit.residence.api.ResidenceApi;
-import com.bekvon.bukkit.residence.containers.Flags;
-import com.bekvon.bukkit.residence.protection.ClaimedResidence;
-import com.bekvon.bukkit.residence.protection.ResidencePermissions;
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import com.palmergames.bukkit.towny.TownyAPI;
@@ -52,12 +48,6 @@ public class RegenerationListener implements Listener {
 
     public RegenerationListener(BlockRegen plugin) {
         this.plugin = plugin;
-    }
-
-    // Type of the event being handled.
-    enum EventType {
-        BLOCK_BREAK,
-        TRAMPLING
     }
 
     @EventHandler
@@ -307,13 +297,8 @@ public class RegenerationListener implements Listener {
         }
 
         // Grief Prevention
-        if (plugin.getConfig().getBoolean("GriefPrevention-Support", true) && plugin.getGriefPrevention() != null) {
-            String noBuildReason = plugin.getGriefPrevention().allowBreak(player, block, block.getLocation(), null);
-
-            if (noBuildReason != null) {
-                log.fine(() -> "Let GriefPrevention handle this.");
-                return true;
-            }
+        if (plugin.getConfig().getBoolean("GriefPrevention-Support", true) && plugin.getCompatibilityManager().getGriefPrevention().isLoaded()) {
+            plugin.getCompatibilityManager().getGriefPrevention().get().canBreak(block, player);
         }
 
         // WorldGuard
@@ -334,29 +319,9 @@ public class RegenerationListener implements Listener {
         }
 
         // Residence
-        if (plugin.getConfig().getBoolean("Residence-Support", true) && plugin.getResidence() != null) {
-            ClaimedResidence residence = ResidenceApi.getResidenceManager().getByLoc(block.getLocation());
-
-            if (residence != null) {
-                ResidencePermissions permissions = residence.getPermissions();
-
-                if (type == EventType.BLOCK_BREAK) {
-                    // has neither build nor destroy
-                    // let residence run its protection
-                    if (!permissions.playerHas(player, Flags.destroy, true) &&
-                            !permissions.playerHas(player, Flags.build, true)) {
-                        log.fine(() -> "Let Residence handle block break.");
-                        return true;
-                    }
-                } else if (type == EventType.TRAMPLING) {
-                    if (!permissions.playerHas(player, Flags.trample, true)) {
-                        log.fine(() -> "Let Residence handle trample.");
-                        return true;
-                    }
-                }
-            }
+        if (plugin.getConfig().getBoolean("Residence-Support", true) && plugin.getCompatibilityManager().getResidence().isLoaded()) {
+            plugin.getCompatibilityManager().getResidence().get().canBreak(block, player, type);
         }
-
         return false;
     }
 
@@ -557,9 +522,8 @@ public class RegenerationListener implements Listener {
             giveExp(block.getLocation(), player, experience, preset.isDropNaturally());
 
             // Trigger Jobs Break if enabled
-            if (plugin.getConfig().getBoolean("Jobs-Rewards", false) && plugin.getJobsProvider() != null) {
-                Bukkit.getScheduler().runTask(plugin,
-                        () -> plugin.getJobsProvider().triggerBlockBreakAction(player, block));
+            if (plugin.getConfig().getBoolean("Jobs-Rewards", false) && plugin.getCompatibilityManager().getJobs().isLoaded()) {
+                Bukkit.getScheduler().runTask(plugin, () -> plugin.getCompatibilityManager().getJobs().get().triggerBlockBreakAction(player, block));
             }
 
             // Other rewards - commands, money etc.

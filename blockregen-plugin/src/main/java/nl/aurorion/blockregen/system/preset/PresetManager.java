@@ -65,7 +65,7 @@ public class PresetManager {
         return Collections.unmodifiableMap(presets);
     }
 
-    public void loadAll() {
+    public void load() {
         presets.clear();
 
         // Clear all events before loading.
@@ -194,7 +194,7 @@ public class PresetManager {
         }
 
         // Jobs
-        if (plugin.getJobsProvider() != null) {
+        if (plugin.getCompatibilityManager().getJobs().isLoaded()) {
             String jobsRequired = section.getString("jobs-check");
             if (!Strings.isNullOrEmpty(jobsRequired)) {
                 conditions.setJobsRequired(jobsRequired);
