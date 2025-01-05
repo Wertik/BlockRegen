@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.api;
 
 import lombok.Getter;
-import nl.aurorion.blockregen.system.preset.BlockPreset;
+import nl.aurorion.blockregen.preset.BlockPreset;
 import org.bukkit.block.Block;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.BlockEvent;

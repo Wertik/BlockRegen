@@ -10,7 +10,7 @@ import nl.aurorion.blockregen.version.ancient.AncientMethods;
 import nl.aurorion.blockregen.version.ancient.AncientNodeData;
 import nl.aurorion.blockregen.version.ancient.AncientNodeDataParser;
 import nl.aurorion.blockregen.version.api.*;
-import nl.aurorion.blockregen.version.current.*;
+import nl.aurorion.blockregen.version.latest.*;
 import nl.aurorion.blockregen.version.legacy.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;

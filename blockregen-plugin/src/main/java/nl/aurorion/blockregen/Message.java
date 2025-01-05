@@ -2,7 +2,7 @@ package nl.aurorion.blockregen;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.aurorion.blockregen.util.TextUtil;
+import nl.aurorion.blockregen.util.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -117,11 +117,11 @@ public enum Message {
     }
 
     public String get() {
-        return StringUtil.color(TextUtil.parse(insertPrefix ? "%prefix%" + this.value : this.value));
+        return StringUtil.color(Text.parse(insertPrefix ? "%prefix%" + this.value : this.value));
     }
 
     public String get(Player player) {
-        return StringUtil.color(TextUtil.parse(insertPrefix ? "%prefix%" + this.value : this.value, player));
+        return StringUtil.color(Text.parse(insertPrefix ? "%prefix%" + this.value : this.value, player));
     }
 
     public void send(CommandSender target) {

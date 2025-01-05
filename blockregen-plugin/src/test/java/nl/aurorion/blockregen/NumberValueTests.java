@@ -1,9 +1,9 @@
 package nl.aurorion.blockregen;
 
 import nl.aurorion.blockregen.configuration.ParseException;
-import nl.aurorion.blockregen.system.preset.FixedNumberValue;
-import nl.aurorion.blockregen.system.preset.NumberValue;
-import nl.aurorion.blockregen.system.preset.UniformNumberValue;
+import nl.aurorion.blockregen.preset.FixedNumberValue;
+import nl.aurorion.blockregen.preset.NumberValue;
+import nl.aurorion.blockregen.preset.UniformNumberValue;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeAll;
