@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.version.latest;
+package nl.aurorion.blockregen.version.current;
 
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;

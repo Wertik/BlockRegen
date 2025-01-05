@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.version.latest;
+package nl.aurorion.blockregen.version.current;
 
 import lombok.NoArgsConstructor;
 import nl.aurorion.blockregen.version.NodeDataDeserializer;

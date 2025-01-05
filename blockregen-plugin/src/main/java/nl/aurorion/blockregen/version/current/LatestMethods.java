@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.version.latest;
+package nl.aurorion.blockregen.version.current;
 
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;

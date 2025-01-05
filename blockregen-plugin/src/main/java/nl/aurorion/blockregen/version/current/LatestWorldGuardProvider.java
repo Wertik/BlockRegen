@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.version.latest;
+package nl.aurorion.blockregen.version.current;
 
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
