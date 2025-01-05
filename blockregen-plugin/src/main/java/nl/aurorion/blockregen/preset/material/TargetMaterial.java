@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.preset.material;
 
+import lombok.Getter;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import java.util.List;
 
 // A collection of BlockRegen materials to match against.
 public class TargetMaterial {
+    @Getter
     private final List<BlockRegenMaterial> materials;
 
     private TargetMaterial(Collection<BlockRegenMaterial> materials) {

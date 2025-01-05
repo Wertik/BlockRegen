@@ -1,7 +1,6 @@
 package nl.aurorion.blockregen.material;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.material.parser.MaterialParser;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
@@ -20,12 +19,9 @@ public class MaterialManager {
 
     private static final Pattern COLON_PATTERN = Pattern.compile("(?<!http(?s)):(?!//)");
 
-    private final BlockRegen plugin;
-
     private final Map<String, MaterialParser> registeredParsers = new HashMap<>();
 
-    public MaterialManager(BlockRegen plugin) {
-        this.plugin = plugin;
+    public MaterialManager() {
     }
 
     /**

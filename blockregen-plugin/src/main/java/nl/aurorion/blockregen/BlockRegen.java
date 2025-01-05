@@ -80,7 +80,7 @@ public class BlockRegen extends JavaPlugin implements Listener {
     private final EventManager eventManager = new EventManager(this);
 
     @Getter
-    private final MaterialManager materialManager = new MaterialManager(this);
+    private final MaterialManager materialManager = new MaterialManager();
 
     @Getter
     private final ItemManager itemManager = new ItemManager(this);
