@@ -20,7 +20,7 @@ public class PresetRewards {
 
     @Getter
     @Setter
-    private Amount money;
+    private NumberValue money;
 
     @Getter
     private List<Command> consoleCommands;

@@ -6,6 +6,8 @@ import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
 import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.configuration.LoadResult;
+import nl.aurorion.blockregen.configuration.ParseException;
 import nl.aurorion.blockregen.system.drop.ItemProvider;
 import nl.aurorion.blockregen.system.event.struct.EventBossBar;
 import nl.aurorion.blockregen.system.event.struct.PresetEvent;
@@ -91,7 +93,10 @@ public class PresetManager {
         log.info("Added " + plugin.getEventManager().getLoadedEvents().size() + " event(s)...");
     }
 
-    public void load(String name) throws IllegalArgumentException {
+    /**
+     * @throws IllegalArgumentException If parsing fails.
+     */
+    public void load(String name) {
         FileConfiguration file = plugin.getFiles().getBlockList().getFileConfiguration();
 
         ConfigurationSection section = file.getConfigurationSection("Blocks." + name);
@@ -133,8 +138,9 @@ public class PresetManager {
         }
         log.fine(() -> String.format("regenerate-into: %s", preset.getRegenMaterial()));
 
-        // Delay
-        preset.setDelay(Amount.load(file, "Blocks." + name + ".regen-delay", 3));
+        LoadResult.tryLoad(section, "regen-delay", NumberValue.Parser::load)
+                .ifEmpty(NumberValue.fixed(3))
+                .apply(preset::setDelay);
 
         // Natural break
         preset.setNaturalBreak(section.getBoolean("natural-break", true));
@@ -219,7 +225,10 @@ public class PresetManager {
         log.fine(() -> "Loaded preset " + preset);
     }
 
-    private PresetEvent loadEvent(ConfigurationSection section, BlockPreset preset) throws IllegalStateException {
+    /**
+     * @throws IllegalStateException If the parsing fails.
+     */
+    private PresetEvent loadEvent(ConfigurationSection section, BlockPreset preset) {
         if (section == null) {
             return null;
         }
@@ -236,23 +245,27 @@ public class PresetManager {
         event.setDoubleDrops(section.getBoolean("double-drops", false));
         event.setDoubleExperience(section.getBoolean("double-exp", false));
 
-        if (BlockRegen.getInstance().getVersionManager().isCurrentAbove("1.8", false))
+        if (BlockRegen.getInstance().getVersionManager().isCurrentAbove("1.8", false)) {
             event.setBossBar(EventBossBar.load(section.getConfigurationSection("bossbar"), "&eEvent &6" + displayName + " &eis active!"));
+        }
 
         // Load legacy custom item option
         event.setItem(loadDrop(section.getConfigurationSection("custom-item"), preset));
 
-        if (section.contains("custom-item.rarity")) {
-            Amount rarity = Amount.load(section, "custom-item.rarity", 1);
-            event.setItemRarity(rarity);
-        } else event.setItemRarity(new Amount(1));
+        LoadResult.tryLoad(section, "custom-item.rarity", NumberValue.Parser::load)
+                .ifNotFull(NumberValue.fixed(1))
+                .apply(event::setItemRarity);
 
         event.setRewards(loadRewards(section, preset));
 
         return event;
     }
 
-    private PresetRewards loadRewards(ConfigurationSection section, BlockPreset preset) throws IllegalStateException {
+    /**
+     * @throws IllegalStateException If the parsing fails.
+     * @throws ParseException If the parsing fails.
+     */
+    private PresetRewards loadRewards(ConfigurationSection section, BlockPreset preset) {
         if (section == null) {
             return new PresetRewards();
         }
@@ -262,7 +275,9 @@ public class PresetManager {
         rewards.parseConsoleCommands(
                 getStringOrList(section, "console-commands", "console-command", "commands", "command"));
         rewards.parsePlayerCommands(getStringOrList(section, "player-commands", "player-command"));
-        rewards.setMoney(Amount.load(section, "money", 0));
+        LoadResult.tryLoad(section, "money", NumberValue.Parser::load)
+                .ifNotFull(NumberValue.fixed(0))
+                .apply(rewards::setMoney);
 
         ConfigurationSection dropSection = section.getConfigurationSection("drop-item");
 
@@ -296,7 +311,10 @@ public class PresetManager {
         return rewards;
     }
 
-    private DropItem loadDrop(ConfigurationSection section, BlockPreset preset) throws IllegalStateException {
+    /**
+     * @throws IllegalStateException If the parsing fails.
+     */
+    private DropItem loadDrop(ConfigurationSection section, BlockPreset preset) {
         if (section == null) {
             return null;
         }
@@ -329,8 +347,12 @@ public class PresetManager {
 
             DropItem drop = new ExternalDropItem(provider, id);
             drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
-            drop.setChance(Amount.load(section, "chance", 100));
-            drop.setAmount(Amount.load(section, "amount", 1));
+            LoadResult.tryLoad(section, "chance", NumberValue.Parser::load)
+                    .ifNotFull(NumberValue.fixed(100))
+                    .apply(drop::setChance);
+            LoadResult.tryLoad(section, "amount", NumberValue.Parser::load)
+                    .ifNotFull(NumberValue.fixed(1))
+                    .apply(drop::setAmount);
             return drop;
         }
 
@@ -341,7 +363,9 @@ public class PresetManager {
 
         MinecraftDropItem drop = new MinecraftDropItem(material);
 
-        drop.setAmount(Amount.load(section, "amount", 1));
+        LoadResult.tryLoad(section, "amount", NumberValue.Parser::load)
+                .ifNotFull(NumberValue.fixed(1))
+                .apply(drop::setAmount);
         drop.setDisplayName(section.getString("name"));
         drop.setLore(section.getStringList("lores"));
 
@@ -354,7 +378,9 @@ public class PresetManager {
         drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
 
         drop.setExperienceDrop(ExperienceDrop.load(section.getConfigurationSection("exp"), drop));
-        drop.setChance(Amount.load(section, "chance", 100));
+        LoadResult.tryLoad(section, "chance", NumberValue.Parser::load)
+                .ifNotFull(NumberValue.fixed(100))
+                .apply(drop::setChance);
 
         drop.setCustomModelData(ParseUtil.parseInteger(section.getString("custom-model-data")));
 

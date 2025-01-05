@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.ParseException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -16,6 +17,14 @@ import java.util.function.Supplier;
 @Log
 @UtilityClass
 public class ParseUtil {
+
+    public double parseDouble(String input, Supplier<Double> onError) {
+        try {
+            return Double.parseDouble(input);
+        } catch (NumberFormatException e) {
+            return onError.get();
+        }
+    }
 
     /**
      * Attempt to parse an integer, return -1 if a NumberFormatException was thrown.

@@ -117,7 +117,7 @@ public class EventManager {
 
     public void addEvent(PresetEvent event) {
         this.loadedEvents.put(event.getName(), event);
-        log.fine(() -> "Added event " + event.getName());
+        log.fine(() -> "Added event " + event);
     }
 
     public boolean isEnabled(String name) {

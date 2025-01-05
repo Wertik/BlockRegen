@@ -30,4 +30,12 @@ public class Command {
     public boolean isEmpty() {
         return this.command.trim().isEmpty();
     }
+
+    @Override
+    public String toString() {
+        return "Command{" +
+                "command='" + command + '\'' +
+                ", chance=" + chance +
+                '}';
+    }
 }

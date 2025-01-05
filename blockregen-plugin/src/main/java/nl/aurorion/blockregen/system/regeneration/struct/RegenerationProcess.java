@@ -10,6 +10,7 @@ import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
 import nl.aurorion.blockregen.system.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.system.material.MinecraftMaterial;
 import nl.aurorion.blockregen.system.preset.BlockPreset;
+import nl.aurorion.blockregen.system.preset.FixedNumberValue;
 import nl.aurorion.blockregen.util.BlockUtil;
 import nl.aurorion.blockregen.util.LocationUtil;
 import nl.aurorion.blockregen.version.api.NodeData;
@@ -118,7 +119,7 @@ public class RegenerationProcess {
 
     // <0 => don't regenerate. wait for manual regeneration.
     public boolean shouldRegenerate() {
-        return !(preset.getDelay().isFixed() && preset.getDelay().getFixedValue() < 0);
+        return !(preset.getDelay() instanceof FixedNumberValue && preset.getDelay().getInt() < 0);
     }
 
     private void startTask() {

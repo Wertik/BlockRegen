@@ -18,7 +18,7 @@ public class BlockPreset {
     @Nullable
     private PlacementMaterial regenMaterial;
 
-    private Amount delay;
+    private NumberValue delay;
 
     private String particle;
     private String regenerationParticle;

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegen;
-import nl.aurorion.blockregen.system.preset.Amount;
+import nl.aurorion.blockregen.system.preset.NumberValue;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Function;
@@ -14,13 +14,13 @@ import java.util.function.Function;
 public abstract class DropItem {
 
     @Setter
-    protected Amount amount = new Amount(1);
+    protected NumberValue amount = NumberValue.fixed(1);
 
     @Setter
     protected boolean dropNaturally = false;
 
     @Setter
-    protected Amount chance;
+    protected NumberValue chance;
 
     @Setter
     protected ExperienceDrop experienceDrop;
