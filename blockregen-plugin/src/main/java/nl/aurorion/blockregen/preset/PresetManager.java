@@ -12,7 +12,6 @@ import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.event.struct.EventBossBar;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.drop.*;
-import nl.aurorion.blockregen.system.preset.drop.*;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import org.bukkit.NamespacedKey;
