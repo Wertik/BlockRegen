@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 @Log
 public class Amount {
 
-    private static final Pattern DASH_PATTERN = Pattern.compile("(-?\\\\d+)\\\\-(-?\\\\d+)");
+    private static final Pattern DASH_PATTERN = Pattern.compile("(-?\\d+)-(-?\\d+)");
 
     @Getter
     @Setter
