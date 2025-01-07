@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.particle.impl;
 
 import com.cryptomorin.xseries.XEntityType;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.util.Items;
 import nl.aurorion.blockregen.particle.AbstractParticle;
 import org.bukkit.Bukkit;
@@ -43,6 +43,6 @@ public class FireWorks extends AbstractParticle {
                 .build());
         fw.setFireworkMeta(fwm);
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(BlockRegen.getInstance(), fw::detonate, 2L);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(BlockRegenPluginImpl.getInstance(), fw::detonate, 2L);
     }
 }

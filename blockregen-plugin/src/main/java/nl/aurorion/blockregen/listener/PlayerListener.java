@@ -2,12 +2,12 @@ package nl.aurorion.blockregen.listener;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
-import nl.aurorion.blockregen.system.region.struct.RegionSelection;
+import nl.aurorion.blockregen.region.RegionSelection;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,9 +21,9 @@ import org.bukkit.inventory.EquipmentSlot;
 @Log
 public class PlayerListener implements Listener {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPluginImpl plugin;
 
-    public PlayerListener(BlockRegen instance) {
+    public PlayerListener(BlockRegenPluginImpl instance) {
         this.plugin = instance;
     }
 

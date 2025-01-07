@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.compatibility.impl;
 
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MMOIItemsMaterial;
@@ -8,7 +8,7 @@ import nl.aurorion.blockregen.material.parser.MaterialParser;
 import org.jetbrains.annotations.NotNull;
 
 public class MMOItemsProvider extends CompatibilityProvider implements MaterialParser {
-    public MMOItemsProvider(BlockRegen plugin) {
+    public MMOItemsProvider(BlockRegenPlugin plugin) {
         super(plugin, "mmoitems");
         setFeatures("materials");
     }

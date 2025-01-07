@@ -4,7 +4,7 @@ import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.regions.Region;
-import nl.aurorion.blockregen.system.region.struct.RegionSelection;
+import nl.aurorion.blockregen.region.RegionSelection;
 import nl.aurorion.blockregen.version.api.WorldEditProvider;
 import org.bukkit.Location;
 import org.bukkit.World;

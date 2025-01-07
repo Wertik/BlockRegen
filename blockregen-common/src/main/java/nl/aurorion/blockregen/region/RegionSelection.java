@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.system.region.struct;
+package nl.aurorion.blockregen.region;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

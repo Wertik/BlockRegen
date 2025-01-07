@@ -5,7 +5,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
@@ -44,9 +44,9 @@ import java.util.function.Predicate;
 @Log
 public class RegenerationListener implements Listener {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
-    public RegenerationListener(BlockRegen plugin) {
+    public RegenerationListener(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

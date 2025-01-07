@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.compatibility.impl;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class OraxenProvider extends CompatibilityProvider implements MaterialParser, ItemProvider {
 
-    public OraxenProvider(BlockRegen plugin) {
+    public OraxenProvider(BlockRegenPlugin plugin) {
         super(plugin, "oraxen");
         setFeatures("materials", "drops");
     }

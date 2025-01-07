@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.util;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.experimental.UtilityClass;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import org.bukkit.block.Block;
 
 @UtilityClass
@@ -12,7 +12,7 @@ public class Blocks {
         return "Block{" + Locations.locationToString(block.getLocation()) + ",type=" + block.getType() + "}";
     }
 
-    public static boolean isMultiblockCrop(BlockRegen plugin, Block block) {
+    public static boolean isMultiblockCrop(BlockRegenPlugin plugin, Block block) {
         XMaterial type = plugin.getVersionManager().getMethods().getType(block);
         return isMultiblockCrop(type);
     }

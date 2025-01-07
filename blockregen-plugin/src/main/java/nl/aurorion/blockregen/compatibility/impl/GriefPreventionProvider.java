@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.compatibility.impl;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ public class GriefPreventionProvider extends CompatibilityProvider {
     @Getter
     private GriefPrevention griefPrevention;
 
-    public GriefPreventionProvider(BlockRegen plugin) {
+    public GriefPreventionProvider(BlockRegenPlugin plugin) {
         super(plugin);
     }
 

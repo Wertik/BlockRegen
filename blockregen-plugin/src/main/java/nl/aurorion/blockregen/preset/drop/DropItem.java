@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.preset.drop;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.preset.NumberValue;
 import org.bukkit.inventory.ItemStack;
 
@@ -32,7 +32,7 @@ public abstract class DropItem {
         // x/100% chance to drop
         if (chance != null) {
             double threshold = chance.getDouble();
-            double roll = BlockRegen.getInstance().getRandom().nextDouble() * 100;
+            double roll = BlockRegenPluginImpl.getInstance().getRandom().nextDouble() * 100;
 
             if (roll > threshold) {
                 log.fine(() -> String.format("Drop %s failed chance roll, %.2f > %.2f", this, roll, threshold));

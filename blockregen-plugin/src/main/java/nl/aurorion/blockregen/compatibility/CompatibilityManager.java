@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.compatibility;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.impl.*;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.material.parser.MaterialParser;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 // todo: what if a providing plugin is unloaded?
 @Log
 public class CompatibilityManager {
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     private final List<ProviderContainer<?>> containers = new ArrayList<>();
 
@@ -37,7 +37,7 @@ public class CompatibilityManager {
     @Getter
     private final ProviderContainer<EconomyProvider> economy;
 
-    public CompatibilityManager(BlockRegen plugin) {
+    public CompatibilityManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
 
         this.jobs = createProvider("Jobs", () -> new JobsProvider(plugin))

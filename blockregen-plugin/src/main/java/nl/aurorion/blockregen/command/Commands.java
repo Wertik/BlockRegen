@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.command;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.collect.Lists;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.StringUtil;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
@@ -11,7 +11,7 @@ import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.region.struct.RegenerationRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationWorld;
-import nl.aurorion.blockregen.system.region.struct.RegionSelection;
+import nl.aurorion.blockregen.region.RegionSelection;
 import nl.aurorion.blockregen.util.Locations;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -49,9 +49,9 @@ public class Commands implements CommandExecutor {
             + "\n&3/%label% stats &8- &7Print statistics about currently running regeneration processes."
             + "\n&3/%label% discord &8- &7BlockRegen discord invite. Ask for support there.";
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
-    public Commands(BlockRegen plugin) {
+    public Commands(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

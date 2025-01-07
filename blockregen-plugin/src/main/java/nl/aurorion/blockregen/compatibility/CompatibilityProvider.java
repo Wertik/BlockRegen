@@ -2,12 +2,12 @@ package nl.aurorion.blockregen.compatibility;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 
 // Provider for compatibility with other plugins.
 @Log
 public abstract class CompatibilityProvider {
-    protected final BlockRegen plugin;
+    protected final BlockRegenPlugin plugin;
 
     @Getter
     private String[] features;
@@ -15,11 +15,11 @@ public abstract class CompatibilityProvider {
     @Getter
     private String prefix;
 
-    public CompatibilityProvider(BlockRegen plugin) {
+    public CompatibilityProvider(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public CompatibilityProvider(BlockRegen plugin, String prefix) {
+    public CompatibilityProvider(BlockRegenPlugin plugin, String prefix) {
         this.plugin = plugin;
         this.prefix = prefix;
     }

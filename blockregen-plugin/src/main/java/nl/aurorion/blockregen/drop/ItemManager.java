@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.drop;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -9,11 +9,11 @@ import java.util.Map;
 
 @Log
 public class ItemManager {
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     private final Map<String, ItemProvider> itemProviders = new HashMap<>();
 
-    public ItemManager(BlockRegen plugin) {
+    public ItemManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

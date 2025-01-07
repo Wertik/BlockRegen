@@ -2,6 +2,7 @@ package nl.aurorion.blockregen;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -15,9 +16,9 @@ public class AutoSaveTask implements Runnable {
     @Getter
     private boolean running = false;
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
-    public AutoSaveTask(BlockRegen plugin) {
+    public AutoSaveTask(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

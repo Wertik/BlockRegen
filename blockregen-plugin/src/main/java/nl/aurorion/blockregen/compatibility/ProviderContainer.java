@@ -2,13 +2,13 @@ package nl.aurorion.blockregen.compatibility;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 
 import java.util.function.Supplier;
 
 public class ProviderContainer<T extends CompatibilityProvider> {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     @Getter
     private final String pluginName;
@@ -24,7 +24,7 @@ public class ProviderContainer<T extends CompatibilityProvider> {
     private final Supplier<T> supplier;
     private T instance;
 
-    public ProviderContainer(BlockRegen plugin, String pluginName, Supplier<T> provider) {
+    public ProviderContainer(BlockRegenPlugin plugin, String pluginName, Supplier<T> provider) {
         this.plugin = plugin;
         this.pluginName = pluginName;
         this.supplier = provider;

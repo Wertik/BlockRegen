@@ -5,7 +5,7 @@ import com.bekvon.bukkit.residence.containers.Flags;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import com.bekvon.bukkit.residence.protection.ResidencePermissions;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.listener.EventType;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import org.bukkit.block.Block;
@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 @Log
 public class ResidenceProvider extends CompatibilityProvider {
 
-    public ResidenceProvider(BlockRegen plugin) {
+    public ResidenceProvider(BlockRegenPlugin plugin) {
         super(plugin);
     }
 

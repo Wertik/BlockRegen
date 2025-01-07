@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.event;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 @Log
 public class EventManager {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     private final Map<String, PresetEvent> loadedEvents = new HashMap<>();
 
-    public EventManager(BlockRegen plugin) {
+    public EventManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

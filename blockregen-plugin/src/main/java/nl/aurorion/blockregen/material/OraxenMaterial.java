@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.material;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.mechanics.Mechanic;
 import lombok.Getter;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import org.bukkit.block.Block;
 
 import java.util.Objects;
@@ -11,12 +11,12 @@ import java.util.Objects;
 // Check using the Oraxen API whether the destroyed block matches.
 public class OraxenMaterial implements BlockRegenMaterial {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     @Getter
     private final String oraxenId;
 
-    public OraxenMaterial(BlockRegen plugin, String oraxenId) {
+    public OraxenMaterial(BlockRegenPlugin plugin, String oraxenId) {
         this.plugin = plugin;
         this.oraxenId = oraxenId;
     }

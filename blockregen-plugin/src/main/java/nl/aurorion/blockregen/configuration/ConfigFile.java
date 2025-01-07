@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 
 @Log
 public class ConfigFile {
@@ -22,9 +22,9 @@ public class ConfigFile {
     @Getter
     private File file;
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
-    public ConfigFile(BlockRegen plugin, String path) {
+    public ConfigFile(BlockRegenPlugin plugin, String path) {
         this.path = path.contains(".yml") ? path : path + ".yml";
         this.plugin = plugin;
     }

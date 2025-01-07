@@ -2,13 +2,12 @@ package nl.aurorion.blockregen.region;
 
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.region.struct.RawRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.region.struct.RegenerationRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationWorld;
-import nl.aurorion.blockregen.system.region.struct.*;
 import nl.aurorion.blockregen.util.Locations;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -23,7 +22,7 @@ import java.util.*;
 @Log
 public class RegionManager {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     private final List<RegenerationArea> loadedAreas = new ArrayList<>();
 
@@ -32,7 +31,7 @@ public class RegionManager {
 
     private final Map<UUID, RegionSelection> selections = new HashMap<>();
 
-    public RegionManager(BlockRegen plugin) {
+    public RegionManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

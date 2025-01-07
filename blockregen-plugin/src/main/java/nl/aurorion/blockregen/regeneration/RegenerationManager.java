@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.regeneration;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.AutoSaveTask;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 @Log
 public class RegenerationManager {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     private final ConcurrentLinkedDeque<RegenerationProcess> cache = new ConcurrentLinkedDeque<>();
 
@@ -34,7 +34,7 @@ public class RegenerationManager {
 
     private final Set<UUID> dataCheck = new HashSet<>();
 
-    public RegenerationManager(BlockRegen plugin) {
+    public RegenerationManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

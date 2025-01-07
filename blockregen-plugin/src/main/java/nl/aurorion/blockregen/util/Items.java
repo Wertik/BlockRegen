@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.util;
 
 import com.cryptomorin.xseries.XEnchantment;
 import lombok.experimental.UtilityClass;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -30,14 +30,14 @@ public class Items {
      * Returns the quantity of items to drop on block destruction.
      */
     private int quantityDropped(Material mat) {
-        return mat == Material.LAPIS_ORE ? 4 + BlockRegen.getInstance().getRandom().nextInt(5) : 1;
+        return mat == Material.LAPIS_ORE ? 4 + BlockRegenPluginImpl.getInstance().getRandom().nextInt(5) : 1;
     }
 
     /**
      * Get the quantity dropped based on the given fortune level
      */
     public int applyFortune(Material mat, ItemStack tool) {
-        Enchantment fortune = Objects.requireNonNull(XEnchantment.FORTUNE.getEnchant(), "Could not parse fortune enchantment into this version.");
+        Enchantment fortune = Objects.requireNonNull(XEnchantment.FORTUNE.get(), "Could not parse fortune enchantment into this version.");
 
         if (tool.getItemMeta() == null || !tool.getItemMeta().hasEnchants() ||
                 !tool.getItemMeta().hasEnchant(fortune))
@@ -46,7 +46,7 @@ public class Items {
         int fortuneLevel = tool.getItemMeta().getEnchantLevel(fortune);
 
         if (fortuneLevel > 0) {
-            int i = BlockRegen.getInstance().getRandom().nextInt(fortuneLevel + 2) - 1;
+            int i = BlockRegenPluginImpl.getInstance().getRandom().nextInt(fortuneLevel + 2) - 1;
 
             if (i < 0) i = 0;
 

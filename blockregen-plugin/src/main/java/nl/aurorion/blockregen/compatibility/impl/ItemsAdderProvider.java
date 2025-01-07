@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.compatibility.impl;
 
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ItemsAdderProvider extends CompatibilityProvider implements MaterialParser, ItemProvider {
-    public ItemsAdderProvider(BlockRegen plugin) {
+    public ItemsAdderProvider(BlockRegenPlugin plugin) {
         super(plugin, "ia");
         setFeatures("materials", "drops");
     }

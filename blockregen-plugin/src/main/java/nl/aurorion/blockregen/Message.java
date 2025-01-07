@@ -133,7 +133,7 @@ public enum Message {
     }
 
     public static void load() {
-        FileConfiguration messages = BlockRegen.getInstance().getFiles().getMessages().getFileConfiguration();
+        FileConfiguration messages = BlockRegenPluginImpl.getInstance().getFiles().getMessages().getFileConfiguration();
 
         if (!messages.contains("Insert-Prefix"))
             messages.set("Insert-Prefix", true);
@@ -150,6 +150,6 @@ public enum Message {
             msg.setValue(str);
         }
 
-        BlockRegen.getInstance().getFiles().getMessages().save();
+        BlockRegenPluginImpl.getInstance().getFiles().getMessages().save();
     }
 }

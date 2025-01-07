@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.preset.drop.DropItem;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -32,15 +32,15 @@ public class PresetRewards {
     private List<DropItem> drops = new ArrayList<>();
 
     public void give(Player player, Function<String, String> parser) {
-        if (BlockRegen.getInstance().getCompatibilityManager().getEconomy().isLoaded()) {
+        if (BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().isLoaded()) {
             double money = this.money.getDouble();
             if (money > 0) {
-                BlockRegen.getInstance().getCompatibilityManager().getEconomy().get().depositPlayer(player, money);
+                BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().get().depositPlayer(player, money);
             }
         }
 
         // Sync commands
-        Bukkit.getScheduler().runTask(BlockRegen.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(BlockRegenPluginImpl.getInstance(), () -> {
             playerCommands.stream().filter(Command::shouldExecute).forEach(command -> Bukkit.dispatchCommand(player, parser.apply(command.getCommand())));
             consoleCommands.stream().filter(Command::shouldExecute).forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parser.apply(command.getCommand())));
         });

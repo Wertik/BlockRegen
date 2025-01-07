@@ -4,7 +4,7 @@ import com.cryptomorin.xseries.XMaterial;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.StringUtil;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
@@ -88,7 +88,7 @@ public class MinecraftDropItem extends DropItem {
         itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
 
         // On 1.14+, apply custom model data
-        if (BlockRegen.getInstance().getVersionManager().useCustomModelData()) {
+        if (BlockRegenPluginImpl.getInstance().getVersionManager().useCustomModelData()) {
             // Add PDC with custom model data
             if (customModelData != null) {
                 itemMeta.setCustomModelData(customModelData);

@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.compatibility.impl;
 
 import com.nexomc.nexo.api.NexoBlocks;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.NexoMaterial;
@@ -9,7 +9,7 @@ import nl.aurorion.blockregen.material.parser.MaterialParser;
 import org.jetbrains.annotations.NotNull;
 
 public class NexoProvider extends CompatibilityProvider implements MaterialParser {
-    public NexoProvider(BlockRegen plugin) {
+    public NexoProvider(BlockRegenPlugin plugin) {
         super(plugin, "nexo");
         setFeatures("materials");
     }

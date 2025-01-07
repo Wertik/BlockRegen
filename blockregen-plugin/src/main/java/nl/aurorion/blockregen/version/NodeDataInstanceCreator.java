@@ -7,9 +7,9 @@ import java.lang.reflect.Type;
 
 public class NodeDataInstanceCreator implements InstanceCreator<NodeData> {
 
-    private final VersionManager.NodeDataProvider provider;
+    private final VersionManagerImpl.NodeDataProvider provider;
 
-    public NodeDataInstanceCreator(VersionManager.NodeDataProvider provider) {
+    public NodeDataInstanceCreator(VersionManagerImpl.NodeDataProvider provider) {
         this.provider = provider;
     }
 

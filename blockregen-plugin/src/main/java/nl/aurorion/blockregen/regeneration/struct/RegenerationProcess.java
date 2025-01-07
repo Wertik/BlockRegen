@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
@@ -83,7 +84,7 @@ public class RegenerationProcess {
         // Ensure to stop and null anything that ran before.
         stop();
 
-        BlockRegen plugin = BlockRegen.getInstance();
+        BlockRegenPlugin plugin = BlockRegenPluginImpl.getInstance();
 
         // Register that the process is actually running now
         // #start() can be called even on a process already in cache due to #contains() checks (which use #equals()) in RegenerationManager.
@@ -124,7 +125,7 @@ public class RegenerationProcess {
 
     private void startTask() {
         // Start the task
-        this.task = Bukkit.getScheduler().runTaskLater(BlockRegen.getInstance(), this::regenerate, timeLeft / 50);
+        this.task = Bukkit.getScheduler().runTaskLater(BlockRegenPluginImpl.getInstance(), this::regenerate, timeLeft / 50);
         log.fine(() -> String.format("Regenerate %s in %ds", this, timeLeft / 1000));
     }
 
@@ -148,7 +149,7 @@ public class RegenerationProcess {
             task.cancel();
         }
 
-        BlockRegen plugin = BlockRegen.getInstance();
+        BlockRegenPlugin plugin = BlockRegenPluginImpl.getInstance();
 
         // If this block requires a block under it, wait for it to be there,
         // only if there's a running process at the block directly under.
@@ -215,7 +216,7 @@ public class RegenerationProcess {
         // -- Regenerate farmland under crops
         if (regenerateInto.requiresFarmland()) {
             Block under = block.getRelative(BlockFace.DOWN);
-            XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
+            XMaterial underType = BlockRegenPluginImpl.getInstance().getVersionManager().getMethods().getType(under);
 
             if (underType != XMaterial.FARMLAND) {
                 under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
@@ -232,7 +233,7 @@ public class RegenerationProcess {
     public void revert() {
         stop();
 
-        BlockRegen plugin = BlockRegen.getInstance();
+        BlockRegenPlugin plugin = BlockRegenPluginImpl.getInstance();
         plugin.getRegenerationManager().removeProcess(this);
 
         revertBlock();
@@ -245,7 +246,7 @@ public class RegenerationProcess {
         // -- Place farmland under crops
         if (Blocks.requiresFarmland(originalMaterial)) {
             Block under = block.getRelative(BlockFace.DOWN);
-            XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
+            XMaterial underType = BlockRegenPluginImpl.getInstance().getVersionManager().getMethods().getType(under);
             if (underType != XMaterial.FARMLAND) {
                 under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
             }
@@ -262,7 +263,7 @@ public class RegenerationProcess {
         // -- Place farmland under crops
         if (replaceMaterial.requiresFarmland()) {
             Block under = block.getRelative(BlockFace.DOWN);
-            XMaterial underType = BlockRegen.getInstance().getVersionManager().getMethods().getType(under);
+            XMaterial underType = BlockRegenPluginImpl.getInstance().getVersionManager().getMethods().getType(under);
             if (underType != XMaterial.FARMLAND) {
                 under.setType(Objects.requireNonNull(XMaterial.FARMLAND.get()));
             }
@@ -273,7 +274,7 @@ public class RegenerationProcess {
         replaceMaterial.applyData(block); // Apply configured data if any
 
         // Otherwise skull textures wouldn't update.
-        Bukkit.getScheduler().runTaskLater(BlockRegen.getInstance(), () -> block.getState().update(true), 1L);
+        Bukkit.getScheduler().runTaskLater(BlockRegenPluginImpl.getInstance(), () -> block.getState().update(true), 1L);
         log.fine(() -> "Replaced block for " + this);
     }
 
@@ -283,7 +284,7 @@ public class RegenerationProcess {
         if (regenerateInto == null) {
             // No regen material set in the preset. Regenerate into the original.
             if (preset.getRegenMaterial() == null) {
-                this.regenerateInto = new MinecraftMaterial(BlockRegen.getInstance(), this.originalMaterial, this.originalData);
+                this.regenerateInto = new MinecraftMaterial(BlockRegenPluginImpl.getInstance(), this.originalMaterial, this.originalData);
             } else {
                 this.regenerateInto = preset.getRegenMaterial().get();
             }
@@ -296,7 +297,7 @@ public class RegenerationProcess {
         // Make sure we always get something.
         if (replaceMaterial == null) {
             if (preset.getReplaceMaterial() == null) {
-                this.replaceMaterial = new MinecraftMaterial(BlockRegen.getInstance(), XMaterial.AIR, null);
+                this.replaceMaterial = new MinecraftMaterial(BlockRegenPluginImpl.getInstance(), XMaterial.AIR, null);
             } else {
                 this.replaceMaterial = preset.getReplaceMaterial().get();
             }
@@ -306,7 +307,7 @@ public class RegenerationProcess {
 
     @NotNull
     public BlockRegenMaterial getOriginalMaterial() {
-        return new MinecraftMaterial(BlockRegen.getInstance(), this.originalMaterial, this.originalData);
+        return new MinecraftMaterial(BlockRegenPluginImpl.getInstance(), this.originalMaterial, this.originalData);
     }
 
     // Convert stored Location pointer to the Block at the location.
@@ -325,12 +326,12 @@ public class RegenerationProcess {
         }
 
         // Prevent async chunk load.
-        Bukkit.getScheduler().runTask(BlockRegen.getInstance(), () -> this.block = block);
+        Bukkit.getScheduler().runTask(BlockRegenPluginImpl.getInstance(), () -> this.block = block);
         return true;
     }
 
     public boolean convertPreset() {
-        BlockRegen plugin = BlockRegen.getInstance();
+        BlockRegenPlugin plugin = BlockRegenPluginImpl.getInstance();
 
         BlockPreset preset = plugin.getPresetManager().getPreset(presetName);
 

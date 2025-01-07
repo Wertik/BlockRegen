@@ -1,7 +1,8 @@
 package nl.aurorion.blockregen.material;
 
 import com.cryptomorin.xseries.XMaterial;
-import nl.aurorion.blockregen.BlockRegen;
+import lombok.Getter;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.util.Blocks;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.block.Block;
@@ -9,20 +10,22 @@ import org.jetbrains.annotations.Nullable;
 
 public class MinecraftMaterial implements BlockRegenMaterial {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
+    @Getter
     private final XMaterial material;
 
+    @Getter
     @Nullable
     private final NodeData nodeData;
 
-    public MinecraftMaterial(BlockRegen plugin, XMaterial material, @Nullable NodeData nodeData) {
+    public MinecraftMaterial(BlockRegenPlugin plugin, XMaterial material, @Nullable NodeData nodeData) {
         this.plugin = plugin;
         this.material = material;
         this.nodeData = nodeData;
     }
 
-    public MinecraftMaterial(BlockRegen plugin, XMaterial material) {
+    public MinecraftMaterial(BlockRegenPlugin plugin, XMaterial material) {
         this.plugin = plugin;
         this.material = material;
         this.nodeData = null;

@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.compatibility.impl;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import net.milkbowl.vault.economy.Economy;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -14,7 +14,7 @@ public class EconomyProvider extends CompatibilityProvider {
     @Getter
     private Economy economy;
 
-    public EconomyProvider(BlockRegen plugin) {
+    public EconomyProvider(BlockRegenPlugin plugin) {
         super(plugin);
         setFeatures("rewards");
     }

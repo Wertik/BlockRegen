@@ -1,6 +1,9 @@
 package nl.aurorion.blockregen.material;
 
+import com.cryptomorin.xseries.XMaterial;
+import com.google.common.base.Strings;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.material.parser.MaterialParser;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
@@ -18,10 +21,14 @@ import java.util.stream.Collectors;
 public class MaterialManager {
 
     private static final Pattern COLON_PATTERN = Pattern.compile("(?<!http(?s)):(?!//)");
+    private static final Pattern PREFIX_PATTERN = Pattern.compile("^(\\w+):(.*)");
 
     private final Map<String, MaterialParser> registeredParsers = new HashMap<>();
 
-    public MaterialManager() {
+    private final BlockRegenPlugin plugin;
+
+    public MaterialManager(BlockRegenPlugin plugin) {
+        this.plugin = plugin;
     }
 
     /**
@@ -50,8 +57,11 @@ public class MaterialManager {
         return this.registeredParsers.get((prefix == null ? null : prefix.toLowerCase()));
     }
 
+    /**
+     * @throws IllegalArgumentException If the parsing fails.
+     */
     @NotNull
-    private Pair<BlockRegenMaterial, Double> parseMaterialAndChance(MaterialParser parser, String input) throws IllegalArgumentException {
+    private Pair<BlockRegenMaterial, Double> parseMaterialAndChance(@NotNull MaterialParser parser, @NotNull String input) {
         // The part until the last colon that's not part of 'https://'
         Matcher matcher = COLON_PATTERN.matcher(input);
 
@@ -68,6 +78,7 @@ public class MaterialManager {
             results.add(matcher.toMatchResult());
         }
 
+        // Count of colons in the input.
         long count = results.size();
 
         log.fine(() -> String.join(",", results.stream().map(MatchResult::group).collect(Collectors.joining(","))) + " " + count);
@@ -104,9 +115,12 @@ public class MaterialManager {
         }
     }
 
+    /**
+     * @throws IllegalArgumentException If the parsing fails.
+     */
     // <prefix:?><material>;<prefix:?><material>;...
     @NotNull
-    public TargetMaterial parseTargetMaterial(String input) throws IllegalArgumentException {
+    public TargetMaterial parseTargetMaterial(String input) {
         List<String> materials = Arrays.asList(input.split(";"));
 
         if (materials.isEmpty()) {
@@ -122,8 +136,11 @@ public class MaterialManager {
         return TargetMaterial.of(targetMaterials);
     }
 
+    /**
+     * @throws IllegalArgumentException If the parsing fails.
+     */
     @NotNull
-    public PlacementMaterial parsePlacementMaterial(String input) throws IllegalArgumentException {
+    public PlacementMaterial parsePlacementMaterial(@NotNull String input) {
         List<String> materials = Arrays.asList(input.split(";"));
 
         // Materials without a chance.
@@ -188,15 +205,24 @@ public class MaterialManager {
             }
         }
 
-        double rest = 1.0 - valuedMaterials.values().stream().mapToDouble(e -> e).sum();
+        double rest = 1.0 - valuedMaterials.values().stream()
+                .mapToDouble(e -> e)
+                .sum();
 
-        if (restMaterials.size() == 1) {
-            valuedMaterials.put(restMaterials.get(0), rest);
-            log.fine(() -> String.format("Added material %s at chance %.2f%%", restMaterials.get(0), rest));
-        } else {
-            // Split the rest of the chance between the materials.
-            double chance = rest / restMaterials.size();
-            restMaterials.forEach(mat -> valuedMaterials.put(mat, chance));
+        // Anything up to 100% left to distribute?
+        if (rest > 0.0) {
+            // Fill the rest with AIR if no material was provided.
+            if (restMaterials.isEmpty()) {
+                valuedMaterials.put(new MinecraftMaterial(plugin, XMaterial.AIR, null), rest);
+                log.fine(() -> "Only a single material with chance provided. Filling the rest with AIR.");
+            } else if (restMaterials.size() == 1) {
+                valuedMaterials.put(restMaterials.get(0), rest);
+                log.fine(() -> String.format("Added material %s at chance %.2f%%", restMaterials.get(0), rest));
+            } else {
+                // Split the rest of the chance between the materials.
+                double chance = rest / restMaterials.size();
+                restMaterials.forEach(mat -> valuedMaterials.put(mat, chance));
+            }
         }
 
         return PlacementMaterial.from(valuedMaterials);
@@ -207,37 +233,32 @@ public class MaterialManager {
      *
      * @param input Input string, format (prefix:?)(material-name[nodedata,...])
      * @return Parsed material or null when no parser was found.
-     * @throws IllegalArgumentException When the parser is unable to parse the material.
+     * @throws IllegalArgumentException When the parser is unable to parse the material or the input is empty.
      */
     @NotNull
-    public BlockRegenMaterial parseMaterial(@NotNull String input) throws IllegalArgumentException {
-
-        // Separate parts
-        String[] parts = new String[]{input};
-
-        // Split around : for prefixes if possible
-        int index = input.indexOf(':');
-        if (index != -1) {
-            parts = new String[]{input.substring(0, index), input.substring(index + 1)};
+    public BlockRegenMaterial parseMaterial(@NotNull String input) {
+        if (Strings.isNullOrEmpty(input)) {
+            throw new IllegalArgumentException("Empty input.");
         }
 
-        log.fine(String.format("Material parts: %s", String.join(", ", parts)));
+        // Check for a prefix first.
+        Matcher matcher = PREFIX_PATTERN.matcher(input);
 
-        // First either prefix or material
+        String prefix = null;
+        String sanitized = input;
 
-        MaterialParser parser = getParser(parts[0].toLowerCase());
+        if (matcher.matches()) {
+            prefix = matcher.group(1);
+            sanitized = matcher.group(2);
+        }
+
+        MaterialParser parser = getParser(prefix);
 
         if (parser == null) {
-            parser = getParser(null);
-
-            if (parser == null) {
-                throw new IllegalArgumentException(String.format("Material '%s' invalid. No valid parser found", input));
-            }
-        } else {
-            // remove parts[0] aka the parser prefix
-            parts = Arrays.copyOfRange(parts, 1, parts.length);
+            // Prefix not registered
+            throw new IllegalArgumentException(String.format("No valid parser found for prefix '%s'", prefix));
         }
 
-        return parser.parseMaterial(parts[0]);
+        return parser.parseMaterial(sanitized);
     }
 }

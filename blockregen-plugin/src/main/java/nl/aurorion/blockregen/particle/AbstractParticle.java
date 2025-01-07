@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.particle;
 
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +11,6 @@ public abstract class AbstractParticle {
     public abstract String name();
 
     public void register() {
-        BlockRegen.getInstance().getParticleManager().addParticle(name(), this);
+        BlockRegenPluginImpl.getInstance().getParticleManager().addParticle(name(), this);
     }
 }

@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.preset;
 
 import lombok.Getter;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 
 // A number value specified by a low and high bound.
 // Randomly generated Uniform(low; high).
@@ -19,7 +19,7 @@ public class UniformNumberValue implements NumberValue {
 
     @Override
     public double getDouble() {
-        return Math.max(BlockRegen.getInstance().getRandom().nextDouble() * high, low);
+        return Math.max(BlockRegenPluginImpl.getInstance().getRandom().nextDouble() * high, low);
     }
 
     @Override

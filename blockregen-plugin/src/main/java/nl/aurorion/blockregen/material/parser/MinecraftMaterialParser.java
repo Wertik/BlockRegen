@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.material.parser;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.ParseUtil;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
@@ -12,9 +12,9 @@ import org.jetbrains.annotations.NotNull;
 @Log
 public class MinecraftMaterialParser implements MaterialParser {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
-    public MinecraftMaterialParser(BlockRegen plugin) {
+    public MinecraftMaterialParser(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 

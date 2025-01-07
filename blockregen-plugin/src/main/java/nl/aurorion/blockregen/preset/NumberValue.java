@@ -48,6 +48,8 @@ public interface NumberValue {
             log.finer(() -> "Input: " + input);
 
             if (matcher.matches()) {
+                // If the matcher matches, it has to be a valid double.
+                // But just in case, keep these errors.
                 double low = ParseUtil.parseDouble(matcher.group(1), () -> {
                     throw new ParseException("Invalid value for low supplied: '" + matcher.group(1) + "'.");
                 });

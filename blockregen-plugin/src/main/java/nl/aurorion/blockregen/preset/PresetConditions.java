@@ -9,7 +9,7 @@ import com.gamingmesh.jobs.container.JobsPlayer;
 import com.google.common.base.Strings;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.ParseUtil;
 import nl.aurorion.blockregen.util.Text;
@@ -45,7 +45,7 @@ public class PresetConditions {
         if (toolsRequired.isEmpty())
             return true;
 
-        ItemStack tool = BlockRegen.getInstance().getVersionManager().getMethods().getItemInMainHand(player);
+        ItemStack tool = BlockRegenPluginImpl.getInstance().getVersionManager().getMethods().getItemInMainHand(player);
 
         if (toolsRequired.contains(XMaterial.matchXMaterial(tool)))
             return true;
@@ -72,7 +72,7 @@ public class PresetConditions {
         if (enchantsRequired.isEmpty())
             return true;
 
-        ItemStack tool = BlockRegen.getInstance().getVersionManager().getMethods().getItemInMainHand(player);
+        ItemStack tool = BlockRegenPluginImpl.getInstance().getVersionManager().getMethods().getItemInMainHand(player);
 
         ItemMeta meta = tool.getItemMeta();
 
@@ -108,7 +108,7 @@ public class PresetConditions {
     }
 
     public boolean checkJobs(Player player) {
-        if (BlockRegen.getInstance().getCompatibilityManager().getJobs().isLoaded() || jobsRequired.isEmpty()) {
+        if (BlockRegenPluginImpl.getInstance().getCompatibilityManager().getJobs().isLoaded() || jobsRequired.isEmpty()) {
             return true;
         }
 

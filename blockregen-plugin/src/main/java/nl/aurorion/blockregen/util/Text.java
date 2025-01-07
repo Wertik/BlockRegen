@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.util;
 import com.google.common.base.Strings;
 import lombok.experimental.UtilityClass;
 import me.clip.placeholderapi.PlaceholderAPI;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -26,7 +26,7 @@ public class Text {
             if (o instanceof Player) {
                 Player player = (Player) o;
                 string = string.replaceAll("(?i)%player%", player.getName());
-                if (BlockRegen.getInstance().isUsePlaceholderAPI()) {
+                if (BlockRegenPluginImpl.getInstance().isUsePlaceholderAPI()) {
                     string = PlaceholderAPI.setPlaceholders((Player) o, string);
                 }
             } else if (o instanceof Block) {

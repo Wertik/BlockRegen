@@ -4,7 +4,8 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.ParseUtil;
 import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.configuration.ParseException;
@@ -28,11 +29,11 @@ import java.util.stream.Collectors;
 @Log
 public class PresetManager {
 
-    private final BlockRegen plugin;
+    private final BlockRegenPlugin plugin;
 
     private final Map<String, BlockPreset> presets = new HashMap<>();
 
-    public PresetManager(BlockRegen plugin) {
+    public PresetManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -245,7 +246,7 @@ public class PresetManager {
         event.setDoubleDrops(section.getBoolean("double-drops", false));
         event.setDoubleExperience(section.getBoolean("double-exp", false));
 
-        if (BlockRegen.getInstance().getVersionManager().isCurrentAbove("1.8", false)) {
+        if (BlockRegenPluginImpl.getInstance().getVersionManager().isCurrentAbove("1.8", false)) {
             event.setBossBar(EventBossBar.load(section.getConfigurationSection("bossbar"), "&eEvent &6" + displayName + " &eis active!"));
         }
 

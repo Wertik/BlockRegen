@@ -5,7 +5,7 @@ import com.gamingmesh.jobs.actions.BlockActionInfo;
 import com.gamingmesh.jobs.container.ActionType;
 import com.gamingmesh.jobs.container.JobsPlayer;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegen;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 @Log
 public class JobsProvider extends CompatibilityProvider {
 
-    public JobsProvider(BlockRegen plugin) {
+    public JobsProvider(BlockRegenPlugin plugin) {
         super(plugin);
         setFeatures("rewards", "conditions");
     }
