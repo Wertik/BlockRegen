@@ -89,27 +89,26 @@ public class GenericConditionProvider implements ConditionProvider {
     @Override
     @NotNull
     public Condition load(@NotNull Object node, @Nullable String key) {
-        Condition composed = Conditions.fromNodeMultiple(node, ConditionRelation.AND, (mNode, mKey) -> {
-            ProviderEntry entry = providers.get(mKey);
+        ProviderEntry entry = providers.get(key);
 
-            if (entry == null) {
-                throw new ParseException("Invalid property '" + mKey + "'");
-            }
+        if (entry == null) {
+            throw new ParseException("Invalid property '" + key + "'");
+        }
 
-            if (!entry.expectedClass.isAssignableFrom(mNode.getClass())) {
-                throw new ParseException("Invalid property type '" + mNode.getClass().getSimpleName() + "' for '" + mKey + "'");
-            }
+        if (!entry.expectedClass.isAssignableFrom(node.getClass())) {
+            throw new ParseException("Invalid property type '" + node.getClass().getSimpleName() + "' for '" + key + "'");
+        }
 
-            try {
-                return Conditions.fromNode(
-                                mNode,
-                                ConditionRelation.OR,
-                                entry.getProvider())
-                        .alias(mKey);
-            } catch (ParseException e) {
-                throw new ParseException("Failed to parse '" + mKey + "': " + e.getMessage());
-            }
-        });
-        return this.extender == null ? composed : Conditions.wrap(composed, extender);
+        Condition condition;
+        try {
+            condition = Conditions.fromNode(
+                            node,
+                            ConditionRelation.OR,
+                            entry.getProvider())
+                    .alias(key);
+        } catch (ParseException e) {
+            throw new ParseException("Failed to parse '" + key + "': " + e.getMessage());
+        }
+        return this.extender == null ? condition : Conditions.wrap(condition, extender);
     }
 }

@@ -4,6 +4,7 @@ import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.configuration.ParseException;
+import nl.aurorion.blockregen.preset.condition.ConditionProvider;
 import nl.aurorion.blockregen.preset.condition.ConditionRelation;
 import nl.aurorion.blockregen.preset.condition.Conditions;
 import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
@@ -54,6 +55,35 @@ public class ConditionLoadingTests {
         assertTrue(condition.matches(ctx));
         ctx = ConditionContext.of("value", 1);
         assertFalse(condition.matches(ctx));
+    }
+
+    @Test
+    public void loadsNegatedConditions() {
+        // <= 2
+        String input = "conditions:\n  - ^above: 2";
+        FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
+
+        assertEquals("(TrueCondition and (TrueCondition and !above))", condition.toString());
+
+        ConditionContext ctx = ConditionContext.of("value", 1);
+        assertTrue(condition.matches(ctx));
+        ctx = ConditionContext.of("value", 4);
+        assertFalse(condition.matches(ctx));
+    }
+
+    @Test
+    public void loadsNegatedConditionsInRelations() {
+        // <2; 5)
+        String input = "conditions:\n  - ^below: 2\n  - below: 5";
+        FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
+
+        assertEquals("(TrueCondition and (TrueCondition and !below) and (TrueCondition and below))", condition.toString());
+
+        assertFalse(condition.matches(ConditionContext.of("value", 1)));
+        assertTrue(condition.matches(ConditionContext.of("value", 3)));
+        assertFalse(condition.matches(ConditionContext.of("value", 6)));
     }
 
     @Test
@@ -121,27 +151,51 @@ public class ConditionLoadingTests {
         assertFalse(condition.matches(ctx));
     }
 
-    @Test()
-    @Disabled
-    public void defaultConditionProviderCompilesProperly() {
-        // x < 5 && (x < 2 || x == 3)
-        String input = "conditions:\n  - any:\n    - has_extra:\n      extra: 2\n    - below: 5";
+    @Test
+    public void loadsMapConditions() {
+        // (4; 10)
+        String input = "conditions:\n  above: 4\n  below: 10";
+
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
+        Condition condition = Conditions.fromNodeMultiple(Objects.requireNonNull(conf.get("conditions")), ConditionRelation.AND, conditionProvider);
 
-        assertEquals("(TrueCondition and (TrueCondition and below) and (TrueCondition and (FalseCondition or (TrueCondition and below) or (TrueCondition and equals))))", condition.toString());
+        assertEquals("(TrueCondition and above and below)", condition.toString());
 
-        ConditionContext ctx = ConditionContext.of("value", 1);
-        assertTrue(condition.matches(ctx));
+        assertFalse(condition.matches(ConditionContext.of("value", 1)));
+        assertTrue(condition.matches(ConditionContext.of("value", 6)));
+        assertFalse(condition.matches(ConditionContext.of("value", 16)));
+    }
 
-        ctx = ConditionContext.of("value", 3);
-        assertTrue(condition.matches(ctx));
+    @Test()
+    public void loadsStackedConditionProviders() {
+        // (4; 10)
+        String input = "conditions:\n  - sqrt:\n    - above: 2\n  - below: 10";
 
-        ctx = ConditionContext.of("value", 4);
-        assertFalse(condition.matches(ctx));
+        ConditionProvider sqrtProvider = GenericConditionProvider.empty()
+                // The square root of a number has to be above X
+                .addProvider("above", (node, key) -> {
+                    return Condition.of((ctx) -> {
+                        return (double) ctx.mustVar("sqrt") > (int) node;
+                    });
+                })
+                .extender((ctx) -> ConditionContext.of("sqrt", Math.sqrt((int) ctx.mustVar("value"))));
 
-        ctx = ConditionContext.of("value", 6);
-        assertFalse(condition.matches(ctx));
+        ConditionProvider baseProvider = GenericConditionProvider.empty()
+                .addProvider("below", (node, key) -> {
+                    return Condition.of((ctx) -> {
+                        return (int) ctx.mustVar("value") < (int) node;
+                    });
+                })
+                .addProvider("sqrt", sqrtProvider);
+
+        FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, baseProvider);
+
+        assertEquals("(TrueCondition and (TrueCondition and sqrt) and (TrueCondition and below))", condition.toString());
+
+        assertFalse(condition.matches(ConditionContext.of("value", 1)));
+        assertTrue(condition.matches(ConditionContext.of("value", 6)));
+        assertFalse(condition.matches(ConditionContext.of("value", 16)));
     }
 
     @Test

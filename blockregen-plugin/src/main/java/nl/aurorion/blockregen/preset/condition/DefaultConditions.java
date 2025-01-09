@@ -17,15 +17,16 @@ public class DefaultConditions {
     public static Pair<String, GenericConditionProvider.ProviderEntry> tool() {
         return new Pair<>(
                 "tool",
-                GenericConditionProvider.ProviderEntry.provider(GenericConditionProvider.empty()
-                        .addProvider("material", GenericConditionProvider.ProviderEntry.of(
-                                (node, key) -> Condition.of((ctx) -> ctx.mustVar("material") == XMaterial.matchXMaterial((String) node)
-                                        .orElseThrow(() -> new ParseException("Invalid material " + node))), String.class))
-                        .extender((ctx) -> {
-                            ItemStack item = (ItemStack) ctx.mustVar("tool");
-                            // todo: more - enchants, flags, name, lore
-                            return ConditionContext.of("material", XMaterial.matchXMaterial(item));
-                        }))
+                GenericConditionProvider.ProviderEntry.provider(
+                        GenericConditionProvider.empty()
+                                .addProvider("material", GenericConditionProvider.ProviderEntry.of(
+                                        (node, key) -> Condition.of((ctx) -> ctx.mustVar("material") == XMaterial.matchXMaterial((String) node)
+                                                .orElseThrow(() -> new ParseException("Invalid material " + node))), String.class))
+                                .extender((ctx) -> {
+                                    ItemStack item = (ItemStack) ctx.mustVar("tool");
+                                    // todo: more - enchants, flags, name, lore
+                                    return ConditionContext.of("material", XMaterial.matchXMaterial(item));
+                                }))
         );
     }
 
@@ -42,6 +43,7 @@ public class DefaultConditions {
                 GenericConditionProvider.ProviderEntry.of(
                         (node, key) -> {
                             // Parse the expression
+                            // todo
                             return Condition.trueCondition();
                         },
                         String.class

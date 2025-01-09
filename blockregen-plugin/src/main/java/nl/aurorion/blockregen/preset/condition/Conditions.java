@@ -3,6 +3,7 @@ package nl.aurorion.blockregen.preset.condition;
 import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 import nl.aurorion.blockregen.configuration.ParseException;
+import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -17,6 +18,8 @@ public class Conditions {
             return Conditions.fromList((List<?>) node, relation, parser);
         } else if (node instanceof Map) {
             return Conditions.fromMap((Map<String, Object>) node, relation, parser);
+        } else if (node instanceof ConfigurationSection) {
+            return Conditions.fromMap(((ConfigurationSection) node).getValues(false), relation, parser);
         } else {
             throw new ParseException("Node cannot be loaded from a single value.");
         }
@@ -35,7 +38,7 @@ public class Conditions {
     // Load composed condition from a list
     @SuppressWarnings("unchecked")
     @NotNull
-    public static Condition fromList(List<?> nodes, ConditionRelation relation, ConditionProvider parser) {
+    public static Condition fromList(@NotNull List<?> nodes, @NotNull ConditionRelation relation, @NotNull ConditionProvider parser) {
         Condition baseCondition = relation == ConditionRelation.OR ? Condition.falseCondition() : Condition.trueCondition();
 
         for (Object node : nodes) {
@@ -58,14 +61,24 @@ public class Conditions {
         return baseCondition;
     }
 
-    public static Condition fromMap(Map<String, Object> values, ConditionRelation relation, ConditionProvider parser) {
+    @NotNull
+    public static Condition fromMap(@NotNull Map<String, Object> values, @NotNull ConditionRelation relation, @NotNull ConditionProvider parser) {
         Condition sectionCondition = relation == ConditionRelation.OR ? Condition.falseCondition() : Condition.trueCondition();
 
         for (Map.Entry<String, Object> entry : values.entrySet()) {
             Condition condition;
+            boolean negate = false;
 
-            if (!entry.getKey().equalsIgnoreCase("all") && !entry.getKey().equalsIgnoreCase("any")) {
-                condition = parser.load(entry.getValue(), entry.getKey());
+            String key = entry.getKey();
+
+            // Negation
+            if (key.startsWith("^")) {
+                key = key.substring(1);
+                negate = true;
+            }
+
+            if (!key.equalsIgnoreCase("all") && !key.equalsIgnoreCase("any")) {
+                condition = parser.load(entry.getValue(), key);
             } else {
                 if (!(entry.getValue() instanceof List)) {
                     throw new ParseException("Invalid entry for all/any section.");
@@ -75,8 +88,12 @@ public class Conditions {
                 List<?> stackedNodes = (List<?>) entry.getValue();
 
                 condition = Conditions.fromList(stackedNodes,
-                        entry.getKey().equalsIgnoreCase("any") ? ConditionRelation.OR : ConditionRelation.AND,
+                        key.equalsIgnoreCase("any") ? ConditionRelation.OR : ConditionRelation.AND,
                         parser);
+            }
+
+            if (negate) {
+                condition = condition.negate();
             }
 
             if (relation == ConditionRelation.OR) {
@@ -94,6 +111,7 @@ public class Conditions {
      * <p>
      * Contexts that come later have preference in case of key conflict.
      * */
+    @NotNull
     public static ConditionContext mergeContexts(ConditionContext... contexts) {
         Map<String, Object> result = new HashMap<>();
 
