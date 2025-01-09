@@ -88,7 +88,7 @@ public class GenericConditionProvider implements ConditionProvider {
 
     @Override
     @NotNull
-    public Condition load(@NotNull Object node, @Nullable String key) {
+    public Condition load(@Nullable String key, @NotNull Object node) {
         ProviderEntry entry = providers.get(key);
 
         if (entry == null) {

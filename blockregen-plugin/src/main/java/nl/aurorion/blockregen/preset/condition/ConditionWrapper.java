@@ -3,10 +3,11 @@ package nl.aurorion.blockregen.preset.condition;
 import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 
-// A wrapper around another condition to provider extra context.
+/**
+ * Wrap around a condition to provide extra context using a {@link ContextExtender} before calling it.
+ */
 public class ConditionWrapper extends Condition {
     private final Condition composed;
-
     private final ContextExtender extender;
 
     ConditionWrapper(Condition composed, ContextExtender extender) {
@@ -15,12 +16,17 @@ public class ConditionWrapper extends Condition {
     }
 
     @Override
-    protected boolean match(ConditionContext originalContext) {
-        ConditionContext ctx = originalContext;
+    protected boolean match(ConditionContext original) {
+        ConditionContext result = original;
         if (this.extender != null) {
-            ctx = Conditions.mergeContexts(this.extender.extend(originalContext), originalContext);
+            ConditionContext additional = this.extender.extend(original);
+
+            // Just in case somebody returns the original.
+            if (additional != result) {
+                result = Conditions.mergeContexts(additional, original);
+            }
         }
-        return this.composed.matches(ctx);
+        return this.composed.matches(result);
     }
 
     @Override

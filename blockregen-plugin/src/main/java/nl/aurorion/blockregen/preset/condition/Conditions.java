@@ -10,21 +10,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Helper class for all things condition.
+ */
 public class Conditions {
 
-    @SuppressWarnings("unchecked")
-    public static Condition fromNodeMultiple(Object node, ConditionRelation relation, ConditionProvider parser) {
-        if (node instanceof List) {
-            return Conditions.fromList((List<?>) node, relation, parser);
-        } else if (node instanceof Map) {
-            return Conditions.fromMap((Map<String, Object>) node, relation, parser);
-        } else if (node instanceof ConfigurationSection) {
-            return Conditions.fromMap(((ConfigurationSection) node).getValues(false), relation, parser);
-        } else {
-            throw new ParseException("Node cannot be loaded from a single value.");
-        }
-    }
-
+    /**
+     * Load a condition from a yaml node. This node can either be a list, map, Bukkit ConfigurationSection or a pure
+     * node containing a value.
+     *
+     * @param node     YAML configuration node.
+     * @param relation Relation to apply to immediately loaded conditions. This relation does not apply to further
+     *                 stacked conditions.
+     * @param parser   How to parse conditions from nodes.
+     * @throws ParseException If the parsing fails.
+     */
     @SuppressWarnings("unchecked")
     public static Condition fromNode(Object node, ConditionRelation relation, ConditionProvider parser) {
         if (node instanceof List) {
@@ -34,7 +34,30 @@ public class Conditions {
         } else if (node instanceof ConfigurationSection) {
             return Conditions.fromMap(((ConfigurationSection) node).getValues(false), relation, parser);
         }
-        return parser.load(node, null);
+        return parser.load(null, node);
+    }
+
+    /**
+     * Load a condition from a yaml node. This node can either be a list, map or a Bukkit ConfigurationSection. Any
+     * other type of object is rejected with a {@link ParseException}.
+     *
+     * @param node     YAML configuration node.
+     * @param relation Relation to apply to immediately loaded conditions. This relation does not apply to further
+     *                 stacked conditions.
+     * @param parser   How to parse conditions from nodes.
+     * @throws ParseException If the parsing fails or if a pure node (only value) is provided.
+     */
+    @SuppressWarnings("unchecked")
+    public static Condition fromNodeMultiple(@NotNull Object node, @NotNull ConditionRelation relation, @NotNull ConditionProvider parser) {
+        if (node instanceof List) {
+            return Conditions.fromList((List<?>) node, relation, parser);
+        } else if (node instanceof Map) {
+            return Conditions.fromMap((Map<String, Object>) node, relation, parser);
+        } else if (node instanceof ConfigurationSection) {
+            return Conditions.fromMap(((ConfigurationSection) node).getValues(false), relation, parser);
+        } else {
+            throw new ParseException("Node cannot be loaded from a single value.");
+        }
     }
 
     // Load composed condition from a list
@@ -50,7 +73,7 @@ public class Conditions {
                 Map<String, Object> values = (Map<String, Object>) node;
                 condition = Conditions.fromMap(values, ConditionRelation.AND, parser);
             } else {
-                condition = parser.load(node, null);
+                condition = parser.load(null, node);
             }
 
             if (relation == ConditionRelation.OR) {
@@ -91,7 +114,7 @@ public class Conditions {
                         key.equalsIgnoreCase("any") ? ConditionRelation.OR : ConditionRelation.AND,
                         parser);
             } else {
-                condition = parser.load(entry.getValue(), key);
+                condition = parser.load(key, entry.getValue());
             }
 
             if (negate) {
@@ -109,10 +132,14 @@ public class Conditions {
     }
 
     /**
-     * Merge multiple condition contexts. Due to the unmodifiable nature of ConditionContext this operation needs to be done in a copy fashion.
+     * Merge multiple condition contexts. Due to the unmodifiable nature of ConditionContext this operation needs to be
+     * done in a copy fashion.
      * <p>
      * Contexts that come later have preference in case of key conflict.
-     * */
+     *
+     * @param contexts Contexts to merge.
+     * @return A new ConditionContext containing the merged variables.
+     */
     @NotNull
     public static ConditionContext mergeContexts(ConditionContext... contexts) {
         Map<String, Object> result = new HashMap<>();
@@ -124,6 +151,13 @@ public class Conditions {
         return ConditionContext.of(result);
     }
 
+    /**
+     * Use {@link ConditionWrapper} to wrap a condition.
+     *
+     * @param condition Condition to wrap.
+     * @param extender  Extender to call before the condition is matched.
+     * @return ConditionWrapper wrapping the condition.
+     */
     @NotNull
     public static ConditionWrapper wrap(@NotNull Condition condition, @NotNull ContextExtender extender) {
         return new ConditionWrapper(condition, extender);

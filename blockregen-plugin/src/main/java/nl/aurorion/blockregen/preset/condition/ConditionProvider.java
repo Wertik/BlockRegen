@@ -7,10 +7,13 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ConditionProvider {
     /**
-     * @param key the configuration key this is being loaded from
+     * Load a condition from a configuration node. The node could also be a plain value. In that case, the key is null.
      *
-     * @throws ParseException if the parsing fails.
-     * */
+     * @param node Configuration node.
+     * @param key The key of the node. Can be null if the node is a plain value.
+     *
+     * @throws ParseException If the parsing fails.
+     */
     @NotNull
-    Condition load(@NotNull Object node, @Nullable String key);
+    Condition load(@Nullable String key, @NotNull Object node);
 }

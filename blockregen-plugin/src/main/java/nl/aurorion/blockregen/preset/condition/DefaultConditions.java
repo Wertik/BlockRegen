@@ -11,6 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Default conditions provided by this plugin.
+ */
 public class DefaultConditions {
 
     @NotNull
@@ -20,7 +23,7 @@ public class DefaultConditions {
                 GenericConditionProvider.ProviderEntry.provider(
                         GenericConditionProvider.empty()
                                 .addProvider("material", GenericConditionProvider.ProviderEntry.of(
-                                        (node, key) -> Condition.of((ctx) -> ctx.mustVar("material") == XMaterial.matchXMaterial((String) node)
+                                        (key, node) -> Condition.of((ctx) -> ctx.mustVar("material") == XMaterial.matchXMaterial((String) node)
                                                 .orElseThrow(() -> new ParseException("Invalid material " + node))), String.class))
                                 .extender((ctx) -> {
                                     ItemStack item = (ItemStack) ctx.mustVar("tool");
@@ -41,7 +44,7 @@ public class DefaultConditions {
         return new Pair<>(
                 "placeholder",
                 GenericConditionProvider.ProviderEntry.of(
-                        (node, key) -> {
+                        (key, node) -> {
                             // Parse the expression
                             // todo
                             return Condition.trueCondition();

@@ -11,7 +11,6 @@ import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -38,9 +37,9 @@ public class ConditionLoadingTests {
     private final GenericConditionProvider conditionProvider = GenericConditionProvider.empty();
 
     public ConditionLoadingTests() {
-        this.conditionProvider.addProvider("above", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") > Integer.parseInt(String.valueOf(node))).alias("above"));
-        this.conditionProvider.addProvider("below", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") < Integer.parseInt(String.valueOf(node))).alias("below"));
-        this.conditionProvider.addProvider("equals", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") == Integer.parseInt(String.valueOf(node))).alias("equals"));
+        this.conditionProvider.addProvider("above", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") > Integer.parseInt(String.valueOf(node))).alias("above"));
+        this.conditionProvider.addProvider("below", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") < Integer.parseInt(String.valueOf(node))).alias("below"));
+        this.conditionProvider.addProvider("equals", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") == Integer.parseInt(String.valueOf(node))).alias("equals"));
     }
 
     @Test
@@ -173,7 +172,7 @@ public class ConditionLoadingTests {
 
         ConditionProvider sqrtProvider = GenericConditionProvider.empty()
                 // The square root of a number has to be above X
-                .addProvider("above", (node, key) -> {
+                .addProvider("above", (key, node) -> {
                     return Condition.of((ctx) -> {
                         return (double) ctx.mustVar("sqrt") > (int) node;
                     });
@@ -181,7 +180,7 @@ public class ConditionLoadingTests {
                 .extender((ctx) -> ConditionContext.of("sqrt", Math.sqrt((int) ctx.mustVar("value"))));
 
         ConditionProvider baseProvider = GenericConditionProvider.empty()
-                .addProvider("below", (node, key) -> {
+                .addProvider("below", (key, node) -> {
                     return Condition.of((ctx) -> {
                         return (int) ctx.mustVar("value") < (int) node;
                     });
