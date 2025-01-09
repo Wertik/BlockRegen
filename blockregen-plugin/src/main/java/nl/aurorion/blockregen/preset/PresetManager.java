@@ -245,6 +245,9 @@ public class PresetManager {
     @NotNull
     private Condition loadConditions(@NotNull ConfigurationSection root, @NotNull String key) {
         Object node = root.get(key);
+        if (node == null) {
+            return Condition.trueCondition();
+        }
         return Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions);
     }
 

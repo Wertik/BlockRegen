@@ -107,7 +107,7 @@ public class GenericConditionProvider implements ConditionProvider {
                             entry.getProvider())
                     .alias(key);
         } catch (ParseException e) {
-            throw new ParseException("Failed to parse '" + key + "': " + e.getMessage());
+            throw new ParseException("Failed to parse '" + key + "': " + e.getMessage(), e);
         }
         return this.extender == null ? condition : Conditions.wrap(condition, extender);
     }

@@ -31,6 +31,8 @@ public class Conditions {
             return Conditions.fromList((List<?>) node, relation, parser);
         } else if (node instanceof Map) {
             return Conditions.fromMap((Map<String, Object>) node, relation, parser);
+        } else if (node instanceof ConfigurationSection) {
+            return Conditions.fromMap(((ConfigurationSection) node).getValues(false), relation, parser);
         }
         return parser.load(node, null);
     }
@@ -77,9 +79,7 @@ public class Conditions {
                 negate = true;
             }
 
-            if (!key.equalsIgnoreCase("all") && !key.equalsIgnoreCase("any")) {
-                condition = parser.load(entry.getValue(), key);
-            } else {
+            if (key.equalsIgnoreCase("all") || key.equalsIgnoreCase("any")) {
                 if (!(entry.getValue() instanceof List)) {
                     throw new ParseException("Invalid entry for all/any section.");
                 }
@@ -90,6 +90,8 @@ public class Conditions {
                 condition = Conditions.fromList(stackedNodes,
                         key.equalsIgnoreCase("any") ? ConditionRelation.OR : ConditionRelation.AND,
                         parser);
+            } else {
+                condition = parser.load(entry.getValue(), key);
             }
 
             if (negate) {
