@@ -3,15 +3,20 @@ package nl.aurorion.blockregen.preset;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.google.common.base.Strings;
+import com.linecorp.conditional.Condition;
+import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.configuration.ParseException;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.event.struct.EventBossBar;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
+import nl.aurorion.blockregen.preset.condition.ConditionRelation;
+import nl.aurorion.blockregen.preset.condition.ConditionServiceProvider;
+import nl.aurorion.blockregen.preset.condition.Conditions;
 import nl.aurorion.blockregen.preset.drop.*;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
@@ -24,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Log
@@ -32,6 +38,9 @@ public class PresetManager {
     private final BlockRegenPlugin plugin;
 
     private final Map<String, BlockPreset> presets = new HashMap<>();
+
+    @Getter
+    private final ConditionServiceProvider conditions = new ConditionServiceProvider();
 
     public PresetManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
@@ -86,7 +95,8 @@ public class PresetManager {
             try {
                 load(key);
             } catch (Exception e) {
-                log.warning(String.format("Could not load preset %s: %s", key, e.getMessage()));
+                log.log(Level.WARNING, String.format("Could not load preset '%s': %s", key, e.getMessage()), e);
+                e.printStackTrace();
             }
         }
 
@@ -209,6 +219,9 @@ public class PresetManager {
         }
         preset.setConditions(conditions);
 
+        Condition condition = this.loadConditions(section, "conditions");
+        preset.setCondition(condition);
+
         // Rewards
         PresetRewards rewards = loadRewards(section, preset);
         preset.setRewards(rewards);
@@ -224,6 +237,15 @@ public class PresetManager {
 
         presets.put(name, preset);
         log.fine(() -> "Loaded preset " + preset);
+    }
+
+    /**
+     * @throws ParseException If the parsing fails.
+     * */
+    @NotNull
+    private Condition loadConditions(@NotNull ConfigurationSection root, @NotNull String key) {
+        Object node = root.get(key);
+        return Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions::load);
     }
 
     /**

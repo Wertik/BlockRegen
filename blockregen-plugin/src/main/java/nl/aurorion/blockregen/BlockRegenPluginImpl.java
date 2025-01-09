@@ -1,12 +1,16 @@
 package nl.aurorion.blockregen;
 
 import com.google.gson.GsonBuilder;
+import com.linecorp.conditional.Condition;
+import com.linecorp.conditional.ConditionContext;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.api.version.VersionManager;
 import nl.aurorion.blockregen.command.Commands;
 import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
+import nl.aurorion.blockregen.configuration.ParseException;
 import nl.aurorion.blockregen.drop.ItemManager;
 import nl.aurorion.blockregen.event.EventManager;
 import nl.aurorion.blockregen.listener.PlayerListener;
@@ -18,17 +22,18 @@ import nl.aurorion.blockregen.particle.impl.FireWorks;
 import nl.aurorion.blockregen.particle.impl.FlameCrown;
 import nl.aurorion.blockregen.particle.impl.WitchSpell;
 import nl.aurorion.blockregen.preset.PresetManager;
+import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.version.NodeDataAdapter;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
-import nl.aurorion.blockregen.api.version.VersionManager;
 import nl.aurorion.blockregen.version.VersionManagerImpl;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -124,6 +129,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         // Default material parsers for minecraft materials
         materialManager.registerParser(null, new MinecraftMaterialParser(this));
         materialManager.registerParser("minecraft", new MinecraftMaterialParser(this));
+
+        // Default condition parsers
+
 
         checkPlaceholderAPI();
 

@@ -18,6 +18,12 @@ public class JobsProvider extends CompatibilityProvider {
         setFeatures("rewards", "conditions");
     }
 
+    @Override
+    public void onLoad() {
+        // todo
+        // plugin.getPresetManager().getConditions().register(getPrefix() + "/job", JobsCondition.parser());
+    }
+
     public void triggerBlockBreakAction(Player player, Block block) {
         JobsPlayer jobsPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jobsPlayer, new BlockActionInfo(block, ActionType.BREAK), block);
