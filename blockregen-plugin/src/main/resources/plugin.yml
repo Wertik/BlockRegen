@@ -1,5 +1,5 @@
 name: BlockRegen
-main: nl.aurorion.blockregen.BlockRegen
+main: nl.aurorion.blockregen.BlockRegenPluginImpl
 version: ${project.version}
 authors: [ Aurorion, Wertik1206 ]
 softdepend: [ Mutliverse-Core, Residence, Vault, WorldEdit, Towny, Jobs, GriefPrevention, PlaceholderAPI, WorldGuard ]
