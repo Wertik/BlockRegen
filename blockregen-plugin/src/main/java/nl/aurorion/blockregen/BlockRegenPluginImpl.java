@@ -127,7 +127,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         materialManager.registerParser("minecraft", new MinecraftMaterialParser(this));
 
         // Register all default conditions
-        DefaultConditions.all().forEach(pair -> presetManager.getConditions().register(pair.getFirst(), pair.getSecond()));
+        DefaultConditions.all().forEach(pair -> presetManager.getConditions().addProvider(pair.getFirst(), pair.getSecond()));
 
         checkPlaceholderAPI();
 

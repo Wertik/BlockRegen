@@ -15,8 +15,8 @@ import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.event.struct.EventBossBar;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.condition.ConditionRelation;
-import nl.aurorion.blockregen.preset.condition.ConditionServiceProvider;
 import nl.aurorion.blockregen.preset.condition.Conditions;
+import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
 import nl.aurorion.blockregen.preset.drop.*;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
@@ -40,7 +40,7 @@ public class PresetManager {
     private final Map<String, BlockPreset> presets = new HashMap<>();
 
     @Getter
-    private final ConditionServiceProvider conditions = new ConditionServiceProvider();
+    private final GenericConditionProvider conditions = GenericConditionProvider.empty();
 
     public PresetManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
@@ -245,7 +245,7 @@ public class PresetManager {
     @NotNull
     private Condition loadConditions(@NotNull ConfigurationSection root, @NotNull String key) {
         Object node = root.get(key);
-        return Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions::load);
+        return Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions);
     }
 
     /**

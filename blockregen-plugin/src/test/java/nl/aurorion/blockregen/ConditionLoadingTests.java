@@ -5,8 +5,8 @@ import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.configuration.ParseException;
 import nl.aurorion.blockregen.preset.condition.ConditionRelation;
-import nl.aurorion.blockregen.preset.condition.ConditionServiceProvider;
 import nl.aurorion.blockregen.preset.condition.Conditions;
+import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,19 +34,19 @@ public class ConditionLoadingTests {
         logger.addHandler(handler);
     }
 
-    private final ConditionServiceProvider conditionServiceProvider = new ConditionServiceProvider();
+    private final GenericConditionProvider conditionProvider = GenericConditionProvider.empty();
 
     public ConditionLoadingTests() {
-        this.conditionServiceProvider.register("above", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") > Integer.parseInt(String.valueOf(node))).alias("above"));
-        this.conditionServiceProvider.register("below", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") < Integer.parseInt(String.valueOf(node))).alias("below"));
-        this.conditionServiceProvider.register("equals", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") == Integer.parseInt(String.valueOf(node))).alias("equals"));
+        this.conditionProvider.addProvider("above", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") > Integer.parseInt(String.valueOf(node))).alias("above"));
+        this.conditionProvider.addProvider("below", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") < Integer.parseInt(String.valueOf(node))).alias("below"));
+        this.conditionProvider.addProvider("equals", (node, key) -> Condition.of((ctx) -> (int) ctx.mustVar("value") == Integer.parseInt(String.valueOf(node))).alias("equals"));
     }
 
     @Test
     public void loadsSingleCondition() {
         String input = "conditions:\n  - above: 2";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionServiceProvider::load);
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
         assertEquals("(TrueCondition and (TrueCondition and above))", condition.toString());
 
@@ -60,14 +60,14 @@ public class ConditionLoadingTests {
     public void throwsOnInvalidCondition() {
         String input = "conditions:\n  - invalid: 2";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        assertThrows(ParseException.class, () -> Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionServiceProvider::load));
+        assertThrows(ParseException.class, () -> Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider));
     }
 
     @Test
     public void loadsMultipleConditionsInAndRelation() {
         String input = "conditions:\n  - above: 2\n  - above: 10";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionServiceProvider::load);
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
         assertEquals("(TrueCondition and (TrueCondition and above) and (TrueCondition and above))", condition.toString());
 
@@ -85,7 +85,7 @@ public class ConditionLoadingTests {
     public void loadsMultipleConditionsInOrRelation() {
         String input = "conditions:\n  - below: 2\n  - above: 10";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.OR, conditionServiceProvider::load);
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.OR, conditionProvider);
 
         assertEquals("(FalseCondition or (TrueCondition and below) or (TrueCondition and above))", condition.toString());
 
@@ -104,7 +104,7 @@ public class ConditionLoadingTests {
         // x < 5 && (x < 2 || x == 3)
         String input = "conditions:\n  - below: 5\n  - any:\n    - below: 2\n    - equals: 3";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionServiceProvider::load);
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
         assertEquals("(TrueCondition and (TrueCondition and below) and (TrueCondition and (FalseCondition or (TrueCondition and below) or (TrueCondition and equals))))", condition.toString());
 
@@ -127,7 +127,7 @@ public class ConditionLoadingTests {
         // x < 5 && (x < 2 || x == 3)
         String input = "conditions:\n  - any:\n    - has_extra:\n      extra: 2\n    - below: 5";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionServiceProvider::load);
+        Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
         assertEquals("(TrueCondition and (TrueCondition and below) and (TrueCondition and (FalseCondition or (TrueCondition and below) or (TrueCondition and equals))))", condition.toString());
 
@@ -149,7 +149,7 @@ public class ConditionLoadingTests {
         // interval (2;5)
         String input = "below: 5\nabove: 2";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
-        Condition condition = Conditions.fromMap(Objects.requireNonNull(conf.getValues(false)), ConditionRelation.AND, conditionServiceProvider::load);
+        Condition condition = Conditions.fromMap(Objects.requireNonNull(conf.getValues(false)), ConditionRelation.AND, conditionProvider);
 
         assertFalse(condition.matches(ConditionContext.of("value", 1)));
         assertTrue(condition.matches(ConditionContext.of("value", 3)));

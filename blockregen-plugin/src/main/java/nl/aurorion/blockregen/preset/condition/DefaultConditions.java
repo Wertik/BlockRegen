@@ -14,10 +14,10 @@ import java.util.List;
 public class DefaultConditions {
 
     @NotNull
-    public static Pair<String, ConditionProvider> tool() {
+    public static Pair<String, GenericConditionProvider.ProviderEntry> tool() {
         return new Pair<>(
                 "tool",
-                GenericConditionProvider.empty()
+                GenericConditionProvider.ProviderEntry.provider(GenericConditionProvider.empty()
                         .addProvider("material", GenericConditionProvider.ProviderEntry.of(
                                 (node, key) -> Condition.of((ctx) -> ctx.mustVar("material") == XMaterial.matchXMaterial((String) node)
                                         .orElseThrow(() -> new ParseException("Invalid material " + node))), String.class))
@@ -25,12 +25,32 @@ public class DefaultConditions {
                             ItemStack item = (ItemStack) ctx.mustVar("tool");
                             // todo: more - enchants, flags, name, lore
                             return ConditionContext.of("material", XMaterial.matchXMaterial(item));
-                        })
+                        }))
+        );
+    }
+
+    // A simple comparator expression is all we need. Advanced conditions can be created by composing condition nodes.
+    // examples:
+    // "%player_y% > 20"
+    // "30 > %player_y%"
+    // "%player_y%" - assume != 0
+    // operators: <, <=, >=, >, ==, !=
+    @NotNull
+    public static Pair<String, GenericConditionProvider.ProviderEntry> placeholder() {
+        return new Pair<>(
+                "placeholder",
+                GenericConditionProvider.ProviderEntry.of(
+                        (node, key) -> {
+                            // Parse the expression
+                            return Condition.trueCondition();
+                        },
+                        String.class
+                )
         );
     }
 
     @NotNull
-    public static List<Pair<String, ConditionProvider>> all() {
+    public static List<Pair<String, GenericConditionProvider.ProviderEntry>> all() {
         return Lists.newArrayList(tool());
     }
 }
