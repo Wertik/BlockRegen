@@ -219,7 +219,8 @@ public class RegenerationListener implements Listener {
 
         ConditionContext ctx = ConditionContext.of(
                 "player", player,
-                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player)
+                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player),
+                "block", block
         );
 
         // Check composed conditions

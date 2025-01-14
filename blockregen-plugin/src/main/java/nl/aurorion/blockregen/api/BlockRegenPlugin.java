@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.api;
 
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.ConsoleHandler;
 import nl.aurorion.blockregen.GsonHelper;
 import nl.aurorion.blockregen.compatibility.CompatibilityManager;
@@ -21,6 +22,11 @@ import java.util.Random;
 import java.util.logging.Level;
 
 public interface BlockRegenPlugin extends Plugin {
+
+    static BlockRegenPlugin getInstance() {
+        return BlockRegenPluginImpl.getInstance();
+    }
+
     void reload(CommandSender sender);
 
     @NotNull

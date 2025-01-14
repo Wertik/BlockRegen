@@ -6,6 +6,7 @@ import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.configuration.ParseException;
+import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +34,9 @@ public class DefaultConditions {
         );
     }
 
-    // A simple comparator expression is all we need. Advanced conditions can be created by composing condition nodes.
+    // Expressions have two sides, either of them can be constant.
+    // The types have to be figured out at execution time (when to expression is evaluated)
+    // todo: What if I get two constants? - evaluate at load time
     // examples:
     // "%player_y% > 20"
     // "30 > %player_y%"
@@ -45,9 +48,10 @@ public class DefaultConditions {
                 "placeholder",
                 GenericConditionProvider.ProviderEntry.of(
                         (key, node) -> {
-                            // Parse the expression
-                            // todo
-                            return Condition.trueCondition();
+                            String input = (String) node;
+
+                            Expression expression = Expression.from(input);
+                            return Condition.of(expression::evaluate);
                         },
                         String.class
                 )
@@ -56,6 +60,6 @@ public class DefaultConditions {
 
     @NotNull
     public static List<Pair<String, GenericConditionProvider.ProviderEntry>> all() {
-        return Lists.newArrayList(tool());
+        return Lists.newArrayList(tool(), placeholder());
     }
 }
