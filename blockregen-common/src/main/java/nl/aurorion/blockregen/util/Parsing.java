@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  * If a default value is provided as an argument, return that on failure. Otherwise, throw a {@link ParseException}.
  */
 @Log
-public class ParseUtil {
+public class Parsing {
 
     /**
      * Attempt to run the {@param callable} containing the parse action. If it's unsuccessful, throw ParseException with
@@ -68,18 +68,6 @@ public class ParseUtil {
             return Double.parseDouble(input);
         } catch (NumberFormatException e) {
             return onError.get();
-        }
-    }
-
-    public static Integer parseInteger(@Nullable String input) {
-        if (input == null) {
-            return null;
-        }
-
-        try {
-            return Integer.parseInt(input.trim());
-        } catch (NumberFormatException exception) {
-            return null;
         }
     }
 
@@ -146,24 +134,4 @@ public class ParseUtil {
             return null;
         }
     }
-
-    public static <T> T nullOrDefault(Supplier<T> supplier, T def, Consumer<Throwable> exceptionCallback) {
-        try {
-            T t = supplier.get();
-            return t == null ? def : t;
-        } catch (Exception e) {
-            exceptionCallback.accept(e);
-            return def;
-        }
-    }
-
-    public static <T> T nullOrDefault(Supplier<T> supplier, T def) {
-        try {
-            T t = supplier.get();
-            return t == null ? def : t;
-        } catch (Exception e) {
-            return def;
-        }
-    }
-
 }

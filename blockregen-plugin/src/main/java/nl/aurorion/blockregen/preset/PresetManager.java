@@ -7,7 +7,7 @@ import com.linecorp.conditional.Condition;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
-import nl.aurorion.blockregen.util.ParseUtil;
+import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.ParseException;
@@ -383,7 +383,7 @@ public class PresetManager {
             return drop;
         }
 
-        XMaterial material = ParseUtil.parseMaterial(section.getString("material"));
+        XMaterial material = Parsing.parseMaterial(section.getString("material"));
         if (material == null) {
             throw new IllegalStateException("Material is invalid.");
         }
@@ -398,7 +398,7 @@ public class PresetManager {
 
         drop.setEnchants(Enchant.loadSet(section.getStringList("enchants")));
         drop.setItemFlags(section.getStringList("flags").stream()
-                .map(str -> ParseUtil.parseEnum(str, ItemFlag.class,
+                .map(str -> Parsing.parseEnum(str, ItemFlag.class,
                         e -> log.warning("Could not parse ItemFlag from " + str)))
                 .collect(Collectors.toSet()));
 
@@ -409,7 +409,7 @@ public class PresetManager {
                 .ifNotFull(NumberValue.fixed(100))
                 .apply(drop::setChance);
 
-        ParseUtil.parseInt(section.getString("custom-model-data"));
+        Parsing.parseInt(section.getString("custom-model-data"));
 
         if (section.isSet("item-model")) {
             String key = section.getString("item-model");

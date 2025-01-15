@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.util.Strings;
+import nl.aurorion.blockregen.util.Serialization;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Axis;
 import org.bukkit.Instrument;
@@ -321,7 +321,7 @@ public class LatestNodeData implements NodeData {
         entries.put("instrument", this.instrument);
         entries.put("sharped", this.sharped);
 
-        String serialized = Strings.serializeNodeDataEntries(entries);
+        String serialized = Serialization.serializeNodeDataEntries(entries);
         if (!this.faces.isEmpty()) {
             log.fine(serialized);
             String faces = this.faces.stream().map(face -> String.format("%s=true", face)).collect(Collectors.joining(","));

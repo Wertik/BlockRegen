@@ -12,7 +12,7 @@ import nl.aurorion.blockregen.preset.condition.expression.Constant;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import nl.aurorion.blockregen.preset.condition.expression.Operand;
 import nl.aurorion.blockregen.preset.condition.expression.OperandRelation;
-import nl.aurorion.blockregen.util.ParseUtil;
+import nl.aurorion.blockregen.util.Parsing;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -58,13 +58,13 @@ public class DefaultConditions {
 
                                             XEnchantment leftEnchantment = null;
                                             try {
-                                                leftEnchantment = ParseUtil.parseEnchantment(left);
+                                                leftEnchantment = Parsing.parseEnchantment(left);
                                             } catch (ParseException e) {
                                                 //
                                             }
                                             XEnchantment rightEnchantment = null;
                                             try {
-                                                rightEnchantment = ParseUtil.parseEnchantment(right);
+                                                rightEnchantment = Parsing.parseEnchantment(right);
                                             } catch (ParseException e) {
                                                 //
                                             }

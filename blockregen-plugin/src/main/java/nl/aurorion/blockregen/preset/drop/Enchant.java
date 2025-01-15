@@ -4,7 +4,7 @@ import com.cryptomorin.xseries.XEnchantment;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.util.ParseUtil;
+import nl.aurorion.blockregen.util.Parsing;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -39,11 +39,11 @@ public class Enchant {
             String[] arr = str.split(":");
             if (arr.length == 2) {
                 enchantString = arr[0];
-                level = ParseUtil.parseInt(arr[1], 1);
+                level = Parsing.parseInt(arr[1], 1);
             }
         }
 
-        XEnchantment xEnchantment = ParseUtil.parseEnchantment(enchantString);
+        XEnchantment xEnchantment = Parsing.parseEnchantment(enchantString);
 
         return new Enchant(xEnchantment, level);
     }

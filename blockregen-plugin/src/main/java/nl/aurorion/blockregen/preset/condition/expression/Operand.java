@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.util.ParseUtil;
+import nl.aurorion.blockregen.util.Parsing;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
@@ -40,7 +40,7 @@ public interface Operand {
             }
 
             try {
-                return ParseUtil.parseEnchantment(input);
+                return Parsing.parseEnchantment(input);
             } catch (ParseException ignored) {
                 // Not an enchantment
             }

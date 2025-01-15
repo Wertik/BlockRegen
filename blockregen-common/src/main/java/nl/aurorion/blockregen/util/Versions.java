@@ -27,14 +27,14 @@ public class Versions {
 
             int num1;
             try {
-                num1 = ParseUtil.parseInt(arr1[i]);
+                num1 = Parsing.parseInt(arr1[i]);
             } catch (ParseException e) {
                 throw new ParseException("Invalid version part '" + arr1[i] + "'");
             }
 
             int num2;
             try {
-                num2 = ParseUtil.parseInt(arr2[i]);
+                num2 = Parsing.parseInt(arr2[i]);
             } catch (ParseException e) {
                 throw new ParseException("Invalid version part '" + arr2[i] + "'");
             }
