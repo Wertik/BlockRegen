@@ -2,15 +2,19 @@ package nl.aurorion.blockregen.preset.drop;
 
 import com.cryptomorin.xseries.XEnchantment;
 import lombok.Getter;
+import lombok.extern.java.Log;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.util.ParseUtil;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Log
 public class Enchant {
 
     @Getter
@@ -23,7 +27,10 @@ public class Enchant {
         this.level = level;
     }
 
-    @Nullable
+    /**
+     * @throws ParseException If the parsing fails.
+     */
+    @NotNull
     public static Enchant from(String str) {
         String enchantString = str;
         int level = 1;
@@ -38,34 +45,35 @@ public class Enchant {
 
         XEnchantment xEnchantment = ParseUtil.parseEnchantment(enchantString);
 
-        if (xEnchantment == null)
-            return null;
-
         return new Enchant(xEnchantment, level);
     }
 
-    public static Set<Enchant> load(List<String> input) {
-        if (input.isEmpty())
-            return new HashSet<>();
-
+    /**
+     * @throws ParseException If parsing fails.
+     */
+    @NotNull
+    public static Set<Enchant> loadSet(@NotNull List<String> input) {
         Set<Enchant> out = new HashSet<>();
         for (String str : input) {
-            Enchant enchant = from(str);
-            if (enchant != null)
-                out.add(enchant);
+            Enchant enchant = Enchant.from(str);
+            out.add(enchant);
         }
         return out;
     }
 
-    public void apply(ItemMeta meta) {
-        if (meta == null)
+    /**
+     * Add enchant to ItemMeta.
+     */
+    public void apply(@Nullable ItemMeta meta) {
+        if (meta == null) {
             return;
+        }
 
-        Enchantment enchantment = this.enchantment.getEnchant();
-
-        if (enchantment == null)
+        Enchantment enchantment = this.enchantment.get();
+        if (enchantment == null) {
+            log.warning("Unable to parse XEnchantment '" + this.enchantment + "' to this version.");
             return;
-
+        }
         meta.addEnchant(enchantment, level, true);
     }
 }

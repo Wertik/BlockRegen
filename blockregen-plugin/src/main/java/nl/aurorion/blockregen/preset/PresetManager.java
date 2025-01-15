@@ -339,6 +339,7 @@ public class PresetManager {
 
     /**
      * @throws IllegalStateException If the parsing fails.
+     * @throws ParseException If the parsing fails.
      */
     private DropItem loadDrop(ConfigurationSection section, BlockPreset preset) {
         if (section == null) {
@@ -395,7 +396,7 @@ public class PresetManager {
         drop.setDisplayName(section.getString("name"));
         drop.setLore(section.getStringList("lores"));
 
-        drop.setEnchants(Enchant.load(section.getStringList("enchants")));
+        drop.setEnchants(Enchant.loadSet(section.getStringList("enchants")));
         drop.setItemFlags(section.getStringList("flags").stream()
                 .map(str -> ParseUtil.parseEnum(str, ItemFlag.class,
                         e -> log.warning("Could not parse ItemFlag from " + str)))
@@ -408,7 +409,7 @@ public class PresetManager {
                 .ifNotFull(NumberValue.fixed(100))
                 .apply(drop::setChance);
 
-        drop.setCustomModelData(ParseUtil.parseInteger(section.getString("custom-model-data")));
+        ParseUtil.parseInt(section.getString("custom-model-data"));
 
         if (section.isSet("item-model")) {
             String key = section.getString("item-model");

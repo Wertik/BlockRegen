@@ -5,8 +5,8 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
-import nl.aurorion.blockregen.util.ParseUtil;
 import nl.aurorion.blockregen.api.version.VersionManager;
+import nl.aurorion.blockregen.util.Versions;
 import nl.aurorion.blockregen.version.ancient.AncientMethods;
 import nl.aurorion.blockregen.version.ancient.AncientNodeData;
 import nl.aurorion.blockregen.version.ancient.AncientNodeDataParser;
@@ -139,13 +139,13 @@ public class VersionManagerImpl implements VersionManager {
 
     @Override
     public boolean isCurrentAbove(String versionString, boolean include) {
-        int res = ParseUtil.compareVersions(this.version, versionString, 2);
+        int res = Versions.compareVersions(this.version, versionString, 2);
         return include ? res >= 0 : res > 0;
     }
 
     @Override
     public boolean isCurrentBelow(String versionString, boolean include) {
-        int res = ParseUtil.compareVersions(this.version, versionString, 2);
+        int res = Versions.compareVersions(this.version, versionString, 2);
         return include ? res <= 0 : res < 0;
     }
 

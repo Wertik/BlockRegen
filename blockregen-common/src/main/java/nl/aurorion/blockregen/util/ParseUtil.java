@@ -3,7 +3,6 @@ package nl.aurorion.blockregen.util;
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
-import lombok.experimental.UtilityClass;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
 import org.bukkit.Material;
@@ -14,11 +13,57 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * A collection of parsing methods.
+ * <p>
+ * If a default value is provided as an argument, return that on failure. Otherwise, throw a {@link ParseException}.
+ */
 @Log
-@UtilityClass
 public class ParseUtil {
 
-    public double parseDouble(String input, Supplier<Double> onError) {
+    /**
+     * Attempt to run the {@param callable} containing the parse action. If it's unsuccessful, throw ParseException with
+     * {@param message}.
+     *
+     * @throws ParseException If the parsing fails (an exception is thrown in the callable).
+     */
+    public static <T> T parse(@NotNull Supplier<T> callable, @NotNull String message) {
+        try {
+            return callable.get();
+        } catch (Exception e) {
+            throw new ParseException(message);
+        }
+    }
+
+    @NotNull
+    public static String notNull(@Nullable String input) {
+        if (input == null) {
+            throw new ParseException("Parsing input cannot be null.");
+        }
+        return input;
+    }
+
+    /**
+     * Attempt to parse an int from {@param input}. If unsuccessful throw {@link ParseException}.
+     *
+     * @throws ParseException If the parsing fails.
+     */
+    public static int parseInt(@Nullable String input) {
+        return parse(() -> Integer.parseInt(notNull(input)), "Invalid integer.");
+    }
+
+    /**
+     * Attempt to parse an int from {@param input}. If unsuccessful return {@param def}.
+     */
+    public static int parseInt(@Nullable String input, int def) {
+        try {
+            return Integer.parseInt(notNull(input).trim());
+        } catch (NumberFormatException exception) {
+            return def;
+        }
+    }
+
+    public static double parseDouble(String input, Supplier<Double> onError) {
         try {
             return Double.parseDouble(input);
         } catch (NumberFormatException e) {
@@ -26,18 +71,7 @@ public class ParseUtil {
         }
     }
 
-    /**
-     * Attempt to parse an integer, return -1 if a NumberFormatException was thrown.
-     */
-    public int parseInt(String input, int def) {
-        try {
-            return Integer.parseInt(input.trim());
-        } catch (NumberFormatException exception) {
-            return def;
-        }
-    }
-
-    public Integer parseInteger(@Nullable String input) {
+    public static Integer parseInteger(@Nullable String input) {
         if (input == null) {
             return null;
         }
@@ -49,15 +83,11 @@ public class ParseUtil {
         }
     }
 
-    public int parseInt(String input) {
-        return parseInt(input, -1);
-    }
-
     /**
      * @throws ParseException If the parsing fails.
      */
     @NotNull
-    public XEnchantment parseEnchantment(@NotNull String input) {
+    public static XEnchantment parseEnchantment(@NotNull String input) {
         if (Strings.isNullOrEmpty(input)) {
             throw new ParseException("Enchantment input cannot be empty.");
         }
@@ -71,12 +101,12 @@ public class ParseUtil {
     }
 
     @Nullable
-    public XMaterial parseMaterial(String input) {
+    public static XMaterial parseMaterial(String input) {
         return parseMaterial(input, false);
     }
 
     @Nullable
-    public XMaterial parseMaterial(String input, boolean blocksOnly) {
+    public static XMaterial parseMaterial(String input, boolean blocksOnly) {
 
         if (Strings.isNullOrEmpty(input)) {
             return null;
@@ -99,12 +129,11 @@ public class ParseUtil {
         return xMaterial.get();
     }
 
-    public <E extends Enum<E>> E parseEnum(String str, Class<E> clazz) {
+    public static <E extends Enum<E>> E parseEnum(String str, Class<E> clazz) {
         return parseEnum(str, clazz, null);
     }
 
-    public <E extends Enum<E>> E parseEnum(String str, Class<E> clazz, Consumer<Throwable> exceptionCallback) {
-
+    public static <E extends Enum<E>> E parseEnum(String str, Class<E> clazz, Consumer<Throwable> exceptionCallback) {
         if (Strings.isNullOrEmpty(str)) {
             return null;
         }
@@ -118,7 +147,7 @@ public class ParseUtil {
         }
     }
 
-    public <T> T nullOrDefault(Supplier<T> supplier, T def, Consumer<Throwable> exceptionCallback) {
+    public static <T> T nullOrDefault(Supplier<T> supplier, T def, Consumer<Throwable> exceptionCallback) {
         try {
             T t = supplier.get();
             return t == null ? def : t;
@@ -128,7 +157,7 @@ public class ParseUtil {
         }
     }
 
-    public <T> T nullOrDefault(Supplier<T> supplier, T def) {
+    public static <T> T nullOrDefault(Supplier<T> supplier, T def) {
         try {
             T t = supplier.get();
             return t == null ? def : t;
@@ -137,36 +166,4 @@ public class ParseUtil {
         }
     }
 
-    public int compareVersions(String version1, String version2) {
-        return compareVersions(version1, version2, -1);
-    }
-
-    // Compare simple semver
-    public int compareVersions(String version1, String version2, int depth) {
-        // Compare major
-        String[] arr1 = version1.split("-")[0].split("\\.");
-        String[] arr2 = version2.split("-")[0].split("\\.");
-
-        int len = depth == -1 ? Math.max(arr1.length, arr2.length) : depth;
-
-        for (int i = 0; i < len; i++) {
-
-            if (arr1.length < i) {
-                return -1;
-            } else if (arr2.length < i) {
-                return 1;
-            }
-
-            int num1 = ParseUtil.parseInteger(arr1[i]);
-            int num2 = ParseUtil.parseInteger(arr2[i]);
-
-            if (num1 > num2) {
-                return 1;
-            } else if (num2 > num1) {
-                return -1;
-            }
-        }
-
-        return 0;
-    }
 }
