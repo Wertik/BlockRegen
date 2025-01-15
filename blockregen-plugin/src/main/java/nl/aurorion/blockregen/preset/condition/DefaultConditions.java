@@ -8,10 +8,8 @@ import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.preset.condition.expression.Constant;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import nl.aurorion.blockregen.preset.condition.expression.Operand;
-import nl.aurorion.blockregen.preset.condition.expression.OperandRelation;
 import nl.aurorion.blockregen.util.Parsing;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -19,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 /**
  * Default conditions provided by this plugin.
@@ -34,8 +31,12 @@ public class DefaultConditions {
                 GenericConditionProvider.ProviderEntry.of(
                         GenericConditionProvider.empty()
                                 .addProvider("material", GenericConditionProvider.ProviderEntry.of(
-                                        (key, node) -> Condition.of((ctx) -> ctx.mustVar("material") == XMaterial.matchXMaterial((String) node)
-                                                .orElseThrow(() -> new ParseException("Invalid material " + node))).alias("material == " + node), String.class))
+                                        (key, node) -> {
+                                            XMaterial xMaterial = Parsing.parseMaterial((String) node);
+
+                                            return Condition.of((ctx) -> ctx.mustVar("material") == xMaterial)
+                                                    .alias("material == " + xMaterial);
+                                        }, String.class))
                                 .addProvider("enchants", GenericConditionProvider.ProviderEntry.of(
                                         (key, node) -> {
                                             String v = (String) node;

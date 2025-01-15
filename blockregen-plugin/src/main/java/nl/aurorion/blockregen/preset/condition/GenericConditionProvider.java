@@ -112,12 +112,12 @@ public class GenericConditionProvider implements ConditionProvider {
         Condition condition;
         try {
             condition = Conditions.fromNode(
-                            node,
-                            entry.getRelation(),
-                            entry.getProvider());
+                    node,
+                    entry.getRelation(),
+                    entry.getProvider());
 
             // Don't alias composed conditions to let them unwind go deeper on #toString.
-            if (!(condition instanceof ComposedCondition)) {
+            if (!(condition instanceof ComposedCondition) && condition.alias() == null) {
                 condition = condition.alias(key);
             }
         } catch (ParseException e) {

@@ -96,7 +96,7 @@ public class PresetManager {
                 load(key);
             } catch (Exception e) {
                 log.log(Level.WARNING, String.format("Could not load preset '%s': %s", key, e.getMessage()), e);
-                if (log.getLevel().intValue() < Level.FINE.intValue()) {
+                if (BlockRegenPlugin.getInstance().getLogLevel().intValue() < Level.FINE.intValue()) {
                     e.printStackTrace();
                 }
             }
