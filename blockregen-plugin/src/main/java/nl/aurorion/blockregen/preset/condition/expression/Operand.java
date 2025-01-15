@@ -39,16 +39,12 @@ public interface Operand {
                 // Not a date
             }
 
-            try {
-                return Parsing.parseEnchantment(input);
-            } catch (ParseException ignored) {
-                // Not an enchantment
-            }
-
             return input;
         }
 
         /**
+         * Parse either a constant or a placeholder variable.
+         *
          * @throws IllegalArgumentException If the input is null or empty.
          */
         @NotNull

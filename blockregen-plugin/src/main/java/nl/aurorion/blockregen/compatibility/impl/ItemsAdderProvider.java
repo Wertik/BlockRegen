@@ -26,7 +26,7 @@ public class ItemsAdderProvider extends CompatibilityProvider implements Materia
 
     @Override
     public void onLoad() {
-        plugin.getPresetManager().getConditions().addProvider("tool/ia", (key, node) -> {
+        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", (key, node) -> {
             String id = (String) node;
             return Condition.of((ctx) -> {
                 ItemStack tool = (ItemStack) ctx.mustVar("tool");

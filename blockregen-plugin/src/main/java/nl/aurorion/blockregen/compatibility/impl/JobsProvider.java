@@ -3,12 +3,19 @@ package nl.aurorion.blockregen.compatibility.impl;
 import com.gamingmesh.jobs.Jobs;
 import com.gamingmesh.jobs.actions.BlockActionInfo;
 import com.gamingmesh.jobs.container.ActionType;
+import com.gamingmesh.jobs.container.Job;
+import com.gamingmesh.jobs.container.JobProgression;
 import com.gamingmesh.jobs.container.JobsPlayer;
+import com.linecorp.conditional.Condition;
+import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.preset.condition.expression.Expression;
+import nl.aurorion.blockregen.preset.condition.expression.Operand;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 @Log
 public class JobsProvider extends CompatibilityProvider {
@@ -20,8 +27,28 @@ public class JobsProvider extends CompatibilityProvider {
 
     @Override
     public void onLoad() {
-        // todo
-        // plugin.getPresetManager().getConditions().register(getPrefix() + "/job", JobsCondition.parser());
+        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/levels", (key, node) -> {
+            String v = (String) node;
+
+            Expression expression = Expression.withCustomOperands(JobsProvider::getJobOperand, v);
+            log.fine(() -> "Loaded jobs expression " + expression);
+            return Condition.of(expression::evaluate);
+        }).extender((ctx) -> {
+            Player player = (Player) ctx.mustVar("player");
+            JobsPlayer jobsPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
+            return ConditionContext.of("jobs.player", jobsPlayer);
+        });
+    }
+
+    @NotNull
+    private static Operand getJobOperand(@NotNull String str) {
+        Job job = Jobs.getJob(str);
+
+        return (ctx) -> {
+            JobsPlayer player = (JobsPlayer) ctx.mustVar("jobs.player");
+            JobProgression progression = player.getJobProgression(job);
+            return progression.getLevel();
+        };
     }
 
     public void triggerBlockBreakAction(Player player, Block block) {

@@ -40,50 +40,16 @@ public class DefaultConditions {
                                         (key, node) -> {
                                             String v = (String) node;
 
-                                            Matcher matcher = Expression.SYMBOL_PATTERN.matcher(v);
+                                            Expression expression = Expression.withCustomOperands((str) -> {
+                                                XEnchantment enchantment = null;
+                                                try {
+                                                    enchantment = Parsing.parseEnchantment(str);
+                                                } catch (ParseException e) {
+                                                    //
+                                                }
+                                                return getEnchantmentLevel(enchantment);
+                                            }, v);
 
-                                            if (!matcher.find()) {
-                                                throw new ParseException("Invalid expression " + v);
-                                            }
-
-                                            OperandRelation relation = OperandRelation.parse(matcher.group(2));
-                                            if (relation == null) {
-                                                throw new ParseException("Invalid relation operator.");
-                                            }
-
-                                            String left = matcher.group(1);
-                                            String right = matcher.group(3);
-
-                                            // One of them has to be a valid enchantment
-
-                                            XEnchantment leftEnchantment = null;
-                                            try {
-                                                leftEnchantment = Parsing.parseEnchantment(left);
-                                            } catch (ParseException e) {
-                                                //
-                                            }
-                                            XEnchantment rightEnchantment = null;
-                                            try {
-                                                rightEnchantment = Parsing.parseEnchantment(right);
-                                            } catch (ParseException e) {
-                                                //
-                                            }
-
-                                            if (leftEnchantment == null && rightEnchantment == null) {
-                                                throw new ParseException("No enchantment in expression '" + v + "'.");
-                                            }
-
-                                            Operand op1;
-                                            Operand op2;
-                                            if (leftEnchantment == null) {
-                                                op1 = new Constant(Operand.Parser.parseObject(left));
-                                                op2 = getEnchantmentLevel(rightEnchantment);
-                                            } else {
-                                                op1 = getEnchantmentLevel(leftEnchantment);
-                                                op2 = new Constant(Operand.Parser.parseObject(right));
-                                            }
-
-                                            Expression expression = Expression.of(op1, op2, relation);
                                             log.fine(() -> "Loaded enchants expression " + expression);
                                             return Condition.of(expression::evaluate).alias(v);
                                         }, ConditionRelation.AND))

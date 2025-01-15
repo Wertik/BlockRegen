@@ -26,7 +26,7 @@ public class OraxenProvider extends CompatibilityProvider implements MaterialPar
     @Override
     public void onLoad() {
         // Register conditions provider.
-        plugin.getPresetManager().getConditions().addProvider("tool/oraxen", ((key, node) -> {
+        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", ((key, node) -> {
             String id = (String) node;
             return Condition.of((ctx) -> {
                 ItemStack tool = (ItemStack) ctx.mustVar("tool");

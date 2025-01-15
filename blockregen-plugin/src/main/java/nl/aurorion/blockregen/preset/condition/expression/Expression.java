@@ -4,9 +4,12 @@ import com.google.common.base.Strings;
 import com.linecorp.conditional.ConditionContext;
 import lombok.Getter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,6 +75,61 @@ public class Expression {
         Expression expression = new Expression(op1, op2, relation);
         log.fine(() -> "Parsed expression: " + expression);
         return expression;
+    }
+
+    /**
+     * Attempt to parse operands using a provided parser.
+     * */
+    public static Expression withCustomOperands(Function<String, Operand> parser, String input) {
+        Matcher matcher = Expression.SYMBOL_PATTERN.matcher(input);
+
+        if (!matcher.find()) {
+            throw new ParseException("Invalid expression " + input);
+        }
+
+        OperandRelation relation = OperandRelation.parse(matcher.group(2));
+        if (relation == null) {
+            throw new ParseException("Invalid relation operator.");
+        }
+
+        Operand o1 = attemptParse(parser, matcher.group(1));
+        Operand o2 = attemptParse(parser, matcher.group(3));
+
+        if (o1 == null && o2 == null) {
+            throw new ParseException("No variable operand in expression.");
+        }
+
+        if (o1 == null) {
+            o1 = new Constant(Operand.Parser.parseObject(matcher.group(1)));
+        } else {
+            o2 = new Constant(Operand.Parser.parseObject(matcher.group(3)));
+        }
+
+        return Expression.of(o1, o2, relation);
+    }
+
+    public static Pair<OperandRelation, String[]> splitExpression(String input) {
+        Matcher matcher = Expression.SYMBOL_PATTERN.matcher(input);
+
+        if (!matcher.find()) {
+            throw new ParseException("Invalid expression " + input);
+        }
+
+        OperandRelation relation = OperandRelation.parse(matcher.group(2));
+        if (relation == null) {
+            throw new ParseException("Invalid relation operator.");
+        }
+
+        return new Pair<>(relation, new String[]{matcher.group(1), matcher.group(3)});
+    }
+
+    @Nullable
+    private static Operand attemptParse(Function<String, Operand> parser, String str) {
+        try {
+            return parser.apply(str);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @NotNull
