@@ -3,8 +3,9 @@ package nl.aurorion.blockregen.material;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Pair;
+import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.parser.MaterialParser;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
@@ -32,13 +33,12 @@ public class MaterialManager {
     }
 
     /**
-     * Register a material parser under a prefix.
-     * If there is a parser already registered, overwrite (aka Map#put).
+     * Register a material parser under a prefix. If there is a parser already registered, overwrite (aka Map#put).
      * <p>
      * A null prefix parser is used for inputs with no prefix.
      * <p>
-     * A prefix cannot match a material name, otherwise the parsing screws up.
-     * We could use a different separator, but screw it, a colon looks cool.
+     * A prefix cannot match a material name, otherwise the parsing screws up. We could use a different separator, but
+     * screw it, a colon looks cool.
      */
     public void registerParser(@Nullable String prefix, @NotNull MaterialParser parser) {
         prefix = (prefix == null ? null : prefix.toLowerCase());
@@ -58,7 +58,7 @@ public class MaterialManager {
     }
 
     /**
-     * @throws IllegalArgumentException If the parsing fails.
+     * @throws ParseException If the parsing fails.
      */
     @NotNull
     private Pair<BlockRegenMaterial, Double> parseMaterialAndChance(@NotNull MaterialParser parser, @NotNull String input) {
@@ -103,7 +103,7 @@ public class MaterialManager {
                     double chance = Double.parseDouble(rawChanceInput);
                     return new Pair<>(material, chance / 100);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid chance '" + rawChanceInput + "', has to be a number.");
+                    throw new ParseException("Invalid chance '" + rawChanceInput + "', has to be a number.");
                 }
             } else {
                 return new Pair<>(material, null);
@@ -116,7 +116,7 @@ public class MaterialManager {
     }
 
     /**
-     * @throws IllegalArgumentException If the parsing fails.
+     * @throws ParseException If the parsing fails.
      */
     // <prefix:?><material>;<prefix:?><material>;...
     @NotNull
@@ -124,7 +124,7 @@ public class MaterialManager {
         List<String> materials = Arrays.asList(input.split(";"));
 
         if (materials.isEmpty()) {
-            throw new IllegalArgumentException("Target material " + input + " doesn't have the correct syntax.");
+            throw new ParseException("Target material " + input + " doesn't have the correct syntax.");
         }
 
         List<BlockRegenMaterial> targetMaterials = new ArrayList<>();
@@ -137,7 +137,7 @@ public class MaterialManager {
     }
 
     /**
-     * @throws IllegalArgumentException If the parsing fails.
+     * @throws ParseException If the parsing fails.
      */
     @NotNull
     public PlacementMaterial parsePlacementMaterial(@NotNull String input) {
@@ -148,7 +148,7 @@ public class MaterialManager {
         Map<BlockRegenMaterial, Double> valuedMaterials = new HashMap<>();
 
         if (materials.isEmpty()) {
-            throw new IllegalArgumentException("Placement material " + input + " doesn't have the correct syntax.");
+            throw new ParseException("Placement material " + input + " doesn't have the correct syntax.");
         }
 
         for (String materialInput : materials) {
@@ -176,7 +176,7 @@ public class MaterialManager {
                 parser = getParser(null);
 
                 if (parser == null) {
-                    throw new IllegalArgumentException(String.format("Material '%s' is invalid. No valid material parser found.", input));
+                    throw new ParseException(String.format("Material '%s' is invalid. No valid material parser found.", input));
                 }
 
                 log.fine(() -> "No prefix");
@@ -225,7 +225,11 @@ public class MaterialManager {
             }
         }
 
-        return PlacementMaterial.from(valuedMaterials);
+        try {
+            return PlacementMaterial.from(valuedMaterials);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e);
+        }
     }
 
     /**
@@ -233,12 +237,12 @@ public class MaterialManager {
      *
      * @param input Input string, format (prefix:?)(material-name[nodedata,...])
      * @return Parsed material or null when no parser was found.
-     * @throws IllegalArgumentException When the parser is unable to parse the material or the input is empty.
+     * @throws ParseException When the parser is unable to parse the material or the input is empty.
      */
     @NotNull
     public BlockRegenMaterial parseMaterial(@NotNull String input) {
         if (Strings.isNullOrEmpty(input)) {
-            throw new IllegalArgumentException("Empty input.");
+            throw new ParseException("Empty input.");
         }
 
         // Check for a prefix first.
@@ -256,7 +260,7 @@ public class MaterialManager {
 
         if (parser == null) {
             // Prefix not registered
-            throw new IllegalArgumentException(String.format("No valid parser found for prefix '%s'", prefix));
+            throw new ParseException(String.format("No valid parser found for prefix '%s'", prefix));
         }
 
         return parser.parseMaterial(sanitized);

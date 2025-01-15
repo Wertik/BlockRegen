@@ -29,12 +29,17 @@ public interface Methods {
 
     void setType(@NotNull Block block, @NotNull XMaterial xMaterial);
 
-    XMaterial getType(@NotNull Block block) throws IllegalArgumentException;
+    /**
+     * @throws IllegalArgumentException If the block is invalid.
+     */
+    @NotNull
+    XMaterial getType(@NotNull Block block);
 
     default boolean compareType(@NotNull Block block, @NotNull XMaterial xMaterial) {
         return getType(block) == xMaterial;
     }
 
+    @NotNull
     ItemStack getItemInMainHand(@NotNull Player player);
 
     void handleDropItemEvent(Player player, BlockState blockState, List<Item> items);

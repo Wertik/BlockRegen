@@ -1,14 +1,12 @@
 package nl.aurorion.blockregen.version;
 
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,7 +29,12 @@ public class NodeDataDeserializer<T extends NodeData> {
 
     private final Map<String, PropertyDeserializer<T>> properties = new HashMap<>();
 
-    public static <E extends Enum<E>> E tryParseEnum(String value, Class<E> clazz) {
+    /**
+     * @throws ParseException If the parsing fails.
+     */
+    public static <E extends Enum<E>> E tryParseEnum(@NotNull String value, @NotNull Class<E> clazz) {
+        Objects.requireNonNull(value, "Enum input cannot be null.");
+
         E face = Parsing.parseEnum(value.trim(), clazz);
         if (face == null) {
             // Fall back to ordinals (might be used for age for ex. on old versions where it's an enum)
@@ -39,7 +42,7 @@ public class NodeDataDeserializer<T extends NodeData> {
                 int id = Integer.parseInt(value.trim());
                 return clazz.getEnumConstants()[id];
             } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                throw new IllegalArgumentException(String.format("Invalid value '%s' for enum '%s'. Options: '%s'.", value, clazz.getSimpleName(),
+                throw new ParseException(String.format("Invalid value '%s' for enum '%s'. Options: '%s'.", value, clazz.getSimpleName(),
                         Arrays.stream(clazz.getEnumConstants())
                                 .map(v -> v.name() + " (" + v.ordinal() + ")")
                                 .collect(Collectors.joining("', '"))));
@@ -60,7 +63,7 @@ public class NodeDataDeserializer<T extends NodeData> {
         Set<String> properties = this.properties.keySet();
         // Allow property keys to be case-insensitive. Comfortable.
         // Match against specific keys instead of any keys. Use this to avoid having to solve URLs in values.
-        return Pattern.compile(String.format("", String.join("|", properties)), Pattern.CASE_INSENSITIVE);
+        return Pattern.compile(String.join("|", properties), Pattern.CASE_INSENSITIVE);
     }
 
     /**
@@ -70,9 +73,9 @@ public class NodeDataDeserializer<T extends NodeData> {
      *
      * @param nodeData NodeData to call the assigned property deserialized on.
      * @param input    String input to deserialize from.
-     * @throws IllegalArgumentException If the input format is malformed in any way.
+     * @throws ParseException If the parsing fails.
      */
-    public void deserialize(@NotNull T nodeData, @NotNull String input) throws IllegalArgumentException {
+    public void deserialize(@NotNull T nodeData, @NotNull String input) {
         log.fine(() -> "Deserializing " + input);
 
         if (propertyEqualsPattern == null) {
@@ -83,7 +86,7 @@ public class NodeDataDeserializer<T extends NodeData> {
         Matcher matcher = DATA_PATTERN.matcher(input);
 
         if (!matcher.find()) {
-            throw new IllegalArgumentException("Malformed node data syntax. Most likely missing ']'.");
+            throw new ParseException("Malformed node data syntax. Most likely missing ']'.");
         }
 
         String dataString = matcher.group(1);
@@ -99,7 +102,7 @@ public class NodeDataDeserializer<T extends NodeData> {
             Matcher keyMatcher = KEY_PATTERN.matcher(dataPart);
 
             if (!keyMatcher.find()) {
-                throw new IllegalArgumentException(String.format("Malformed node data property part '%s'. Skipping.", dataPart));
+                throw new ParseException(String.format("Malformed node data property part '%s'. Skipping.", dataPart));
             }
 
             String key = keyMatcher.group(1).substring(0, keyMatcher.end() - 1);
@@ -110,13 +113,13 @@ public class NodeDataDeserializer<T extends NodeData> {
             PropertyDeserializer<T> deserializer = properties.get(key.toLowerCase());
 
             if (deserializer == null) {
-                throw new IllegalArgumentException(String.format("Unknown node data property %s in part %s. Valid properties: '%s'.", key, dataPart, String.join("', '", this.properties.keySet())));
+                throw new ParseException(String.format("Unknown node data property %s in part %s. Valid properties: '%s'.", key, dataPart, String.join("', '", this.properties.keySet())));
             }
 
             try {
                 deserializer.deserialize(nodeData, value);
             } catch (Exception e) {
-                throw new IllegalArgumentException(String.format("Invalid value for property %s: %s", key, e.getMessage()), e);
+                throw new ParseException(String.format("Invalid value for property %s: %s", key, e.getMessage()), e);
             }
         }
     }

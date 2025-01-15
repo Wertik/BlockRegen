@@ -6,8 +6,8 @@ import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
-import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.region.RegionSelection;
+import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -137,9 +137,9 @@ public class PlayerListener implements Listener {
             NodeData data = plugin.getVersionManager().createNodeData();
             data.load(event.getClickedBlock());
 
-            player.sendMessage(Message.DATA_CHECK.get(player).replace("%block%", material == null ? "Unsupported material" : material.name()));
+            player.sendMessage(Message.DATA_CHECK.get(player).replace("%block%", material.name()));
             if (!data.isEmpty()) {
-                player.sendMessage(Message.DATA_CHECK_NODE_DATA.get(player).replace("%data%", String.format("%s%s", material == null ? "Unsupported material" : material.name(), data.getPrettyString())));
+                player.sendMessage(Message.DATA_CHECK_NODE_DATA.get(player).replace("%data%", String.format("%s%s", material.name(), data.getPrettyString())));
             }
         }
     }

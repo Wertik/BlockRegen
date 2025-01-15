@@ -59,8 +59,9 @@ public class MaterialParsingTests {
         }
 
         /**
-         * @param input String to parse from with the material prefix already removed. (ex.: 'oraxen:caveblock', input = 'caveblock').
-         * @throws IllegalArgumentException If the parsing fails.
+         * @param input String to parse from with the material prefix already removed. (ex.: 'oraxen:caveblock', input =
+         *              'caveblock').
+         * @throws ParseException If the parsing fails.
          */
         @Override
         public @NotNull BlockRegenMaterial parseMaterial(String input) {
@@ -105,22 +106,22 @@ public class MaterialParsingTests {
 
     @Test
     public void throwsOnInvalidPrefix() {
-        assertThrows(IllegalArgumentException.class, () -> materialManager.parseMaterial("invalid:random"));
+        assertThrows(ParseException.class, () -> materialManager.parseMaterial("invalid:random"));
     }
 
     @Test
     public void throwsOnNoValidParser() {
-        assertThrows(IllegalArgumentException.class, () -> new MaterialManager(plugin).parseMaterial("random"));
+        assertThrows(ParseException.class, () -> new MaterialManager(plugin).parseMaterial("random"));
     }
 
     @Test
     public void throwsOnEmptyMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> materialManager.parseMaterial(""));
+        assertThrows(ParseException.class, () -> materialManager.parseMaterial(""));
     }
 
     @Test
     public void throwsOnInvalidTargetMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> materialManager.parseTargetMaterial(";"));
+        assertThrows(ParseException.class, () -> materialManager.parseTargetMaterial(";"));
     }
 
     @Test

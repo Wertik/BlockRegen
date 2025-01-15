@@ -94,12 +94,12 @@ public class LatestMethods implements Methods {
     }
 
     @Override
-    public XMaterial getType(@NotNull Block block) {
+    public @NotNull XMaterial getType(@NotNull Block block) {
         return XMaterial.matchXMaterial(block.getType());
     }
 
     @Override
-    public ItemStack getItemInMainHand(@NotNull Player player) {
+    public @NotNull ItemStack getItemInMainHand(@NotNull Player player) {
         return player.getInventory().getItemInMainHand();
     }
 }

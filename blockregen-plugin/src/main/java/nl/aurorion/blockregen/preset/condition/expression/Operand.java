@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.util.Parsing;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
@@ -45,12 +44,12 @@ public interface Operand {
         /**
          * Parse either a constant or a placeholder variable.
          *
-         * @throws IllegalArgumentException If the input is null or empty.
+         * @throws ParseException If the parsing fails.
          */
         @NotNull
         static Operand parse(@NotNull String input) {
             if (Strings.isNullOrEmpty(input)) {
-                throw new IllegalArgumentException("Input cannot be null or empty");
+                throw new ParseException("Input cannot be null or empty");
             }
 
             // Variable or Constant

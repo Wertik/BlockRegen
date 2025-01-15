@@ -7,10 +7,9 @@ import com.linecorp.conditional.Condition;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
-import nl.aurorion.blockregen.util.Parsing;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.configuration.LoadResult;
-import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.event.struct.EventBossBar;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
@@ -20,6 +19,7 @@ import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
 import nl.aurorion.blockregen.preset.drop.*;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
+import nl.aurorion.blockregen.util.Parsing;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -84,19 +84,21 @@ public class PresetManager {
         // Clear all events before loading.
         plugin.getEventManager().clearEvents();
 
-        ConfigurationSection blocks = plugin.getFiles().getBlockList().getFileConfiguration()
+        ConfigurationSection blocksSection = plugin.getFiles().getBlockList().getFileConfiguration()
                 .getConfigurationSection("Blocks");
 
-        if (blocks == null) {
+        if (blocksSection == null) {
             return;
         }
 
-        for (String key : blocks.getKeys(false)) {
+        for (String key : blocksSection.getKeys(false)) {
             try {
                 load(key);
             } catch (Exception e) {
                 log.log(Level.WARNING, String.format("Could not load preset '%s': %s", key, e.getMessage()), e);
-                e.printStackTrace();
+                if (log.getLevel().intValue() < Level.FINE.intValue()) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -105,7 +107,7 @@ public class PresetManager {
     }
 
     /**
-     * @throws IllegalArgumentException If parsing fails.
+     * @throws ParseException If parsing fails.
      */
     public void load(String name) {
         FileConfiguration file = plugin.getFiles().getBlockList().getFileConfiguration();
@@ -131,7 +133,7 @@ public class PresetManager {
         if (!Strings.isNullOrEmpty(replaceMaterial)) {
             try {
                 preset.setReplaceMaterial(this.plugin.getMaterialManager().parsePlacementMaterial(replaceMaterial));
-            } catch (IllegalArgumentException e) {
+            } catch (ParseException e) {
                 log.warning("Dynamic material ( " + replaceMaterial + " ) in 'replace-block' for " + name + " is invalid: " + e.getMessage());
             }
         }
@@ -143,7 +145,7 @@ public class PresetManager {
         if (!Strings.isNullOrEmpty(regenerateIntoInput)) {
             try {
                 preset.setRegenMaterial(this.plugin.getMaterialManager().parsePlacementMaterial(regenerateIntoInput));
-            } catch (IllegalArgumentException e) {
+            } catch (ParseException e) {
                 log.warning("Dynamic material ( " + replaceMaterial + " ) in 'regenerate-into' for " + name + " is invalid: " + e.getMessage());
             }
         }
@@ -219,8 +221,11 @@ public class PresetManager {
         }
         preset.setConditions(conditions);
 
-        Condition condition = this.loadConditions(section, "conditions");
-        preset.setCondition(condition);
+        try {
+            preset.setCondition(loadConditions(section, "conditions"));
+        } catch (ParseException e) {
+            throw new ParseException("Failed to load conditions for preset '" + preset.getName() + "': " + e.getMessage());
+        }
 
         // Rewards
         PresetRewards rewards = loadRewards(section, preset);
@@ -231,8 +236,8 @@ public class PresetManager {
             if (event != null) {
                 plugin.getEventManager().addEvent(event);
             }
-        } catch (IllegalStateException e) {
-            log.warning("Failed to load event for preset " + preset.getName() + ": " + e.getMessage());
+        } catch (ParseException e) {
+            log.warning("Failed to load event for preset '" + preset.getName() + "': " + e.getMessage());
         }
 
         presets.put(name, preset);
@@ -241,7 +246,7 @@ public class PresetManager {
 
     /**
      * @throws ParseException If the parsing fails.
-     * */
+     */
     @NotNull
     private Condition loadConditions(@NotNull ConfigurationSection root, @NotNull String key) {
         Object node = root.get(key);
@@ -252,7 +257,7 @@ public class PresetManager {
     }
 
     /**
-     * @throws IllegalStateException If the parsing fails.
+     * @throws ParseException If the parsing fails.
      */
     private PresetEvent loadEvent(ConfigurationSection section, BlockPreset preset) {
         if (section == null) {
@@ -263,7 +268,7 @@ public class PresetManager {
 
         String displayName = section.getString("event-name");
         if (displayName == null) {
-            throw new IllegalStateException("Event name is missing.");
+            throw new ParseException("Event name is missing.");
         }
 
         event.setDisplayName(displayName);
@@ -288,7 +293,6 @@ public class PresetManager {
     }
 
     /**
-     * @throws IllegalStateException If the parsing fails.
      * @throws ParseException If the parsing fails.
      */
     private PresetRewards loadRewards(ConfigurationSection section, BlockPreset preset) {
@@ -316,9 +320,8 @@ public class PresetManager {
                     if (drop != null) {
                         rewards.getDrops().add(drop);
                     }
-                } catch (IllegalArgumentException e) {
-                    log.warning("Failed to load drop item for event " + section.getName() + ": " + e.getMessage());
-                    return rewards;
+                } catch (ParseException e) {
+                    throw new ParseException("Failed to load drop item '" + dropSection.getName() + "': " + e.getMessage());
                 }
             } else {
                 // Multiple drops
@@ -338,7 +341,6 @@ public class PresetManager {
     }
 
     /**
-     * @throws IllegalStateException If the parsing fails.
      * @throws ParseException If the parsing fails.
      */
     private DropItem loadDrop(ConfigurationSection section, BlockPreset preset) {
@@ -365,11 +367,11 @@ public class PresetManager {
 
             ItemProvider provider = plugin.getItemManager().getProvider(prefix.toLowerCase());
             if (provider == null) {
-                throw new IllegalStateException("Invalid prefix '" + prefix + "'");
+                throw new ParseException("Invalid prefix '" + prefix + "'");
             }
 
             if (!provider.exists(parts[1])) {
-                throw new IllegalStateException("External item '" + id + "' doesn't exist with the providing plugin.");
+                throw new ParseException("External item '" + id + "' doesn't exist with the providing plugin.");
             }
 
             DropItem drop = new ExternalDropItem(provider, id);
@@ -384,9 +386,6 @@ public class PresetManager {
         }
 
         XMaterial material = Parsing.parseMaterial(section.getString("material"));
-        if (material == null) {
-            throw new IllegalStateException("Material is invalid.");
-        }
 
         MinecraftDropItem drop = new MinecraftDropItem(material);
 

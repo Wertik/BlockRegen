@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.version.current;
 
 import lombok.NoArgsConstructor;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.version.NodeDataDeserializer;
 import nl.aurorion.blockregen.version.api.NodeData;
 import nl.aurorion.blockregen.version.api.NodeDataParser;
@@ -57,8 +58,11 @@ public class LatestNodeDataParser implements NodeDataParser {
             })
             .property("skull", LatestNodeData::setSkull);
 
+    /**
+     * @throws ParseException If the parsing fails.
+     */
     @Override
-    public NodeData parse(String input) throws IllegalArgumentException {
+    public NodeData parse(String input) {
         LatestNodeData nodeData = new LatestNodeData();
         nodeDataDeserializer.deserialize(nodeData, input);
         return nodeData;

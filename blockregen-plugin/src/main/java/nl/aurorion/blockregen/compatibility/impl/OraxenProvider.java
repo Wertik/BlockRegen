@@ -4,6 +4,7 @@ import com.linecorp.conditional.Condition;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -37,12 +38,12 @@ public class OraxenProvider extends CompatibilityProvider implements MaterialPar
     }
 
     /**
-     * @throws IllegalArgumentException If the parsing fails.
+     * @throws ParseException If the parsing fails.
      */
     @Override
     public @NotNull BlockRegenMaterial parseMaterial(String input) {
         if (!OraxenBlocks.isOraxenBlock(input)) {
-            throw new IllegalArgumentException(String.format("'%s' is not an Oraxen block.", input));
+            throw new ParseException(String.format("'%s' is not an Oraxen block.", input));
         }
         return new OraxenMaterial(this.plugin, input);
     }

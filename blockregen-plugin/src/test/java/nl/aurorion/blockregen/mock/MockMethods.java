@@ -1,7 +1,9 @@
 package nl.aurorion.blockregen.mock;
 
 import com.cryptomorin.xseries.XMaterial;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.version.api.Methods;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Item;
@@ -17,14 +19,17 @@ public class MockMethods implements Methods {
         //
     }
 
+    /**
+     * @throws ParseException If it fails.
+     */
     @Override
-    public XMaterial getType(@NotNull Block block) throws IllegalArgumentException {
+    public @NotNull XMaterial getType(@NotNull Block block) {
         return XMaterial.AIR;
     }
 
     @Override
-    public ItemStack getItemInMainHand(@NotNull Player player) {
-        return null;
+    public @NotNull ItemStack getItemInMainHand(@NotNull Player player) {
+        return new ItemStack(Material.AIR);
     }
 
     @Override

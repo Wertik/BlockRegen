@@ -3,6 +3,7 @@ package nl.aurorion.blockregen.compatibility.impl;
 import com.linecorp.conditional.Condition;
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.api.NexoItems;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
@@ -31,12 +32,12 @@ public class NexoProvider extends CompatibilityProvider implements MaterialParse
     }
 
     /**
-     * @throws IllegalArgumentException If parsing fails.
+     * @throws ParseException If parsing fails.
      */
     @Override
     public @NotNull BlockRegenMaterial parseMaterial(String input) {
         if (!NexoBlocks.isCustomBlock(input)) {
-            throw new IllegalArgumentException(String.format("'%s' is not a Nexo block.", input));
+            throw new ParseException(String.format("'%s' is not a Nexo block.", input));
         }
         return new NexoMaterial(this.plugin, input);
     }

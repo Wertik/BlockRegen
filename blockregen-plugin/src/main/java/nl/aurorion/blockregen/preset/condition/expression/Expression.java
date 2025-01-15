@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.linecorp.conditional.ConditionContext;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,13 +46,12 @@ public class Expression {
     }
 
     /**
-     * @throws IllegalArgumentException if the input is null or empty.
-     * @throws ParseException           If the parsing fails.
+     * @throws ParseException If the parsing fails.
      */
     @NotNull
-    public static Expression from(String input) {
+    public static Expression from(@NotNull String input) {
         if (Strings.isNullOrEmpty(input)) {
-            throw new IllegalArgumentException("Expression#from input cannot be empty or null.");
+            throw new ParseException("Expression input cannot be empty or null.");
         }
 
         Matcher matcher = SYMBOL_PATTERN.matcher(input);
@@ -69,7 +67,7 @@ public class Expression {
         String operator = matcher.group(2);
         OperandRelation relation = OperandRelation.parse(operator);
         if (relation == null) {
-            throw new ParseException("Invalid relation operator.");
+            throw new ParseException("Invalid relation operator '" + operator + "'.");
         }
 
         Expression expression = new Expression(op1, op2, relation);
@@ -79,8 +77,13 @@ public class Expression {
 
     /**
      * Attempt to parse operands using a provided parser.
-     * */
-    public static Expression withCustomOperands(Function<String, Operand> parser, String input) {
+     */
+    @NotNull
+    public static Expression withCustomOperands(@NotNull Function<String, Operand> parser, @NotNull String input) {
+        if (Strings.isNullOrEmpty(input)) {
+            throw new ParseException("Expression input cannot be empty or null.");
+        }
+
         Matcher matcher = Expression.SYMBOL_PATTERN.matcher(input);
 
         if (!matcher.find()) {
@@ -106,21 +109,6 @@ public class Expression {
         }
 
         return Expression.of(o1, o2, relation);
-    }
-
-    public static Pair<OperandRelation, String[]> splitExpression(String input) {
-        Matcher matcher = Expression.SYMBOL_PATTERN.matcher(input);
-
-        if (!matcher.find()) {
-            throw new ParseException("Invalid expression " + input);
-        }
-
-        OperandRelation relation = OperandRelation.parse(matcher.group(2));
-        if (relation == null) {
-            throw new ParseException("Invalid relation operator.");
-        }
-
-        return new Pair<>(relation, new String[]{matcher.group(1), matcher.group(3)});
     }
 
     @Nullable

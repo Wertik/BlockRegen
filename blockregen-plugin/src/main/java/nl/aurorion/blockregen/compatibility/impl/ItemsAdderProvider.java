@@ -4,6 +4,7 @@ import com.linecorp.conditional.Condition;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -37,12 +38,12 @@ public class ItemsAdderProvider extends CompatibilityProvider implements Materia
     }
 
     /**
-     * @throws IllegalArgumentException If parsing fails.
+     * @throws ParseException If parsing fails.
      */
     @Override
     public @NotNull BlockRegenMaterial parseMaterial(String input) {
         if (!CustomBlock.isInRegistry(input)) {
-            throw new IllegalArgumentException(String.format("'%s' is not a valid ItemsAdder custom block.", input));
+            throw new ParseException(String.format("'%s' is not a valid ItemsAdder custom block.", input));
         }
         return new ItemsAdderMaterial(input);
     }

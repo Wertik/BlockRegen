@@ -1,11 +1,13 @@
 package nl.aurorion.blockregen.preset.material;
 
-import java.util.*;
-
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.util.DiscreteGenerator;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 // A collection of materials with weighted chances of being picked.
 @Log
@@ -15,11 +17,17 @@ public class PlacementMaterial {
 
     private final Map<BlockRegenMaterial, Double> valuedMaterials;
 
+    /**
+     * @throws IllegalArgumentException If the probability function doesn't add up to 1.
+     */
     private PlacementMaterial(Map<BlockRegenMaterial, Double> valuedMaterials) {
         this.valuedMaterials = valuedMaterials;
         this.generator = DiscreteGenerator.fromProbabilityFunction(valuedMaterials);
     }
 
+    /**
+     * @throws IllegalArgumentException If the probability function doesn't add up to 1.
+     */
     @NotNull
     public static PlacementMaterial withOnlyDefault(BlockRegenMaterial defaultMaterial) {
         Map<BlockRegenMaterial, Double> valued = new HashMap<>();
@@ -27,6 +35,9 @@ public class PlacementMaterial {
         return new PlacementMaterial(valued);
     }
 
+    /**
+     * @throws IllegalArgumentException If the probability function doesn't add up to 1.
+     */
     @NotNull
     public static PlacementMaterial from(Map<BlockRegenMaterial, Double> valuedMaterials) {
         return new PlacementMaterial(valuedMaterials);

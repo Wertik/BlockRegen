@@ -87,7 +87,7 @@ public class LegacyMethods implements Methods {
     }
 
     @Override
-    public XMaterial getType(@NotNull Block block) {
+    public @NotNull XMaterial getType(@NotNull Block block) {
         BlockState state = block.getState();
         MaterialData data = state.getData();
 
@@ -116,7 +116,7 @@ public class LegacyMethods implements Methods {
     }
 
     @Override
-    public ItemStack getItemInMainHand(@NotNull Player player) {
+    public @NotNull ItemStack getItemInMainHand(@NotNull Player player) {
         return player.getInventory().getItemInMainHand();
     }
 

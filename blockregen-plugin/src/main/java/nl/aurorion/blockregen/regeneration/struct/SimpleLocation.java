@@ -14,9 +14,8 @@ public class SimpleLocation {
     private int x, y, z;
 
     public SimpleLocation(Block block) {
-
         if (block == null) {
-            throw new IllegalArgumentException("Location cannot be null");
+            throw new IllegalArgumentException("SimpleLocation#block cannot be null.");
         }
 
         this.world = block.getWorld().getName();

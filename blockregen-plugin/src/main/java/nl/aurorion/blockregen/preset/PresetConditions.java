@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.util.Text;
 import org.bukkit.Material;
@@ -18,6 +19,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -136,29 +138,20 @@ public class PresetConditions {
                 .collect(Collectors.joining(", "));
     }
 
-    public void setToolsRequired(@Nullable String input) {
-        if (Strings.isNullOrEmpty(input)) {
-            return;
-        }
-
+    /**
+     * @throws ParseException If the parsing fails.
+     */
+    public void setToolsRequired(@NotNull String input) {
         String[] arr = input.split(", ");
 
         toolsRequired.clear();
         for (String loop : arr) {
             XMaterial material = Parsing.parseMaterial(loop);
-            if (material == null) {
-                log.warning("Could not parse tool material " + loop);
-                continue;
-            }
             toolsRequired.add(material);
         }
     }
 
-    public void setEnchantsRequired(@Nullable String input) {
-        if (Strings.isNullOrEmpty(input)) {
-            return;
-        }
-
+    public void setEnchantsRequired(@NotNull String input) {
         String[] arr = input.split(", ");
 
         enchantsRequired.clear();

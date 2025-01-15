@@ -2,8 +2,8 @@ package nl.aurorion.blockregen.preset;
 
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.util.Parsing;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,7 @@ public interface NumberValue {
          * Parse a number value from a string input.
          *
          * @throws ParseException If the parsing fails.
-         * */
+         */
         @NotNull
         @Contract("null->fail")
         public static NumberValue parse(String input) {
@@ -50,24 +50,18 @@ public interface NumberValue {
             if (matcher.matches()) {
                 // If the matcher matches, it has to be a valid double.
                 // But just in case, keep these errors.
-                double low = Parsing.parseDouble(matcher.group(1), () -> {
-                    throw new ParseException("Invalid value for low supplied: '" + matcher.group(1) + "'.");
-                });
-                double high = Parsing.parseDouble(matcher.group(2), () -> {
-                    throw new ParseException("Invalid value for high supplied: '" + matcher.group(1) + "'.");
-                });
+                double low = Parsing.parseDouble(matcher.group(1), "Invalid value for low supplied: '" + matcher.group(1) + "'.");
+                double high = Parsing.parseDouble(matcher.group(2), "Invalid value for high supplied: '" + matcher.group(1) + "'.");
+
                 return NumberValue.uniform(low, high);
             }
 
-            double value = Parsing.parseDouble(input, () -> {
-                throw new ParseException("Invalid value supplied: '" + input + "'.");
-            });
+            double value = Parsing.parseDouble(input, "Invalid value supplied: '" + input + "'.");
             return NumberValue.fixed(value);
         }
 
         /**
          * @param node The object to load from. String/Number/ConfigurationSection.
-         *
          * @return The parsed NumberValue.
          * @throws ParseException If the parsing fails.
          */

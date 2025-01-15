@@ -31,7 +31,7 @@ public class AncientMethods implements Methods {
 
     // Basically copy XBlock.getType(), but fix the 1.8 "Wood not found" and match only material outside of Colorable & Tree
     @Override
-    public XMaterial getType(@NotNull Block block) {
+    public @NotNull XMaterial getType(@NotNull Block block) {
         BlockState state = block.getState();
         MaterialData data = state.getData();
 
@@ -62,7 +62,7 @@ public class AncientMethods implements Methods {
     }
 
     @Override
-    public ItemStack getItemInMainHand(@NotNull Player player) {
+    public @NotNull ItemStack getItemInMainHand(@NotNull Player player) {
         return player.getInventory().getItemInHand();
     }
 

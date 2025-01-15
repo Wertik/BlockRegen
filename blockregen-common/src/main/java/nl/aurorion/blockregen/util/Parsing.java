@@ -5,11 +5,10 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
-import org.bukkit.Material;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -63,12 +62,13 @@ public class Parsing {
         }
     }
 
-    public static double parseDouble(String input, Supplier<Double> onError) {
-        try {
-            return Double.parseDouble(input);
-        } catch (NumberFormatException e) {
-            return onError.get();
-        }
+    /**
+     * Attempt to parse a double from {@param input}.
+     *
+     * @throws ParseException with {@param message} if the parsing fails.
+     */
+    public static double parseDouble(@Nullable String input, @NotNull String message) {
+        return parse(() -> Double.parseDouble(notNull(input)), message);
     }
 
     /**
@@ -80,41 +80,45 @@ public class Parsing {
             throw new ParseException("Enchantment input cannot be empty.");
         }
 
-        XEnchantment xEnchantment = XEnchantment.of(input.trim()).orElseThrow(() -> new ParseException("Could not parse enchantment from '" + input + "'."));
+        XEnchantment xEnchantment = XEnchantment.of(input.trim())
+                .orElseThrow(() -> new ParseException("Could not parse enchantment from '" + input + "'."));
 
         if (xEnchantment.get() == null) {
-            throw new ParseException("Could not parse enchantment from '" + input + "'.");
+            throw new ParseException("Could not load enchantment from '" + input + "'.");
         }
         return xEnchantment;
     }
 
-    @Nullable
-    public static XMaterial parseMaterial(String input) {
-        return parseMaterial(input, false);
+    /**
+     * @throws ParseException If the parsing fails.
+     * */
+    @NotNull
+    @Contract("null,_->fail")
+    public static XMaterial parseMaterial(@Nullable String input, boolean blocksOnly) {
+        if (Strings.isNullOrEmpty(input)) {
+            throw new ParseException("Material input cannot be empty.");
+        }
+
+        XMaterial xMaterial = XMaterial.matchXMaterial(input)
+                .orElseThrow(() -> new ParseException("Could not parse material from '" + input + "'."));
+
+        if (xMaterial.get() == null) {
+            throw new ParseException("Could not load material from '" + input + "'.");
+        }
+
+        if (blocksOnly && !xMaterial.get().isBlock()) {
+            throw new ParseException("Material '" + xMaterial + "' is not a block.");
+        }
+        return xMaterial;
     }
 
-    @Nullable
-    public static XMaterial parseMaterial(String input, boolean blocksOnly) {
-
-        if (Strings.isNullOrEmpty(input)) {
-            return null;
-        }
-
-        Optional<XMaterial> xMaterial = XMaterial.matchXMaterial(input);
-
-        if (!xMaterial.isPresent()) {
-            log.fine(() -> "Could not parse material " + input);
-            return null;
-        }
-
-        Material material = xMaterial.get().get();
-
-        if (material != null && blocksOnly && !material.isBlock()) {
-            log.fine(() -> "Material " + input + " is not a block.");
-            return null;
-        }
-
-        return xMaterial.get();
+    /**
+     * @throws ParseException If the parsing fails.
+     * */
+    @NotNull
+    @Contract("null->fail")
+    public static XMaterial parseMaterial(@Nullable String input) {
+        return parseMaterial(input, false);
     }
 
     public static <E extends Enum<E>> E parseEnum(String str, Class<E> clazz) {
