@@ -7,7 +7,6 @@ import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.Pair;
-import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import nl.aurorion.blockregen.preset.condition.expression.Operand;
 import nl.aurorion.blockregen.util.Parsing;
@@ -41,15 +40,7 @@ public class DefaultConditions {
                                         (key, node) -> {
                                             String v = (String) node;
 
-                                            Expression expression = Expression.withCustomOperands((str) -> {
-                                                XEnchantment enchantment = null;
-                                                try {
-                                                    enchantment = Parsing.parseEnchantment(str);
-                                                } catch (ParseException e) {
-                                                    //
-                                                }
-                                                return getEnchantmentLevel(enchantment);
-                                            }, v);
+                                            Expression expression = Expression.withCustomOperands((str) -> getEnchantmentLevel(Parsing.parseEnchantment(str)), v);
 
                                             log.fine(() -> "Loaded enchants expression " + expression);
                                             return Condition.of(expression::evaluate).alias(v);

@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
 import lombok.extern.java.Log;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,25 +9,27 @@ import java.util.Map;
 @Log
 public class TypedComparisons {
 
-    private final Map<Class<?>, Comparator<Object>> m = new HashMap<>();
+    private final Map<Class<?>, Comparator<Object>> comparators = new HashMap<>();
 
     public TypedComparisons() {
     }
 
-    static <T> TypedComparisons of(Class<T> clazz, Comparator<T> cmp) {
+    @NotNull
+    static <T> TypedComparisons of(@NotNull Class<T> clazz, @NotNull Comparator<T> cmp) {
         TypedComparisons comparisons = new TypedComparisons();
         comparisons.add(clazz, cmp);
         return comparisons;
     }
 
     @SuppressWarnings("unchecked")
-    <T> TypedComparisons add(Class<T> clazz, Comparator<T> cmp) {
-        this.m.put(clazz, (Comparator<Object>) cmp);
+    @NotNull
+    <T> TypedComparisons add(@NotNull Class<T> clazz, @NotNull Comparator<T> cmp) {
+        this.comparators.put(clazz, (Comparator<Object>) cmp);
         return this;
     }
 
-    boolean parse(Object o1, Object o2) {
-        for (Map.Entry<Class<?>, Comparator<Object>> entry : m.entrySet()) {
+    boolean parse(@NotNull Object o1, @NotNull Object o2) {
+        for (Map.Entry<Class<?>, Comparator<Object>> entry : comparators.entrySet()) {
             Class<?> clazz = entry.getKey();
             Comparator<Object> cmp = entry.getValue();
 

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 @Log
 public class Expression {
 
-    public static final Pattern SYMBOL_PATTERN = Pattern.compile("(.+)\\s*(<|>|>=|<=|==|!=)\\s*(.+)");
+    public static final Pattern SYMBOL_PATTERN = Pattern.compile("(.+)\\s*(>=|<=|==|!=|<|>)\\s*(.+)");
 
     @Getter
     private final Operand left;
@@ -98,13 +98,15 @@ public class Expression {
         Operand o1 = attemptParse(parser, matcher.group(1));
         Operand o2 = attemptParse(parser, matcher.group(3));
 
+        log.fine("ops: " + o1 + " " + o2);
+
         if (o1 == null && o2 == null) {
-            throw new ParseException("No variable operand in expression.");
+            throw new ParseException("No variable operand in expression '" + input + "'.");
         }
 
         if (o1 == null) {
             o1 = new Constant(Operand.Parser.parseObject(matcher.group(1)));
-        } else {
+        } else if (o2 == null) {
             o2 = new Constant(Operand.Parser.parseObject(matcher.group(3)));
         }
 

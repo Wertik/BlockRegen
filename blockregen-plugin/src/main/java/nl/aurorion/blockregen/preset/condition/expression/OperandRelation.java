@@ -7,24 +7,24 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 public enum OperandRelation {
-    LT("<", TypedComparisons
-            .of(Number.class, (num1, num2) -> num1.doubleValue() < num2.doubleValue())
-            .add(LocalTime.class, LocalTime::isBefore)),
-    LTE("<=", TypedComparisons
-            .of(Number.class, (num1, num2) -> num1.doubleValue() <= num2.doubleValue())
-            .add(LocalTime.class, (t1, t2) -> t1.equals(t2) || t1.isBefore(t2))),
-    GT(">", TypedComparisons
-            .of(Number.class, (num1, num2) -> num1.doubleValue() > num2.doubleValue())
-            .add(LocalTime.class, LocalTime::isAfter)),
     GTE(">=", TypedComparisons
             .of(Number.class, (num1, num2) -> num1.doubleValue() >= num2.doubleValue())
             .add(LocalTime.class, (t1, t2) -> t1.equals(t2) || t1.isAfter(t2))),
+    LTE("<=", TypedComparisons
+            .of(Number.class, (num1, num2) -> num1.doubleValue() <= num2.doubleValue())
+            .add(LocalTime.class, (t1, t2) -> t1.equals(t2) || t1.isBefore(t2))),
     EQ("==", TypedComparisons
             .of(Number.class, Objects::equals)
             .add(LocalTime.class, Objects::equals)),
     NEQ("!=", TypedComparisons
             .of(Number.class, (num1, num2) -> num1.doubleValue() != num2.doubleValue())
-            .add(LocalTime.class, (t1, t2) -> !Objects.equals(t1, t2)));
+            .add(LocalTime.class, (t1, t2) -> !Objects.equals(t1, t2))),
+    LT("<", TypedComparisons
+            .of(Number.class, (num1, num2) -> num1.doubleValue() < num2.doubleValue())
+            .add(LocalTime.class, LocalTime::isBefore)),
+    GT(">", TypedComparisons
+            .of(Number.class, (num1, num2) -> num1.doubleValue() > num2.doubleValue())
+            .add(LocalTime.class, LocalTime::isAfter));
 
     @Getter
     private final String symbol;
