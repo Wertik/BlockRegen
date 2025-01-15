@@ -119,4 +119,8 @@ public class LoadResult<T, E extends Exception> {
     public T get() {
         return value;
     }
+
+    public E error() {
+        return this.exception;
+    }
 }

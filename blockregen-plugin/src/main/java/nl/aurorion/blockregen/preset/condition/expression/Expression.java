@@ -5,8 +5,8 @@ import com.linecorp.conditional.ConditionContext;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.configuration.LoadResult;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 @Log
 public class Expression {
 
-    public static final Pattern SYMBOL_PATTERN = Pattern.compile("(.+)\\s*(>=|<=|==|!=|<|>)\\s*(.+)");
+    public static final Pattern SYMBOL_PATTERN = Pattern.compile("(\\S+)\\s*(>=|<=|==|!=|<|>)\\s*(\\S+)");
 
     @Getter
     private final Operand left;
@@ -56,7 +56,7 @@ public class Expression {
 
         Matcher matcher = SYMBOL_PATTERN.matcher(input);
 
-        if (!matcher.matches()) {
+        if (!matcher.find()) {
             throw new ParseException("Invalid expression '" + input + "'");
         }
 
@@ -95,30 +95,27 @@ public class Expression {
             throw new ParseException("Invalid relation operator.");
         }
 
-        Operand o1 = attemptParse(parser, matcher.group(1));
-        Operand o2 = attemptParse(parser, matcher.group(3));
+        LoadResult<Operand, Exception> o1 = attemptParse(parser, matcher.group(1));
+        LoadResult<Operand, Exception> o2 = attemptParse(parser, matcher.group(3));
 
-        log.fine("ops: " + o1 + " " + o2);
-
-        if (o1 == null && o2 == null) {
-            throw new ParseException("No variable operand in expression '" + input + "'.");
+        if (o1.isError() && o2.isError()) {
+            throw new ParseException("No variable operand in expression '" + input + "'. Operand 1: " + o1.error().getMessage() + " Operand 2: " + o2.error().getMessage());
         }
 
-        if (o1 == null) {
-            o1 = new Constant(Operand.Parser.parseObject(matcher.group(1)));
-        } else if (o2 == null) {
-            o2 = new Constant(Operand.Parser.parseObject(matcher.group(3)));
-        }
+        o1.ifError(new Constant(Operand.Parser.parseObject(matcher.group(1))));
+        o2.ifError(new Constant(Operand.Parser.parseObject(matcher.group(3))));
 
-        return Expression.of(o1, o2, relation);
+        log.fine("ops: " + o1.get() + " " + o2.get());
+
+        return Expression.of(o1.get(), o2.get(), relation);
     }
 
-    @Nullable
-    private static Operand attemptParse(Function<String, Operand> parser, String str) {
+    @NotNull
+    private static LoadResult<Operand, Exception> attemptParse(Function<String, Operand> parser, String str) {
         try {
-            return parser.apply(str);
+            return LoadResult.of(parser.apply(str));
         } catch (Exception e) {
-            return null;
+            return LoadResult.error(e);
         }
     }
 

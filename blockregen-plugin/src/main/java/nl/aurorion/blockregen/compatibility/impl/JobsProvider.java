@@ -9,6 +9,7 @@ import com.gamingmesh.jobs.container.JobsPlayer;
 import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 public class JobsProvider extends CompatibilityProvider {
 
     public JobsProvider(BlockRegenPlugin plugin) {
-        super(plugin);
+        super(plugin, "jobs");
         setFeatures("rewards", "conditions");
     }
 
@@ -32,7 +33,7 @@ public class JobsProvider extends CompatibilityProvider {
 
             Expression expression = Expression.withCustomOperands(JobsProvider::getJobOperand, v);
             log.fine(() -> "Loaded jobs expression " + expression);
-            return Condition.of(expression::evaluate);
+            return Condition.of(expression::evaluate).alias(v);
         }).extender((ctx) -> {
             Player player = (Player) ctx.mustVar("player");
             JobsPlayer jobsPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
@@ -44,10 +45,14 @@ public class JobsProvider extends CompatibilityProvider {
     private static Operand getJobOperand(@NotNull String str) {
         Job job = Jobs.getJob(str);
 
+        if (job == null) {
+            throw new ParseException("Invalid job '" + str + "'");
+        }
+
         return (ctx) -> {
             JobsPlayer player = (JobsPlayer) ctx.mustVar("jobs.player");
             JobProgression progression = player.getJobProgression(job);
-            return progression.getLevel();
+            return progression == null ? 0 : progression.getLevel();
         };
     }
 
