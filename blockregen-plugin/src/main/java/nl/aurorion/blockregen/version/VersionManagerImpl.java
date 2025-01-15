@@ -5,7 +5,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
-import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.util.ParseUtil;
 import nl.aurorion.blockregen.api.version.VersionManager;
 import nl.aurorion.blockregen.version.ancient.AncientMethods;
 import nl.aurorion.blockregen.version.ancient.AncientNodeData;

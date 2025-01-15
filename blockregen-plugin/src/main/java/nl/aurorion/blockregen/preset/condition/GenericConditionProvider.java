@@ -1,10 +1,11 @@
 package nl.aurorion.blockregen.preset.condition;
 
+import com.linecorp.conditional.ComposedCondition;
 import com.linecorp.conditional.Condition;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import nl.aurorion.blockregen.configuration.ParseException;
+import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,13 +20,22 @@ public class GenericConditionProvider implements ConditionProvider {
     public static class ProviderEntry {
         private final ConditionProvider provider;
         private final Class<?> expectedClass;
+        private final ConditionRelation relation;
 
         public static ProviderEntry of(ConditionProvider provider, Class<?> expectedClass) {
-            return new ProviderEntry(provider, expectedClass);
+            return new ProviderEntry(provider, expectedClass, ConditionRelation.OR);
         }
 
-        public static ProviderEntry provider(ConditionProvider provider) {
-            return new ProviderEntry(provider, Object.class);
+        public static ProviderEntry of(ConditionProvider provider, Class<?> expectedClass, ConditionRelation relation) {
+            return new ProviderEntry(provider, expectedClass, relation);
+        }
+
+        public static ProviderEntry of(ConditionProvider provider) {
+            return of(provider, Object.class);
+        }
+
+        public static ProviderEntry of(ConditionProvider provider, ConditionRelation relation) {
+            return of(provider, Object.class, relation);
         }
     }
 
@@ -55,12 +65,12 @@ public class GenericConditionProvider implements ConditionProvider {
 
     @NotNull
     public static GenericConditionProvider singleNode(@NotNull String key, @NotNull ConditionProvider provider, @Nullable ContextExtender extender) {
-        return new GenericConditionProvider(Collections.singletonMap(key, ProviderEntry.provider(provider)), extender);
+        return new GenericConditionProvider(Collections.singletonMap(key, ProviderEntry.of(provider)), extender);
     }
 
     @NotNull
     public static GenericConditionProvider singleNode(@NotNull String key, @NotNull ConditionProvider provider) {
-        return new GenericConditionProvider(Collections.singletonMap(key, ProviderEntry.provider(provider)), null);
+        return new GenericConditionProvider(Collections.singletonMap(key, ProviderEntry.of(provider)), null);
     }
 
     @NotNull
@@ -76,7 +86,7 @@ public class GenericConditionProvider implements ConditionProvider {
 
     @NotNull
     public GenericConditionProvider addProvider(@NotNull String key, @NotNull ConditionProvider provider) {
-        providers.put(key, ProviderEntry.provider(provider));
+        providers.put(key, ProviderEntry.of(provider));
         return this;
     }
 
@@ -103,9 +113,13 @@ public class GenericConditionProvider implements ConditionProvider {
         try {
             condition = Conditions.fromNode(
                             node,
-                            ConditionRelation.OR,
-                            entry.getProvider())
-                    .alias(key);
+                            entry.getRelation(),
+                            entry.getProvider());
+
+            // Don't alias composed conditions to let them unwind go deeper on #toString.
+            if (!(condition instanceof ComposedCondition)) {
+                condition = condition.alias(key);
+            }
         } catch (ParseException e) {
             throw new ParseException("Failed to parse '" + key + "': " + e.getMessage(), e);
         }

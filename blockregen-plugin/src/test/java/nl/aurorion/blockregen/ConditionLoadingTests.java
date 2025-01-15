@@ -3,7 +3,6 @@ package nl.aurorion.blockregen;
 import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.configuration.ParseException;
 import nl.aurorion.blockregen.preset.condition.ConditionProvider;
 import nl.aurorion.blockregen.preset.condition.ConditionRelation;
 import nl.aurorion.blockregen.preset.condition.Conditions;
@@ -48,7 +47,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
-        assertEquals("(TrueCondition and (TrueCondition and above))", condition.toString());
+        assertEquals("above", condition.toString());
 
         ConditionContext ctx = ConditionContext.of("value", 3);
         assertTrue(condition.matches(ctx));
@@ -63,7 +62,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
-        assertEquals("(TrueCondition and (TrueCondition and !above))", condition.toString());
+        assertEquals("!above", condition.toString());
 
         ConditionContext ctx = ConditionContext.of("value", 1);
         assertTrue(condition.matches(ctx));
@@ -78,7 +77,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
-        assertEquals("(TrueCondition and (TrueCondition and !below) and (TrueCondition and below))", condition.toString());
+        assertEquals("(!below and below)", condition.toString());
 
         assertFalse(condition.matches(ConditionContext.of("value", 1)));
         assertTrue(condition.matches(ConditionContext.of("value", 3)));
@@ -98,7 +97,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
-        assertEquals("(TrueCondition and (TrueCondition and above) and (TrueCondition and above))", condition.toString());
+        assertEquals("(above and above)", condition.toString());
 
         ConditionContext ctx = ConditionContext.of("value", 4);
         assertFalse(condition.matches(ctx));
@@ -116,7 +115,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.OR, conditionProvider);
 
-        assertEquals("(FalseCondition or (TrueCondition and below) or (TrueCondition and above))", condition.toString());
+        assertEquals("(below or above)", condition.toString());
 
         ConditionContext ctx = ConditionContext.of("value", 1);
         assertTrue(condition.matches(ctx));
@@ -135,7 +134,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, conditionProvider);
 
-        assertEquals("(TrueCondition and (TrueCondition and below) and (TrueCondition and (FalseCondition or (TrueCondition and below) or (TrueCondition and equals))))", condition.toString());
+        assertEquals("(below and (below or equals))", condition.toString());
 
         ConditionContext ctx = ConditionContext.of("value", 1);
         assertTrue(condition.matches(ctx));
@@ -158,7 +157,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromNodeMultiple(Objects.requireNonNull(conf.get("conditions")), ConditionRelation.AND, conditionProvider);
 
-        assertEquals("(TrueCondition and above and below)", condition.toString());
+        assertEquals("(above and below)", condition.toString());
 
         assertFalse(condition.matches(ConditionContext.of("value", 1)));
         assertTrue(condition.matches(ConditionContext.of("value", 6)));
@@ -190,7 +189,7 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromList(Objects.requireNonNull(conf.getList("conditions")), ConditionRelation.AND, baseProvider);
 
-        assertEquals("(TrueCondition and (TrueCondition and sqrt) and (TrueCondition and below))", condition.toString());
+        assertEquals("(above and below)", condition.toString());
 
         assertFalse(condition.matches(ConditionContext.of("value", 1)));
         assertTrue(condition.matches(ConditionContext.of("value", 6)));

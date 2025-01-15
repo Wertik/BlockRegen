@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.configuration;
+package nl.aurorion.blockregen;
 
 // An exception that happened while parsing a configuration value from the configuration.
 public class ParseException extends RuntimeException {

@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.material.parser;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
-import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.util.ParseUtil;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.version.api.NodeData;

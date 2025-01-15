@@ -2,9 +2,8 @@ package nl.aurorion.blockregen.version.legacy;
 
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
-import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.StringUtil;
+import nl.aurorion.blockregen.util.Strings;
 import nl.aurorion.blockregen.version.api.Methods;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -42,7 +41,7 @@ public class LegacyMethods implements Methods {
         BarStyle barStyle = parseStyle(style);
         if (barColor == null || barStyle == null)
             return null;
-        return Bukkit.createBossBar(StringUtil.color(text), barColor, barStyle);
+        return Bukkit.createBossBar(Strings.color(text), barColor, barStyle);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class LegacyMethods implements Methods {
 
     @Nullable
     private BarStyle parseStyle(@Nullable String str) {
-        if (Strings.isNullOrEmpty(str))
+        if (com.google.common.base.Strings.isNullOrEmpty(str))
             return null;
 
         try {
@@ -64,7 +63,7 @@ public class LegacyMethods implements Methods {
 
     @Nullable
     private BarColor parseColor(@Nullable String str) {
-        if (Strings.isNullOrEmpty(str))
+        if (com.google.common.base.Strings.isNullOrEmpty(str))
             return null;
 
         try {

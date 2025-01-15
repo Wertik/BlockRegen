@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.preset.drop;
 
 import com.cryptomorin.xseries.XEnchantment;
 import lombok.Getter;
-import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.util.ParseUtil;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;

@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalTime;
@@ -25,6 +26,7 @@ public enum OperandRelation {
             .of(Number.class, (num1, num2) -> num1.doubleValue() != num2.doubleValue())
             .add(LocalTime.class, (t1, t2) -> !Objects.equals(t1, t2)));
 
+    @Getter
     private final String symbol;
     private final TypedComparisons comparisons;
 

@@ -1,15 +1,15 @@
-package nl.aurorion.blockregen;
+package nl.aurorion.blockregen.util;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import lombok.experimental.UtilityClass;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.ParseException;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.ParseException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -53,24 +53,21 @@ public class ParseUtil {
         return parseInt(input, -1);
     }
 
-    @Nullable
-    public XEnchantment parseEnchantment(String input) {
-        if (Strings.isNullOrEmpty(input))
-            return null;
-
-        Optional<XEnchantment> xEnchantment = XEnchantment.matchXEnchantment(input);
-        if (!xEnchantment.isPresent()) {
-            log.warning("Could not parse enchantment " + input);
-            return null;
+    /**
+     * @throws ParseException If the parsing fails.
+     */
+    @NotNull
+    public XEnchantment parseEnchantment(@NotNull String input) {
+        if (Strings.isNullOrEmpty(input)) {
+            throw new ParseException("Enchantment input cannot be empty.");
         }
 
-        Enchantment enchantment = xEnchantment.get().getEnchant();
-        if (enchantment == null) {
-            log.warning("Could not parse enchantment " + input);
-            return null;
-        }
+        XEnchantment xEnchantment = XEnchantment.of(input.trim()).orElseThrow(() -> new ParseException("Could not parse enchantment from '" + input + "'."));
 
-        return xEnchantment.get();
+        if (xEnchantment.get() == null) {
+            throw new ParseException("Could not parse enchantment from '" + input + "'.");
+        }
+        return xEnchantment;
     }
 
     @Nullable
@@ -92,7 +89,7 @@ public class ParseUtil {
             return null;
         }
 
-        Material material = xMaterial.get().parseMaterial();
+        Material material = xMaterial.get().get();
 
         if (material != null && blocksOnly && !material.isBlock()) {
             log.fine(() -> "Material " + input + " is not a block.");

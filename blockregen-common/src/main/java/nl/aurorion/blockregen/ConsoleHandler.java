@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen;
 
-import com.google.common.base.Strings;
 import lombok.Getter;
+import nl.aurorion.blockregen.util.Strings;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -51,17 +51,17 @@ public class ConsoleHandler extends Handler {
 
     private void sendRaw(LogRecord record, String msg) {
 
-        if (Strings.isNullOrEmpty(msg)) {
+        if (com.google.common.base.Strings.isNullOrEmpty(msg)) {
             return;
         }
 
-        String coloredMessage = StringUtil.color(msg);
+        String coloredMessage = Strings.color(msg);
 
         toListeners(coloredMessage);
 
         if (console == null) {
             // Strip color characters that might've been in the message.
-            Bukkit.getLogger().log(record.getLevel(), StringUtil.stripColor(msg));
+            Bukkit.getLogger().log(record.getLevel(), Strings.stripColor(msg));
         } else {
             console.sendMessage(coloredMessage);
         }

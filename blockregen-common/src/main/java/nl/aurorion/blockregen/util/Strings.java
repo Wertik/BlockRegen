@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen;
+package nl.aurorion.blockregen.util;
 
 import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 @UtilityClass
-public class StringUtil {
+public class Strings {
     public String stripColor(String msg) {
         return msg != null ? ChatColor.stripColor(msg) : null;
     }

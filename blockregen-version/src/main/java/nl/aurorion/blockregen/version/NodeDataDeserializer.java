@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.version;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.util.ParseUtil;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.jetbrains.annotations.NotNull;
 

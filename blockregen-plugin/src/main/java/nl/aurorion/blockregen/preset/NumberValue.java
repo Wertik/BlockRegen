@@ -2,8 +2,8 @@ package nl.aurorion.blockregen.preset;
 
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.ParseUtil;
-import nl.aurorion.blockregen.configuration.ParseException;
+import nl.aurorion.blockregen.util.ParseUtil;
+import nl.aurorion.blockregen.ParseException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

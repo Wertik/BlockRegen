@@ -2,10 +2,11 @@ package nl.aurorion.blockregen.preset.condition;
 
 import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
-import nl.aurorion.blockregen.configuration.ParseException;
+import nl.aurorion.blockregen.ParseException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class Conditions {
     @SuppressWarnings("unchecked")
     @NotNull
     public static Condition fromList(@NotNull List<?> nodes, @NotNull ConditionRelation relation, @NotNull ConditionProvider parser) {
-        Condition baseCondition = relation == ConditionRelation.OR ? Condition.falseCondition() : Condition.trueCondition();
+        List<Condition> conditions = new ArrayList<>();
 
         for (Object node : nodes) {
             Condition condition;
@@ -76,19 +77,15 @@ public class Conditions {
                 condition = parser.load(null, node);
             }
 
-            if (relation == ConditionRelation.OR) {
-                baseCondition = baseCondition.or(condition);
-            } else {
-                baseCondition = baseCondition.and(condition);
-            }
+            conditions.add(condition);
         }
 
-        return baseCondition;
+        return relation == ConditionRelation.OR ? Condition.anyOf(conditions) : Condition.allOf(conditions);
     }
 
     @NotNull
     public static Condition fromMap(@NotNull Map<String, Object> values, @NotNull ConditionRelation relation, @NotNull ConditionProvider parser) {
-        Condition sectionCondition = relation == ConditionRelation.OR ? Condition.falseCondition() : Condition.trueCondition();
+        List<Condition> conditions = new ArrayList<>();
 
         for (Map.Entry<String, Object> entry : values.entrySet()) {
             Condition condition;
@@ -121,14 +118,10 @@ public class Conditions {
                 condition = condition.negate();
             }
 
-            if (relation == ConditionRelation.OR) {
-                sectionCondition = sectionCondition.or(condition);
-            } else {
-                sectionCondition = sectionCondition.and(condition);
-            }
+            conditions.add(condition);
         }
 
-        return sectionCondition;
+        return relation == ConditionRelation.OR ? Condition.anyOf(conditions) : Condition.allOf(conditions);
     }
 
     /**

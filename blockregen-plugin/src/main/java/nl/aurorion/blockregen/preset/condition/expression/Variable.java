@@ -23,7 +23,7 @@ public class Variable implements Operand {
         if (BlockRegenPlugin.getInstance().isUsePlaceholderAPI()) {
             result = PlaceholderAPI.setPlaceholders((Player) ctx.mustVar("player"), result);
         }
-        return Operand.parseObject(result);
+        return Operand.Parser.parseObject(result);
     }
 
     @Override
