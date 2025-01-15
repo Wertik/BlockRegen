@@ -1,7 +1,9 @@
 package nl.aurorion.blockregen.compatibility.impl;
 
+import com.linecorp.conditional.Condition;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
+import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -15,18 +17,33 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Log
 public class ItemsAdderProvider extends CompatibilityProvider implements MaterialParser, ItemProvider {
     public ItemsAdderProvider(BlockRegenPlugin plugin) {
         super(plugin, "ia");
-        setFeatures("materials", "drops");
+        setFeatures("materials", "drops", "conditions");
     }
 
     @Override
-    public @NotNull BlockRegenMaterial parseMaterial(String input) throws IllegalArgumentException {
+    public void onLoad() {
+        plugin.getPresetManager().getConditions().addProvider("tool/ia", (key, node) -> {
+            String id = (String) node;
+            return Condition.of((ctx) -> {
+                ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                CustomStack builder = CustomStack.byItemStack(tool);
+                return builder != null && builder.getNamespacedID().equalsIgnoreCase(id);
+            });
+        });
+    }
+
+    /**
+     * @throws IllegalArgumentException If parsing fails.
+     */
+    @Override
+    public @NotNull BlockRegenMaterial parseMaterial(String input) {
         if (!CustomBlock.isInRegistry(input)) {
             throw new IllegalArgumentException(String.format("'%s' is not a valid ItemsAdder custom block.", input));
         }
-
         return new ItemsAdderMaterial(input);
     }
 

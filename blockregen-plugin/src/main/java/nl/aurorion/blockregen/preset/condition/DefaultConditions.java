@@ -89,8 +89,9 @@ public class DefaultConditions {
                                         }, ConditionRelation.AND))
                                 .extender((ctx) -> {
                                     ItemStack item = (ItemStack) ctx.mustVar("tool");
-                                    // todo: more - enchants, flags, name, lore
-                                    return ConditionContext.of("material", XMaterial.matchXMaterial(item), "enchants", item.getEnchantments());
+                                    return ConditionContext.of(
+                                            "material", XMaterial.matchXMaterial(item),
+                                            "enchants", item.getEnchantments());
                                 }), ConditionRelation.AND)
         );
     }
