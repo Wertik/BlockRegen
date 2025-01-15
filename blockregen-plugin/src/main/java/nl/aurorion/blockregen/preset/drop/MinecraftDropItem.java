@@ -119,6 +119,7 @@ public class MinecraftDropItem extends DropItem {
                 ", chance=" + chance +
                 ", customModelData=" + customModelData +
                 ", itemModel=" + itemModel +
+                ", condition=" + condition +
                 '}';
     }
 }

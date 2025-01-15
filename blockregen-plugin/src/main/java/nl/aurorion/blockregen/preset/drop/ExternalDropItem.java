@@ -32,6 +32,7 @@ public class ExternalDropItem extends DropItem {
                 ", dropNaturally=" + dropNaturally +
                 ", chance=" + chance +
                 ", experienceDrop=" + experienceDrop +
+                ", condition=" + condition +
                 '}';
     }
 }

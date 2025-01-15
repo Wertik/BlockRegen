@@ -343,6 +343,7 @@ public class PresetManager {
     /**
      * @throws ParseException If the parsing fails.
      */
+    @Nullable
     private DropItem loadDrop(ConfigurationSection section, BlockPreset preset) {
         if (section == null) {
             return null;
@@ -382,6 +383,9 @@ public class PresetManager {
             LoadResult.tryLoad(section, "amount", NumberValue.Parser::load)
                     .ifNotFull(NumberValue.fixed(1))
                     .apply(drop::setAmount);
+            LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))
+                    .ifNotFull(Condition.trueCondition())
+                    .apply(drop::setCondition);
             return drop;
         }
 
@@ -404,11 +408,17 @@ public class PresetManager {
         drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
 
         drop.setExperienceDrop(ExperienceDrop.load(section.getConfigurationSection("exp"), drop));
+
         LoadResult.tryLoad(section, "chance", NumberValue.Parser::load)
                 .ifNotFull(NumberValue.fixed(100))
                 .apply(drop::setChance);
 
-        Parsing.parseInt(section.getString("custom-model-data"));
+        LoadResult.tryLoad(section, "custom-model-data", String.class, Parsing::parseInt)
+                .apply(drop::setCustomModelData);
+
+        LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))
+                .ifNotFull(Condition.trueCondition())
+                .apply(drop::setCondition);
 
         if (section.isSet("item-model")) {
             String key = section.getString("item-model");

@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.configuration;
 
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.ParseException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,33 @@ public class LoadResult<T, E extends Exception> {
 
         try {
             return LoadResult.of(runnable.apply(root.get(path)));
+        } catch (Exception e) {
+            log.warning("Failed to load property '" + path + "' (value: '" + root.get(path) + "') of preset '" + root.getName() + "': " + e.getMessage());
+            return LoadResult.error(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @NotNull
+    public static <T, O> LoadResult<T, Exception> tryLoad(ConfigurationSection root, String path, Class<O> clazz, Function<O, T> runnable) {
+        // Ignore missing
+        if (root == null) {
+            return LoadResult.empty();
+        }
+
+        Object o = root.get(path);
+        if (o == null) {
+            return LoadResult.empty();
+        }
+
+        if (!clazz.isAssignableFrom(o.getClass())) {
+            return LoadResult.error(new ParseException("Invalid type '" + o.getClass().getSimpleName() + "'. Expected '" + clazz.getSimpleName() + "'"));
+        }
+
+        O v = (O) o;
+
+        try {
+            return LoadResult.of(runnable.apply(v));
         } catch (Exception e) {
             log.warning("Failed to load property '" + path + "' (value: '" + root.get(path) + "') of preset '" + root.getName() + "': " + e.getMessage());
             return LoadResult.error(e);

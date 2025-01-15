@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.preset.drop;
 
+import com.linecorp.conditional.Condition;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
@@ -24,6 +25,9 @@ public abstract class DropItem {
 
     @Setter
     protected ExperienceDrop experienceDrop;
+
+    @Setter
+    protected Condition condition;
 
     // Serialize this drop into an item stack.
     public abstract ItemStack toItemStack(Function<String, String> parser);

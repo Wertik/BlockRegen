@@ -456,6 +456,13 @@ public class RegenerationListener implements Listener {
 
         Function<String, String> parser = (str) -> Text.parse(str, player, block);
 
+        // Conditions
+        ConditionContext ctx = ConditionContext.of(
+                "player", player,
+                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player),
+                "block", block
+        );
+
         // Run rewards async
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Map<ItemStack, Boolean> drops = new HashMap<>();
@@ -471,8 +478,8 @@ public class RegenerationListener implements Listener {
                 experience += vanillaExperience;
             } else {
                 for (DropItem drop : preset.getRewards().getDrops()) {
-
-                    if (!drop.shouldDrop()) {
+                    log.fine(drop.getCondition() + " " + drop.getCondition().matches(ctx));
+                    if (!drop.getCondition().matches(ctx) || !drop.shouldDrop()) {
                         continue;
                     }
 
@@ -515,7 +522,7 @@ public class RegenerationListener implements Listener {
                     DropItem eventDrop = presetEvent.getItem();
 
                     // Event item
-                    if (eventDrop != null) {
+                    if (eventDrop != null && eventDrop.shouldDrop() && eventDrop.getCondition().matches(ctx)) {
                         ItemStack eventStack = eventDrop.toItemStack(parser);
 
                         if (eventStack != null) {
@@ -525,6 +532,10 @@ public class RegenerationListener implements Listener {
 
                     // Add items from presetEvent
                     for (DropItem drop : presetEvent.getRewards().getDrops()) {
+                        if (!drop.shouldDrop() || !drop.getCondition().matches(ctx)) {
+                            continue;
+                        }
+
                         ItemStack item = drop.toItemStack(parser);
 
                         if (item != null) {

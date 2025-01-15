@@ -26,8 +26,9 @@ public class Conditions {
      * @param parser   How to parse conditions from nodes.
      * @throws ParseException If the parsing fails.
      */
+    @NotNull
     @SuppressWarnings("unchecked")
-    public static Condition fromNode(Object node, ConditionRelation relation, ConditionProvider parser) {
+    public static Condition fromNode(@NotNull Object node, @NotNull ConditionRelation relation, @NotNull ConditionProvider parser) {
         if (node instanceof List) {
             return Conditions.fromList((List<?>) node, relation, parser);
         } else if (node instanceof Map) {
@@ -49,6 +50,7 @@ public class Conditions {
      * @throws ParseException If the parsing fails or if a pure node (only value) is provided.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static Condition fromNodeMultiple(@NotNull Object node, @NotNull ConditionRelation relation, @NotNull ConditionProvider parser) {
         if (node instanceof List) {
             return Conditions.fromList((List<?>) node, relation, parser);
