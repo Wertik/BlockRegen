@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.preset;
 
 import com.cryptomorin.xseries.XSound;
+import com.linecorp.conditional.Condition;
 import lombok.Data;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
@@ -38,8 +39,14 @@ public class BlockPreset {
     // Regenerate the whole multiblock crop
     private boolean regenerateWhole;
 
+    /**
+     * @deprecated in favor of composed conditions {@link BlockPreset#condition}.
+     * */
+    @Deprecated()
     private PresetConditions conditions;
     private PresetRewards rewards;
+
+    private Condition condition;
 
     private XSound sound;
 

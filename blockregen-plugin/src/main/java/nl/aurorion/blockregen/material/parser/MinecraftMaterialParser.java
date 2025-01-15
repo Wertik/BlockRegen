@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.material.parser;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
-import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.version.api.NodeData;
@@ -31,7 +31,7 @@ public class MinecraftMaterialParser implements MaterialParser {
         }
 
         // On 1.12.2 and below, wheat is not considered a block. Just allow using any materials.
-        XMaterial xMaterial = ParseUtil.parseMaterial(materialPart, plugin.getVersionManager().isCurrentAbove("1.12.2", false));
+        XMaterial xMaterial = Parsing.parseMaterial(materialPart, plugin.getVersionManager().isCurrentAbove("1.12.2", false));
 
         if (xMaterial == null) {
             throw new IllegalArgumentException("Could not parse minecraft material '" + materialPart + "'.");

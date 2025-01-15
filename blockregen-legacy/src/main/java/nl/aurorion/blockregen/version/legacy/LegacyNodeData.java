@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.StringUtil;
+import nl.aurorion.blockregen.util.Serialization;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.CropState;
 import org.bukkit.TreeSpecies;
@@ -181,6 +181,6 @@ public class LegacyNodeData implements NodeData {
         entries.put("species", this.treeSpecies);
         entries.put("inverted", this.inverted);
         entries.put("age", this.cropState == null ? null : this.cropState.ordinal());
-        return StringUtil.serializeNodeDataEntries(entries);
+        return Serialization.serializeNodeDataEntries(entries);
     }
 }

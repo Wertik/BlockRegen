@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen;
 
 import lombok.Getter;
+import nl.aurorion.blockregen.util.Versions;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedReader;
@@ -30,6 +31,6 @@ public class UpdateCheck {
 
         latestVersion = new BufferedReader(new InputStreamReader(con.getInputStream())).readLine();
 
-        return ParseUtil.compareVersions(plugin.getDescription().getVersion(), latestVersion) == -1;
+        return Versions.compareVersions(plugin.getDescription().getVersion(), latestVersion) == -1;
     }
 }

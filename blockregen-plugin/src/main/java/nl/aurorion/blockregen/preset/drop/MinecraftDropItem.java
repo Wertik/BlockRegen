@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
-import nl.aurorion.blockregen.StringUtil;
+import nl.aurorion.blockregen.util.Colors;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -73,13 +73,13 @@ public class MinecraftDropItem extends DropItem {
         }
 
         if (displayName != null) {
-            itemMeta.setDisplayName(StringUtil.color(parser.apply(displayName)));
+            itemMeta.setDisplayName(Colors.color(parser.apply(displayName)));
         }
 
         if (lore != null) {
             List<String> lore = new ArrayList<>(this.lore);
 
-            lore.replaceAll(o -> StringUtil.color(parser.apply(o)));
+            lore.replaceAll(o -> Colors.color(parser.apply(o)));
 
             itemMeta.setLore(lore);
         }

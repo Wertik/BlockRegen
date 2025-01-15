@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
-import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.util.Text;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Deprecated
 @Log
 @NoArgsConstructor
 public class PresetConditions {
@@ -144,7 +145,7 @@ public class PresetConditions {
 
         toolsRequired.clear();
         for (String loop : arr) {
-            XMaterial material = ParseUtil.parseMaterial(loop);
+            XMaterial material = Parsing.parseMaterial(loop);
             if (material == null) {
                 log.warning("Could not parse tool material " + loop);
                 continue;
@@ -154,21 +155,16 @@ public class PresetConditions {
     }
 
     public void setEnchantsRequired(@Nullable String input) {
-
-        if (Strings.isNullOrEmpty(input))
+        if (Strings.isNullOrEmpty(input)) {
             return;
+        }
 
         String[] arr = input.split(", ");
 
         enchantsRequired.clear();
         for (String loop : arr) {
-
             String enchantmentName = loop.split(";")[0];
-            XEnchantment enchantment = ParseUtil.parseEnchantment(enchantmentName);
-            if (enchantment == null) {
-                log.warning("Could not parse enchantment " + enchantmentName + " in " + input);
-                continue;
-            }
+            XEnchantment enchantment = Parsing.parseEnchantment(enchantmentName);
 
             int level = 1;
             if (loop.contains(";")) {

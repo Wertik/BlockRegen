@@ -1,6 +1,5 @@
 package nl.aurorion.blockregen;
 
-import nl.aurorion.blockregen.configuration.ParseException;
 import nl.aurorion.blockregen.preset.FixedNumberValue;
 import nl.aurorion.blockregen.preset.NumberValue;
 import nl.aurorion.blockregen.preset.UniformNumberValue;

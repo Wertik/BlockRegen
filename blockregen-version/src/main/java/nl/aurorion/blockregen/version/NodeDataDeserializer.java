@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.version;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.ParseUtil;
+import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +32,7 @@ public class NodeDataDeserializer<T extends NodeData> {
     private final Map<String, PropertyDeserializer<T>> properties = new HashMap<>();
 
     public static <E extends Enum<E>> E tryParseEnum(String value, Class<E> clazz) {
-        E face = ParseUtil.parseEnum(value.trim(), clazz);
+        E face = Parsing.parseEnum(value.trim(), clazz);
         if (face == null) {
             // Fall back to ordinals (might be used for age for ex. on old versions where it's an enum)
             try {

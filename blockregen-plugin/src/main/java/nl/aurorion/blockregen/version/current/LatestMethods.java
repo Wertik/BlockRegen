@@ -4,7 +4,7 @@ import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.StringUtil;
+import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.version.api.Methods;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -38,7 +38,7 @@ public class LatestMethods implements Methods {
         BarStyle barStyle = parseStyle(style);
         if (barColor == null || barStyle == null)
             return null;
-        return Bukkit.createBossBar(StringUtil.color(text), barColor, barStyle);
+        return Bukkit.createBossBar(Colors.color(text), barColor, barStyle);
     }
 
     @Override

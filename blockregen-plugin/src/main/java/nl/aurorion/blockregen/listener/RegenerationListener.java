@@ -2,12 +2,13 @@ package nl.aurorion.blockregen.listener;
 
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
+import com.linecorp.conditional.ConditionContext;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.preset.drop.DropItem;
@@ -211,6 +212,19 @@ public class RegenerationListener implements Listener {
 
         // Check conditions
         if (!preset.getConditions().check(player)) {
+            event.setCancelled(true);
+            log.fine(() -> "Player doesn't meet conditions.");
+            return;
+        }
+
+        ConditionContext ctx = ConditionContext.of(
+                "player", player,
+                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player),
+                "block", block
+        );
+
+        // Check composed conditions
+        if (!preset.getCondition().parallel().matches(ctx)) {
             event.setCancelled(true);
             log.fine(() -> "Player doesn't meet conditions.");
             return;

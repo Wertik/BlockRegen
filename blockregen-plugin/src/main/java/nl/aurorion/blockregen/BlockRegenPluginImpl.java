@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.api.version.VersionManager;
 import nl.aurorion.blockregen.command.Commands;
 import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
@@ -18,11 +19,11 @@ import nl.aurorion.blockregen.particle.impl.FireWorks;
 import nl.aurorion.blockregen.particle.impl.FlameCrown;
 import nl.aurorion.blockregen.particle.impl.WitchSpell;
 import nl.aurorion.blockregen.preset.PresetManager;
+import nl.aurorion.blockregen.preset.condition.DefaultConditions;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.version.NodeDataAdapter;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
-import nl.aurorion.blockregen.api.version.VersionManager;
 import nl.aurorion.blockregen.version.VersionManagerImpl;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
@@ -124,6 +125,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         // Default material parsers for minecraft materials
         materialManager.registerParser(null, new MinecraftMaterialParser(this));
         materialManager.registerParser("minecraft", new MinecraftMaterialParser(this));
+
+        // Register all default conditions
+        DefaultConditions.all().forEach(pair -> presetManager.getConditions().addProvider(pair.getFirst(), pair.getSecond()));
 
         checkPlaceholderAPI();
 

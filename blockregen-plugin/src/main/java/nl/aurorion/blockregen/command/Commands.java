@@ -4,7 +4,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.common.collect.Lists;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
-import nl.aurorion.blockregen.StringUtil;
+import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
@@ -56,7 +56,7 @@ public class Commands implements CommandExecutor {
     }
 
     private void sendHelp(CommandSender sender, String label) {
-        sender.sendMessage(StringUtil.color(HELP
+        sender.sendMessage(Colors.color(HELP
                 .replace("%version%", plugin.getDescription().getVersion())
                 .replace("%label%", label)));
     }
@@ -208,7 +208,7 @@ public class Commands implements CommandExecutor {
 
                         RegenerationArea area = plugin.getRegionManager().createWorld(args[2], args[3]);
                         plugin.getRegionManager().addArea(area);
-                        player.sendMessage(StringUtil.color(Message.REGION_FROM_WORLD.get(player)
+                        player.sendMessage(Colors.color(Message.REGION_FROM_WORLD.get(player)
                                 .replace("%region%", args[2])
                                 .replace("%world%", args[3])));
                         break;
@@ -242,7 +242,7 @@ public class Commands implements CommandExecutor {
                         RegenerationArea area = plugin.getRegionManager().getArea(args[2]);
                         area.setPriority(priority);
                         plugin.getRegionManager().sort();
-                        player.sendMessage(StringUtil.color(Message.REGION_PRIORITY_CHANGED.get(player)
+                        player.sendMessage(Colors.color(Message.REGION_PRIORITY_CHANGED.get(player)
                                 .replace("%region%", args[2])
                                 .replace("%priority%", args[3])));
                         break;
@@ -281,7 +281,7 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        player.sendMessage(StringUtil.color(Message.SET_REGION.get(player)
+                        player.sendMessage(Colors.color(Message.SET_REGION.get(player)
                                 .replace("%region%", args[2])));
                         return false;
                     }
@@ -323,7 +323,7 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        player.sendMessage(StringUtil.color(String.format(Message.SET_ALL.get(player), region.switchAll() ? "&aall" : "&cnot all")));
+                        player.sendMessage(Colors.color(String.format(Message.SET_ALL.get(player), region.switchAll() ? "&aall" : "&cnot all")));
                         return false;
                     }
                     case "add": {
@@ -534,7 +534,7 @@ public class Commands implements CommandExecutor {
 
                 if (processes.isEmpty()) {
                     stats.append("&7None to show.");
-                    sender.sendMessage(StringUtil.color(stats.toString()));
+                    sender.sendMessage(Colors.color(stats.toString()));
                     break;
                 }
 
@@ -565,7 +565,7 @@ public class Commands implements CommandExecutor {
                             stats.append("\n");
                         }
                     }
-                    sender.sendMessage(StringUtil.color(stats.toString()));
+                    sender.sendMessage(Colors.color(stats.toString()));
                 });
                 break;
             }
@@ -606,7 +606,7 @@ public class Commands implements CommandExecutor {
                     return false;
                 }
 
-                sender.sendMessage(StringUtil.color(
+                sender.sendMessage(Colors.color(
                                 "&8&m        &r &3BlockRegen &f%version% &8&m        &r\n" +
                                         "&7If you need help, either read through the wiki page or reach out on discord!&r\n\n" +
                                         "&3Discord &7https://discord.gg/ZCxMca5&r\n" +
@@ -622,7 +622,7 @@ public class Commands implements CommandExecutor {
                 if (args.length < 3) {
 
                     if (plugin.getEventManager().getLoadedEvents().isEmpty()) {
-                        sender.sendMessage(StringUtil.color("&8&m     &r &3BlockRegen Events &8&m     "
+                        sender.sendMessage(Colors.color("&8&m     &r &3BlockRegen Events &8&m     "
                                 + "\n&cYou haven't made any events yet."
                                 + "\n&8&m                       "));
                         return false;
@@ -639,7 +639,7 @@ public class Commands implements CommandExecutor {
 
                     list.append("\n&r \n&7Use &3/").append(label).append(" events activate <name> &7to activate it.\n")
                             .append("&7Use &3/").append(label).append(" events deactivate <name> &7to de-activate it.");
-                    sender.sendMessage(StringUtil.color(list.toString()));
+                    sender.sendMessage(Colors.color(list.toString()));
                 } else {
                     if (args[1].equalsIgnoreCase("activate")) {
                         String name = args[2];
@@ -657,7 +657,7 @@ public class Commands implements CommandExecutor {
                         }
 
                         plugin.getEventManager().enableEvent(event);
-                        sender.sendMessage(StringUtil
+                        sender.sendMessage(Colors
                                 .color(Message.ACTIVATE_EVENT.get().replace("%event%", event.getDisplayName())));
                         return false;
                     }
@@ -678,7 +678,7 @@ public class Commands implements CommandExecutor {
                         }
 
                         plugin.getEventManager().disableEvent(event);
-                        sender.sendMessage(StringUtil
+                        sender.sendMessage(Colors
                                 .color(Message.DEACTIVATE_EVENT.get().replace("%event%", event.getDisplayName())));
                         return false;
                     }
@@ -695,8 +695,8 @@ public class Commands implements CommandExecutor {
         ItemStack shovel = XMaterial.WOODEN_SHOVEL.parseItem();
 
         ItemMeta meta = shovel.getItemMeta();
-        meta.setDisplayName(StringUtil.color("&3BlockRegen preset tool"));
-        meta.setLore(Lists.newArrayList(StringUtil.color(
+        meta.setDisplayName(Colors.color("&3BlockRegen preset tool"));
+        meta.setLore(Lists.newArrayList(Colors.color(
                 "&fLeft click &7on a block in a region to add the blocks preset.",
                 "&fRight click &7on a block in a region to remove the blocks preset.")));
         shovel.setItemMeta(meta);
@@ -704,8 +704,8 @@ public class Commands implements CommandExecutor {
         ItemStack axe = XMaterial.WOODEN_AXE.parseItem();
 
         meta = axe.getItemMeta();
-        meta.setDisplayName(StringUtil.color("&3BlockRegen selection tool"));
-        meta.setLore(Lists.newArrayList(StringUtil.color("&fLeft click &7to select first position.",
+        meta.setDisplayName(Colors.color("&3BlockRegen selection tool"));
+        meta.setLore(Lists.newArrayList(Colors.color("&fLeft click &7to select first position.",
                 "&fRight click &7to select second position.",
                 "&f/blockregen region set <name> &7to create a region from selection.")));
         axe.setItemMeta(meta);
@@ -741,7 +741,7 @@ public class Commands implements CommandExecutor {
                 }
             }
         }
-        sender.sendMessage(StringUtil.color(message.toString()));
+        sender.sendMessage(Colors.color(message.toString()));
     }
 
     private boolean checkConsole(CommandSender sender) {
