@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen;
 
+import com.google.common.base.Strings;
 import lombok.Getter;
 import nl.aurorion.blockregen.util.Colors;
 import org.bukkit.Bukkit;
@@ -51,7 +52,7 @@ public class ConsoleHandler extends Handler {
 
     private void sendRaw(LogRecord record, String msg) {
 
-        if (com.google.common.base.Strings.isNullOrEmpty(msg)) {
+        if (Strings.isNullOrEmpty(msg)) {
             return;
         }
 
