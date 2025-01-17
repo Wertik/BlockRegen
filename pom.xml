@@ -58,26 +58,8 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
         <repository>
-            <id>placeholderapi</id>
-            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
-        </repository>
-        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
-        </repository>
-        <!-- MMOItems -->
-        <repository>
-            <id>phoenix</id>
-            <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
-        </repository>
-        <!-- Nexo -->
-        <repository>
-            <id>nexo-releases</id>
-            <url>https://repo.nexomc.com/releases</url>
-        </repository>
-        <repository>
-            <id>AlessioDP</id>
-            <url>https://repo.alessiodp.com/releases/</url>
         </repository>
     </repositories>
 
@@ -113,94 +95,6 @@
             <artifactId>XSeries</artifactId>
             <version>13.0.0</version>
             <scope>compile</scope>
-        </dependency>
-        <!-- Oraxen support -->
-        <dependency>
-            <groupId>io.th0rgal</groupId>
-            <artifactId>oraxen</artifactId>
-            <version>1.180.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>me.gabytm.util</groupId>
-                    <artifactId>actions-spigot</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jetbrains</groupId>
-                    <artifactId>annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.ticxo</groupId>
-                    <artifactId>PlayerAnimator</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.github.stefvanschie.inventoryframework</groupId>
-                    <artifactId>IF</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.th0rgal</groupId>
-                    <artifactId>protectionlib</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>dev.triumphteam</groupId>
-                    <artifactId>triumph-gui</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bstats</groupId>
-                    <artifactId>bstats-bukkit</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.jeff-media</groupId>
-                    <artifactId>custom-block-data</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.jeff-media</groupId>
-                    <artifactId>persistent-data-serializer</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.jeff_media</groupId>
-                    <artifactId>MorePersistentDataTypes</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>gs.mclo</groupId>
-                    <artifactId>java</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>provided</scope>
-        </dependency>
-        <!-- MMOItems -->
-        <dependency>
-            <groupId>io.lumine</groupId>
-            <artifactId>MythicLib-dist</artifactId>
-            <version>1.6.2-SNAPSHOT</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>net.Indyuce</groupId>
-            <artifactId>MMOItems-API</artifactId>
-            <version>6.9.5-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- ItemsAdder -->
-        <dependency>
-            <groupId>com.github.LoneDev6</groupId>
-            <artifactId>api-itemsadder</artifactId>
-            <version>3.6.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Nexo -->
-        <dependency>
-            <groupId>com.nexomc</groupId>
-            <artifactId>nexo</artifactId>
-            <classifier>dev</classifier>
-            <version>0.7.0</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.byteflux</groupId>
-                    <artifactId>libby-bukkit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.linecorp.conditional</groupId>
