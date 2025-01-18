@@ -15,6 +15,7 @@ import nl.aurorion.blockregen.listener.RegenerationListener;
 import nl.aurorion.blockregen.material.MaterialManager;
 import nl.aurorion.blockregen.material.parser.MinecraftMaterialParser;
 import nl.aurorion.blockregen.particle.ParticleManager;
+import nl.aurorion.blockregen.particle.impl.FireCube;
 import nl.aurorion.blockregen.particle.impl.FireWorks;
 import nl.aurorion.blockregen.particle.impl.FlameCrown;
 import nl.aurorion.blockregen.particle.impl.WitchSpell;
@@ -119,6 +120,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         new FireWorks().register();
         new FlameCrown().register();
         new WitchSpell().register();
+        new FireCube().register();
 
         Message.load();
 
