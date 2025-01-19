@@ -1,6 +1,5 @@
 package nl.aurorion.blockregen.regeneration;
 
-import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.AutoSaveTask;
@@ -17,13 +16,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Log
 public class RegenerationManager {
 
     private final BlockRegenPlugin plugin;
 
-    private final Set<RegenerationProcess> cache = Sets.newConcurrentHashSet();
+    private final Map<Block, RegenerationProcess> cache = new ConcurrentHashMap<>();
 
     @Getter
     private AutoSaveTask autoSaveTask;
@@ -105,25 +105,13 @@ public class RegenerationManager {
             return;
         }
 
-        cache.add(process);
+        cache.put(process.getBlock(), process);
         log.fine(() -> "Registered regeneration process " + process);
     }
 
     @Nullable
     public RegenerationProcess getProcess(@NotNull Block block) {
-        for (RegenerationProcess process : cache) {
-            // Try to convert simple location again and exit if the block's not there.
-            if (process.getBlock() == null) {
-                continue;
-            }
-
-            if (!process.getBlock().equals(block)) {
-                continue;
-            }
-
-            return process;
-        }
-        return null;
+        return this.cache.get(block);
     }
 
     public boolean isRegenerating(@NotNull Block block) {
@@ -132,7 +120,7 @@ public class RegenerationManager {
     }
 
     public void removeProcess(RegenerationProcess process) {
-        if (cache.remove(process)) {
+        if (cache.remove(process.getBlock()) != null) {
             log.fine(() -> String.format("Removed process from cache: %s", process));
         } else {
             log.fine(() -> String.format("Process %s not found, not removed.", process));
@@ -140,7 +128,7 @@ public class RegenerationManager {
     }
 
     public void removeProcess(@NotNull Block block) {
-        cache.removeIf(process -> process.getBlock().equals(block));
+        cache.remove(block);
     }
 
     public void startAutoSave() {
@@ -162,13 +150,13 @@ public class RegenerationManager {
 
     // Revert blocks before disabling
     public void revertAll() {
-        cache.forEach(RegenerationProcess::revertBlock);
+        cache.values().forEach(RegenerationProcess::revertBlock);
     }
 
     // Can only be called from the main thread
     private void purgeExpired() {
         // Clear invalid processes
-        for (RegenerationProcess process : new HashSet<>(cache)) {
+        for (RegenerationProcess process : cache.values()) {
             if (process.getTimeLeft() < 0 && process.shouldRegenerate()) {
                 if (Bukkit.isPrimaryThread()) {
                     process.regenerateBlock();
@@ -184,12 +172,12 @@ public class RegenerationManager {
     }
 
     public void save(boolean sync) {
-        cache.forEach(process -> process.setTimeLeft(process.getRegenerationTime() - System.currentTimeMillis()));
+        cache.values().forEach(process -> process.setTimeLeft(process.getRegenerationTime() - System.currentTimeMillis()));
 
         // TODO: Shouldn't be required
         purgeExpired();
 
-        final List<RegenerationProcess> finalCache = new ArrayList<>(cache);
+        final List<RegenerationProcess> finalCache = new ArrayList<>(cache.values());
 
         CompletableFuture<Void> future = plugin.getGsonHelper().save(finalCache, plugin.getDataFolder().getPath() + "/Data.json")
                 .exceptionally(e -> {
@@ -260,7 +248,8 @@ public class RegenerationManager {
         this.retry = false;
     }
 
+    @NotNull
     public Collection<RegenerationProcess> getCache() {
-        return Collections.unmodifiableCollection(cache);
+        return Collections.unmodifiableCollection(cache.values());
     }
 }

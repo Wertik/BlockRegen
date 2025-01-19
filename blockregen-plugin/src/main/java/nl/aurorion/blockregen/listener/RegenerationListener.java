@@ -358,11 +358,11 @@ public class RegenerationListener implements Listener {
      Specific permission takes precedence over wildcards.
     */
     private boolean lacksPermission(Player player, String permission, String specific) {
-        boolean hasAll = player.hasPermission(String.format("%s.*", permission));
-        boolean allDefined = player.isPermissionSet(String.format("%s.*", permission));
+        boolean hasAll = player.hasPermission(permission + ".*");
+        boolean allDefined = player.isPermissionSet(permission + ".*");
 
-        boolean hasSpecific = player.hasPermission(String.format("%s.%s", permission, specific));
-        boolean specificDefined = player.isPermissionSet(String.format("%s.%s", permission, specific));
+        boolean hasSpecific = player.hasPermission(permission + "." + specific);
+        boolean specificDefined = player.isPermissionSet(permission + "." + specific);
 
         return !((hasAll && !specificDefined) || (!allDefined && !specificDefined) || (hasSpecific && specificDefined));
     }
