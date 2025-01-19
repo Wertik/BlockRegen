@@ -52,6 +52,15 @@ public class Parsing {
     }
 
     /**
+     * Attempt to parse an int from {@param input}. If unsuccessful throw {@link ParseException}.
+     *
+     * @throws ParseException If the parsing fails.
+     */
+    public static int parseInt(@Nullable String input, @NotNull String message) {
+        return parse(() -> Integer.parseInt(notNull(input)), message);
+    }
+
+    /**
      * Attempt to parse an int from {@param input}. If unsuccessful return {@param def}.
      */
     public static int parseInt(@Nullable String input, int def) {
