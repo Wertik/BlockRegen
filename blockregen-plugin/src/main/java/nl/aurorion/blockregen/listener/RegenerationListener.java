@@ -235,7 +235,7 @@ public class RegenerationListener implements Listener {
         );
 
         // Check composed conditions
-        if (!preset.getCondition().parallel().matches(ctx)) {
+        if (!preset.getCondition().matches(ctx)) {
             event.setCancelled(true);
             log.fine(() -> "Player doesn't meet conditions.");
             return;
