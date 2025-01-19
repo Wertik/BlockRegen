@@ -4,17 +4,12 @@ import com.cryptomorin.xseries.particles.ParticleDisplay;
 import com.cryptomorin.xseries.particles.Particles;
 import com.cryptomorin.xseries.particles.XParticle;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
-import nl.aurorion.blockregen.particle.AbstractParticle;
+import nl.aurorion.blockregen.particle.Particle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
-public class FlameCrown extends AbstractParticle {
-
-    @Override
-    public String name() {
-        return "flame_crown";
-    }
+public class FlameCrown implements Particle {
 
     @Override
     public void display(@NotNull Location location) {

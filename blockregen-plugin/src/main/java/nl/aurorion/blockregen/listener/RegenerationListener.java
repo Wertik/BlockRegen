@@ -601,7 +601,7 @@ public class RegenerationListener implements Listener {
                 ItemStack item = entry.getKey();
 
                 if (entry.getValue()) {
-                    items.add(blockState.getWorld().dropItemNaturally(blockState.getLocation().add(.5, .5, .5), item));
+                    items.add(blockState.getWorld().dropItemNaturally(blockState.getLocation().clone().add(.5, .5, .5), item));
                     log.fine(() -> "Dropping item " + item.getType() + "x" + item.getAmount());
                 } else {
                     player.getInventory().addItem(item);
