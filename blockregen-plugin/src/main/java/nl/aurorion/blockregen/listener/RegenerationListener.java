@@ -34,10 +34,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -597,11 +594,13 @@ public class RegenerationListener implements Listener {
         Bukkit.getScheduler().runTask(plugin, () -> {
             List<Item> items = new ArrayList<>();
 
+            Location optimalSpawnLocation = getOptimalDropLocation(blockState.getBlock(), player);
+
             for (Map.Entry<ItemStack, Boolean> entry : itemStacks.entrySet()) {
                 ItemStack item = entry.getKey();
 
                 if (entry.getValue()) {
-                    items.add(blockState.getWorld().dropItemNaturally(blockState.getLocation(), item));
+                    items.add(blockState.getWorld().dropItemNaturally(optimalSpawnLocation, item));
                     log.fine(() -> "Dropping item " + item.getType() + "x" + item.getAmount());
                 } else {
                     player.getInventory().addItem(item);
@@ -611,5 +610,31 @@ public class RegenerationListener implements Listener {
 
             plugin.getVersionManager().getMethods().handleDropItemEvent(player, blockState, items);
         });
+    }
+
+    private Location getOptimalDropLocation(Block block, Player player) {
+        final BlockFace[] faces = new BlockFace[]{BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+
+        BlockFace closestFace = null;
+        double closestDistance = Double.MAX_VALUE;
+
+        for (BlockFace face : faces) {
+            Block relative = block.getRelative(face);
+            if (relative.getType() != Material.AIR)
+                continue;
+
+            double distance = player.getLocation().distanceSquared(relative.getLocation());
+            if (distance < closestDistance) {
+                closestFace = face;
+                closestDistance = distance;
+            }
+        }
+
+        // drop items in the direction of the closest face
+        if (closestFace != null) {
+            return block.getRelative(closestFace).getLocation();
+        }
+
+        return block.getLocation();
     }
 }
