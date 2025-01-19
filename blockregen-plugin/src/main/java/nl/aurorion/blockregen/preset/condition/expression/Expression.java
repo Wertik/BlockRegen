@@ -25,13 +25,32 @@ public class Expression {
     @Getter
     private final OperandRelation relation;
 
+    private boolean staticResult = false;
+
     private Expression(Operand left, Operand right, OperandRelation relation) {
         this.left = left;
         this.right = right;
         this.relation = relation;
     }
 
+    public boolean isConstant() {
+        return left instanceof Constant && right instanceof Constant;
+    }
+
+    // Evaluate if the expression is constant
+    public void evaluateStatic() {
+        this.staticResult = this.relation.evaluate(
+                this.left.value(null),
+                this.right.value(null)
+        );
+        log.fine(() -> "Expression " + this + " evaluated statically to " + this.staticResult);
+    }
+
     public boolean evaluate(@NotNull ConditionContext ctx) {
+        if (isConstant()) {
+            return this.staticResult;
+        }
+
         Object o1 = this.left.value(ctx);
         Object o2 = this.right.value(ctx);
 
@@ -41,8 +60,14 @@ public class Expression {
     }
 
     @NotNull
-    public static Expression of(Operand left, Operand right, OperandRelation relation) {
-        return new Expression(left, right, relation);
+    public static Expression of(@NotNull Operand left, @NotNull Operand right, @NotNull OperandRelation relation) {
+        Expression expression = new Expression(left, right, relation);
+
+        if (expression.isConstant()) {
+            expression.evaluateStatic();
+        }
+
+        return expression;
     }
 
     /**
@@ -70,7 +95,7 @@ public class Expression {
             throw new ParseException("Invalid relation operator '" + operator + "'.");
         }
 
-        Expression expression = new Expression(op1, op2, relation);
+        Expression expression = Expression.of(op1, op2, relation);
         log.fine(() -> "Parsed expression: " + expression);
         return expression;
     }
