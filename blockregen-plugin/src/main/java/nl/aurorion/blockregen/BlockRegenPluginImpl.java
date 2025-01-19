@@ -235,11 +235,6 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         pluginManager.registerEvents(new PlayerListener(this), this);
     }
 
-    public void checkDependencies(boolean reloadPresets) {
-        log.info("Checking dependencies...");
-
-    }
-
     private void checkPlaceholderAPI() {
         if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI") && !usePlaceholderAPI) {
             usePlaceholderAPI = true;
