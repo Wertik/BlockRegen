@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.regeneration;
 
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.AutoSaveTask;
@@ -16,14 +17,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Log
 public class RegenerationManager {
 
     private final BlockRegenPlugin plugin;
 
-    private final ConcurrentLinkedDeque<RegenerationProcess> cache = new ConcurrentLinkedDeque<>();
+    private final Set<RegenerationProcess> cache = Sets.newConcurrentHashSet();
 
     @Getter
     private AutoSaveTask autoSaveTask;

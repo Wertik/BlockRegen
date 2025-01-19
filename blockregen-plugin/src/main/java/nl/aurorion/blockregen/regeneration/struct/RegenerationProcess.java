@@ -372,12 +372,12 @@ public class RegenerationProcess {
         if (o == null || getClass() != o.getClass())
             return false;
         RegenerationProcess process = (RegenerationProcess) o;
-        return process.getId().equals(this.getId());
+        return process.getLocation().equals(this.getLocation());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(this.location);
     }
 
     @Override
