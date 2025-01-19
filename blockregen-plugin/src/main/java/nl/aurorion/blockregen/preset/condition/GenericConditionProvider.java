@@ -9,9 +9,11 @@ import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GenericConditionProvider implements ConditionProvider {
 
@@ -19,23 +21,36 @@ public class GenericConditionProvider implements ConditionProvider {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ProviderEntry {
         private final ConditionProvider provider;
-        private final Class<?> expectedClass;
+        private final Class<?>[] expectedClasses;
         private final ConditionRelation relation;
 
-        public static ProviderEntry of(ConditionProvider provider, Class<?> expectedClass) {
-            return new ProviderEntry(provider, expectedClass, ConditionRelation.OR);
+        @NotNull
+        public static ProviderEntry of(@NotNull ConditionProvider provider, Class<?>... expectedClasses) {
+            return new ProviderEntry(provider, expectedClasses, ConditionRelation.OR);
         }
 
-        public static ProviderEntry of(ConditionProvider provider, Class<?> expectedClass, ConditionRelation relation) {
-            return new ProviderEntry(provider, expectedClass, relation);
+        @NotNull
+        public static ProviderEntry of(@NotNull ConditionProvider provider, @NotNull ConditionRelation relation, Class<?>... expectedClasses) {
+            return new ProviderEntry(provider, expectedClasses, relation);
         }
 
-        public static ProviderEntry of(ConditionProvider provider) {
+        @NotNull
+        public static ProviderEntry of(@NotNull ConditionProvider provider) {
             return of(provider, Object.class);
         }
 
-        public static ProviderEntry of(ConditionProvider provider, ConditionRelation relation) {
-            return of(provider, Object.class, relation);
+        @NotNull
+        public static ProviderEntry of(@NotNull ConditionProvider provider, @NotNull ConditionRelation relation) {
+            return of(provider, relation, Object.class);
+        }
+
+        private boolean isApplicable(Class<?> nodeClazz) {
+            for (Class<?> clazz : this.expectedClasses) {
+                if (clazz.isAssignableFrom(nodeClazz)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -105,8 +120,10 @@ public class GenericConditionProvider implements ConditionProvider {
             throw new ParseException("Invalid property '" + key + "'");
         }
 
-        if (!entry.expectedClass.isAssignableFrom(node.getClass())) {
-            throw new ParseException("Invalid property type '" + node.getClass().getSimpleName() + "' for '" + key + "'");
+        if (!entry.isApplicable(node.getClass())) {
+            throw new ParseException("Invalid property type '" + node.getClass().getSimpleName() + "' for '" + key + "'. Required: " + Arrays.stream(entry.getExpectedClasses())
+                    .map(Class::getSimpleName)
+                    .collect(Collectors.joining(",")));
         }
 
         Condition condition;

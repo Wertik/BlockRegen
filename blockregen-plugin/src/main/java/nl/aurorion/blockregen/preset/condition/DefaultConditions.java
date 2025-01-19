@@ -7,6 +7,9 @@ import com.linecorp.conditional.Condition;
 import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.Pair;
+import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.preset.FixedNumberValue;
+import nl.aurorion.blockregen.preset.NumberValue;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import nl.aurorion.blockregen.preset.condition.expression.Operand;
 import nl.aurorion.blockregen.util.Parsing;
@@ -16,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Default conditions provided by this plugin.
@@ -72,7 +76,6 @@ public class DefaultConditions {
 
     // Expressions have two sides, either of them can be constant.
     // The types have to be figured out at execution time (when to expression is evaluated)
-    // todo: What if I get two constants? - evaluate at load time
     // examples:
     // "%player_y% > 20"
     // "30 > %player_y%"
@@ -94,8 +97,29 @@ public class DefaultConditions {
         );
     }
 
+    // A uniform chance.
+    @NotNull
+    public static Pair<String, GenericConditionProvider.ProviderEntry> chance() {
+        return new Pair<>(
+                "chance",
+                GenericConditionProvider.ProviderEntry.of(
+                        (key, node) -> {
+                            final NumberValue numberValue;
+                            try {
+                                numberValue = FixedNumberValue.from(node);
+                            } catch (IllegalArgumentException e) {
+                                throw new ParseException(e.getMessage());
+                            }
+                            final Random random = new Random();
+                            return Condition.of((ctx) -> random.nextDouble() < numberValue.getDouble() / 100).alias("chance (" + numberValue + "%)");
+                        },
+                        Double.class, Integer.class, String.class
+                )
+        );
+    }
+
     @NotNull
     public static List<Pair<String, GenericConditionProvider.ProviderEntry>> all() {
-        return Lists.newArrayList(tool(), placeholder());
+        return Lists.newArrayList(tool(), placeholder(), chance());
     }
 }

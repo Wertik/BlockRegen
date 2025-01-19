@@ -56,8 +56,7 @@ public interface NumberValue {
                 return NumberValue.uniform(low, high);
             }
 
-            double value = Parsing.parseDouble(input, "Invalid value supplied: '" + input + "'.");
-            return NumberValue.fixed(value);
+            return FixedNumberValue.parse(input);
         }
 
         /**
