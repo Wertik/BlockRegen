@@ -29,10 +29,15 @@ public class ItemsAdderProvider extends CompatibilityProvider implements Materia
     public void onLoad() {
         plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", (key, node) -> {
             String id = (String) node;
+
+            if (CustomStack.getInstance(id) == null) {
+                throw new ParseException("Invalid ItemsAdder item '" + id + "'.");
+            }
+
             return Condition.of((ctx) -> {
                 ItemStack tool = (ItemStack) ctx.mustVar("tool");
-                CustomStack builder = CustomStack.byItemStack(tool);
-                return builder != null && builder.getNamespacedID().equalsIgnoreCase(id);
+                CustomStack toolBuilder = CustomStack.byItemStack(tool);
+                return toolBuilder != null && toolBuilder.getNamespacedID().equalsIgnoreCase(id);
             });
         });
     }

@@ -23,6 +23,11 @@ public class NexoProvider extends CompatibilityProvider implements MaterialParse
         // Register conditions provider.
         plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", ((key, node) -> {
             String id = (String) node;
+
+            if (!NexoItems.exists(id)) {
+                throw new ParseException("Invalid Nexo item '" + id + "'");
+            }
+
             return Condition.of((ctx) -> {
                 ItemStack tool = (ItemStack) ctx.mustVar("tool");
                 String toolId = NexoItems.idFromItem(tool);

@@ -29,6 +29,11 @@ public class OraxenProvider extends CompatibilityProvider implements MaterialPar
         // Register conditions provider.
         plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", ((key, node) -> {
             String id = (String) node;
+
+            if (!OraxenItems.exists(id)) {
+                throw new ParseException("Invalid Oraxen item '" + id + "'");
+            }
+
             return Condition.of((ctx) -> {
                 ItemStack tool = (ItemStack) ctx.mustVar("tool");
                 String toolId = OraxenItems.getIdByItem(tool);
