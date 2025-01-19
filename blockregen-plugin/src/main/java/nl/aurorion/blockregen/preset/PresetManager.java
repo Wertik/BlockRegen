@@ -42,6 +42,9 @@ public class PresetManager {
     @Getter
     private final GenericConditionProvider conditions = GenericConditionProvider.empty();
 
+    @Getter
+    private boolean retry = false;
+
     public PresetManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
@@ -79,6 +82,8 @@ public class PresetManager {
     }
 
     public void load() {
+        this.retry = false;
+
         presets.clear();
 
         // Clear all events before loading.
@@ -99,11 +104,27 @@ public class PresetManager {
                 if (BlockRegenPlugin.getInstance().getLogLevel().intValue() < Level.FINE.intValue()) {
                     e.printStackTrace();
                 }
+                this.retry = true;
             }
+        }
+
+        if (this.retry) {
+            log.info("Some presets were not loaded. Retrying after the server loads...");
         }
 
         log.info("Loaded " + presets.size() + " block preset(s)...");
         log.info("Added " + plugin.getEventManager().getLoadedEvents().size() + " event(s)...");
+    }
+
+    public void reattemptLoad() {
+        if (!this.retry) {
+            return;
+        }
+
+        this.retry = false;
+
+        log.info("Reloading presets...");
+        load();
     }
 
     /**

@@ -47,23 +47,34 @@ public class RegenerationListener implements Listener {
 
     private final BlockRegenPlugin plugin;
 
+    // Cache some options, when being called in physics and block break, the memory section lookup takes a long time.
+    private boolean disablePhysics;
+    private boolean useRegions;
+    private List<String> worldsEnabled;
+
     public RegenerationListener(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 
+    public void load() {
+        this.disablePhysics = !plugin.getConfig().isSet("Disable-Physics") || plugin.getConfig().getBoolean("Disable-Physics", false);
+        this.useRegions = plugin.getConfig().getBoolean("Use-Regions");
+        this.worldsEnabled = plugin.getConfig().getStringList("Worlds-Enabled");
+    }
+
     @EventHandler
     public void onPhysics(BlockPhysicsEvent event) {
-        if (plugin.getConfig().isSet("Disable-Physics") && !plugin.getConfig().getBoolean("Disable-Physics", false)) {
+        if (!this.disablePhysics) {
             return;
         }
 
         Block block = event.getBlock();
         World world = block.getWorld();
 
-        boolean useRegions = plugin.getConfig().getBoolean("Use-Regions", false);
+        boolean useRegions = this.useRegions;
         RegenerationArea region = plugin.getRegionManager().getArea(block);
 
-        boolean isInWorld = plugin.getConfig().getStringList("Worlds-Enabled").contains(world.getName());
+        boolean isInWorld = this.worldsEnabled.contains(world.getName());
         boolean isInRegion = region != null;
 
         boolean isInZone = useRegions ? isInRegion : isInWorld;

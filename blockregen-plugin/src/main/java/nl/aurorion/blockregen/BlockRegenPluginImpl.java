@@ -93,6 +93,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
     private final CompatibilityManager compatibilityManager = new CompatibilityManager(this);
 
     @Getter
+    private final RegenerationListener regenerationListener = new RegenerationListener(this);
+
+    @Getter
     private GsonHelper gsonHelper;
 
     @Getter
@@ -169,14 +172,15 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         // Check for deps and start auto save once the server is done loading.
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            compatibilityManager.discover(true);
+            compatibilityManager.discover(!presetManager.isRetry());
+
+            presetManager.reattemptLoad();
+            regenerationManager.reattemptLoad();
+            regionManager.reattemptLoad();
 
             if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
                 regenerationManager.startAutoSave();
             }
-
-            regenerationManager.reattemptLoad();
-            regionManager.reattemptLoad();
         }, 1L);
     }
 
@@ -205,6 +209,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         files.getBlockList().load();
         presetManager.load();
 
+        regenerationListener.load();
+
         regionManager.reload();
 
         if (getConfig().getBoolean("Auto-Save.Enabled", false))
@@ -232,7 +238,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     private void registerListeners() {
         PluginManager pluginManager = this.getServer().getPluginManager();
-        pluginManager.registerEvents(new RegenerationListener(this), this);
+        regenerationListener.load();
+        pluginManager.registerEvents(regenerationListener, this);
         pluginManager.registerEvents(new PlayerListener(this), this);
     }
 

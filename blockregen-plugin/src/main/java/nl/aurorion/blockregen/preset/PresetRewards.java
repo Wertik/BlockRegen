@@ -41,8 +41,17 @@ public class PresetRewards {
 
         // Sync commands
         Bukkit.getScheduler().runTask(BlockRegenPluginImpl.getInstance(), () -> {
-            playerCommands.stream().filter(Command::shouldExecute).forEach(command -> Bukkit.dispatchCommand(player, parser.apply(command.getCommand())));
-            consoleCommands.stream().filter(Command::shouldExecute).forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parser.apply(command.getCommand())));
+            for (Command command : playerCommands) {
+                if (command.shouldExecute()) {
+                    Bukkit.dispatchCommand(player, parser.apply(command.getCommand()));
+                }
+            }
+
+            for (Command command : consoleCommands) {
+                if (command.shouldExecute()) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parser.apply(command.getCommand()));
+                }
+            }
         });
     }
 

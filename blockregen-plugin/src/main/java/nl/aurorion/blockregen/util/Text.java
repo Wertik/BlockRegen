@@ -20,6 +20,8 @@ public class Text {
             return string;
         }
 
+        // todo: precompile patterns
+
         string = string.replaceAll("(?i)%prefix%", Message.PREFIX.getValue());
 
         for (Object o : context) {
