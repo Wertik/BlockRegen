@@ -2,8 +2,8 @@ package nl.aurorion.blockregen.regeneration;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.AutoSaveTask;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
@@ -76,6 +76,7 @@ public class RegenerationManager {
     /**
      * Helper for creating regeneration processes.
      */
+    @NotNull
     public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockPreset preset, @Nullable RegenerationArea region) {
         Objects.requireNonNull(block);
         Objects.requireNonNull(preset);
@@ -221,12 +222,14 @@ public class RegenerationManager {
 
                         if (!process.convertLocation()) {
                             this.retry = true;
+                            log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
                             break;
                         }
 
                         if (!process.convertPreset()) {
-                            Bukkit.getScheduler().runTask(plugin, process::revert);
-                            continue;
+                            this.retry = true;
+                            log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
+                            break;
                         }
                         log.fine(() -> "Prepared regeneration process " + process);
                     }
@@ -238,8 +241,7 @@ public class RegenerationManager {
                             log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
                         });
                     } else {
-                        log.info(
-                                "One of the worlds is probably not loaded. Loading after complete server load instead.");
+                        log.info("Some processes couldn't load, trying again after a complete server load.");
                     }
                 }).exceptionally(e -> {
                     log.severe("Could not load processes: " + e.getMessage());
@@ -255,7 +257,6 @@ public class RegenerationManager {
 
         load();
 
-        // Override retry flag from this load.
         this.retry = false;
     }
 

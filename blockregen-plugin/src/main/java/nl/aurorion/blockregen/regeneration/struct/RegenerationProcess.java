@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -282,9 +282,10 @@ public class RegenerationProcess {
     public BlockRegenMaterial getRegenerateInto() {
         // Make sure we always get something.
         if (regenerateInto == null) {
-            // No regen material set in the preset. Regenerate into the original.
             if (preset.getRegenMaterial() == null) {
-                this.regenerateInto = new MinecraftMaterial(BlockRegenPluginImpl.getInstance(), this.originalMaterial, this.originalData);
+                // todo: this breaks custom blocks... they regenerate into a minecraft material instead of the custom one.
+                // todo: instead, save the block regen material and place it here.
+                this.regenerateInto = new MinecraftMaterial(BlockRegenPlugin.getInstance(), originalMaterial, originalData);
             } else {
                 this.regenerateInto = preset.getRegenMaterial().get();
             }
@@ -390,8 +391,8 @@ public class RegenerationProcess {
                 block == null ? "null" : Locations.locationToString(block.getLocation()),
                 originalData,
                 originalMaterial,
-                getRegenerateInto(),
-                getReplaceMaterial(),
+                this.regenerateInto,
+                this.replaceMaterial,
                 timeLeft,
                 regenerationTime);
     }
