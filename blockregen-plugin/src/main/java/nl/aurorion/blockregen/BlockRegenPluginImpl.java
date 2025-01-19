@@ -183,8 +183,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
     @Override
     public void reload(CommandSender sender) {
 
-        if (!(sender instanceof ConsoleCommandSender))
+        if (!(sender instanceof ConsoleCommandSender)) {
             this.consoleHandler.addListener(sender);
+        }
 
         eventManager.disableAll();
         eventManager.clearBars();
