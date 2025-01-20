@@ -1,6 +1,8 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
 import lombok.Getter;
+import nl.aurorion.blockregen.ParseException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalTime;
@@ -45,7 +47,10 @@ public enum OperandRelation {
         return null;
     }
 
-    boolean evaluate(Object o1, Object o2) {
+    /**
+     * @throws ParseException If the parsing fails.
+     */
+    boolean evaluate(@NotNull Object o1, @NotNull Object o2) {
         return this.comparisons.parse(o1, o2);
     }
 

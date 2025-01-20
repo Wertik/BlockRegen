@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -28,16 +29,20 @@ public class TypedComparisons {
         return this;
     }
 
+    /**
+     * @throws ParseException If the parsing fails.
+     * */
     boolean parse(@NotNull Object o1, @NotNull Object o2) {
         for (Map.Entry<Class<?>, Comparator<Object>> entry : comparators.entrySet()) {
             Class<?> clazz = entry.getKey();
             Comparator<Object> cmp = entry.getValue();
 
-            log.fine(() -> clazz + " " + o1 + " (" + o1.getClass() + ") " + o2 + " (" + o2.getClass() + ")");
             if (clazz.isAssignableFrom(o1.getClass()) && clazz.isAssignableFrom(o2.getClass())) {
+                log.fine(() -> clazz + " " + o1 + " (" + o1.getClass() + ") " + o2 + " (" + o2.getClass() + ")");
                 return cmp.apply(o1, o2);
             }
         }
-        return false;
+
+        throw new ParseException("Values " + o1 + " (" + o1.getClass().getSimpleName() + ") and " + o2 + " (" + o2.getClass().getSimpleName() + ") are not comparable.");
     }
 }

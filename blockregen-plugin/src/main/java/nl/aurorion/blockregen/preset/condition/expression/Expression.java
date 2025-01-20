@@ -46,6 +46,9 @@ public class Expression {
         log.fine(() -> "Expression " + this + " evaluated statically to " + this.staticResult);
     }
 
+    /**
+     * @throws ParseException If the comparator cannot get objects of comparable types.
+     * */
     public boolean evaluate(@NotNull ConditionContext ctx) {
         if (isConstant()) {
             return this.staticResult;
@@ -59,6 +62,9 @@ public class Expression {
         return this.relation.evaluate(o1, o2);
     }
 
+    /**
+     * @throws ParseException If the static evaluation of the condition fails to compare objects.
+     */
     @NotNull
     public static Expression of(@NotNull Operand left, @NotNull Operand right, @NotNull OperandRelation relation) {
         Expression expression = new Expression(left, right, relation);

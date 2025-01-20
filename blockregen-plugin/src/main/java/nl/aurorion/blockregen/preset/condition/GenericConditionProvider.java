@@ -6,13 +6,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.aurorion.blockregen.ParseException;
+import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GenericConditionProvider implements ConditionProvider {
@@ -120,7 +118,7 @@ public class GenericConditionProvider implements ConditionProvider {
             throw new ParseException("Invalid property '" + key + "'");
         }
 
-        if (!entry.isApplicable(node.getClass())) {
+        if (!(node instanceof ConfigurationSection) && !(node instanceof List) && !entry.isApplicable(node.getClass())) {
             throw new ParseException("Invalid property type '" + node.getClass().getSimpleName() + "' for '" + key + "'. Required: " + Arrays.stream(entry.getExpectedClasses())
                     .map(Class::getSimpleName)
                     .collect(Collectors.joining(",")));

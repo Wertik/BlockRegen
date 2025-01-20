@@ -7,6 +7,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.Message;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
@@ -234,10 +235,16 @@ public class RegenerationListener implements Listener {
                 "block", block
         );
 
-        // Check composed conditions
-        if (!preset.getCondition().matches(ctx)) {
+        // Check advanced conditions
+        try {
+            if (!preset.getCondition().matches(ctx)) {
+                event.setCancelled(true);
+                log.fine(() -> "Player doesn't meet conditions.");
+                return;
+            }
+        } catch (ParseException e) {
+            log.warning("Failed to run conditions for preset " + preset.getName() + ": " + e.getMessage());
             event.setCancelled(true);
-            log.fine(() -> "Player doesn't meet conditions.");
             return;
         }
 
