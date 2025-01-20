@@ -5,7 +5,7 @@
     <parent>
         <artifactId>BlockRegen</artifactId>
         <groupId>nl.aurorion.blockregen</groupId>
-        <version>3.19.0-SNAPSHOT</version>
+        <version>3.19.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -134,25 +134,25 @@
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-common</artifactId>
-            <version>3.19.0-SNAPSHOT</version>
+            <version>3.19.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-version</artifactId>
-            <version>3.19.0-SNAPSHOT</version>
+            <version>3.19.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-legacy</artifactId>
-            <version>3.19.0-SNAPSHOT</version>
+            <version>3.19.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-ancient</artifactId>
-            <version>3.19.0-SNAPSHOT</version>
+            <version>3.19.0</version>
             <scope>compile</scope>
         </dependency>
         <!-- Spigot API -->
@@ -174,6 +174,13 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- WorldEdit -->
         <dependency>
