@@ -4,13 +4,15 @@
 
     <groupId>nl.aurorion.blockregen</groupId>
     <artifactId>BlockRegen</artifactId>
-    <version>3.19.0</version>
+    <version>3.20.0-SNAPSHOT</version>
     <modules>
         <module>blockregen-version</module>
         <module>blockregen-common</module>
         <module>blockregen-plugin</module>
-        <module>blockregen-legacy</module>
-        <module>blockregen-ancient</module>
+        <module>version/blockregen-legacy</module>
+        <module>version/blockregen-ancient</module>
+        <module>version/blockregen-modern</module>
+        <module>version/blockregen-pink</module>
     </modules>
     <packaging>pom</packaging>
 

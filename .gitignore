@@ -3,4 +3,5 @@
 *.versionsBackup
 *-reduced-pom.xml
 /*/target/
+/version/*/target/
 *.up

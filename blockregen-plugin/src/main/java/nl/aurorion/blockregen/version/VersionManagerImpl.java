@@ -90,7 +90,7 @@ public class VersionManagerImpl implements VersionManager {
             case "1.16":
             case "1.17":
             case "1.18":
-            default:
+            case "1.19":
                 if (worldEdit != null)
                     useWorldEdit(new LatestWorldEditProvider(this.worldEdit));
                 if (worldGuard != null)
@@ -98,6 +98,18 @@ public class VersionManagerImpl implements VersionManager {
                 this.methods = new LatestMethods();
                 this.nodeProvider = LatestNodeData::new;
                 this.nodeDataParser = new LatestNodeDataParser();
+                this.customModelData = true;
+                break;
+            case "1.20":
+            case "1.21":
+            default:
+                if (worldEdit != null)
+                    useWorldEdit(new LatestWorldEditProvider(this.worldEdit));
+                if (worldGuard != null)
+                    useWorldGuard(new LatestWorldGuardProvider(this.worldGuard));
+                this.methods = new LatestMethods();
+                this.nodeProvider = PinkNodeData::new;
+                this.nodeDataParser = new PinkNodeDataParser();
                 this.customModelData = true;
                 break;
         }
