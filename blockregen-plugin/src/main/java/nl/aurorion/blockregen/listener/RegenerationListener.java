@@ -63,7 +63,7 @@ public class RegenerationListener implements Listener {
         this.worldsEnabled = plugin.getConfig().getStringList("Worlds-Enabled");
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPhysics(BlockPhysicsEvent event) {
         if (!this.disablePhysics) {
             return;
@@ -94,7 +94,7 @@ public class RegenerationListener implements Listener {
     }
 
     // Block trampling
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.PHYSICAL || event.useInteractedBlock() == Event.Result.DENY) {
             return;
@@ -118,7 +118,7 @@ public class RegenerationListener implements Listener {
         handleEvent(cropBlock, player, event, EventType.TRAMPLING);
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
