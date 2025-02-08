@@ -10,6 +10,7 @@ import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
 import nl.aurorion.blockregen.drop.ItemManager;
 import nl.aurorion.blockregen.event.EventManager;
+import nl.aurorion.blockregen.listener.PhysicsListener;
 import nl.aurorion.blockregen.listener.PlayerListener;
 import nl.aurorion.blockregen.listener.RegenerationListener;
 import nl.aurorion.blockregen.material.MaterialManager;
@@ -94,6 +95,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     @Getter
     private final RegenerationListener regenerationListener = new RegenerationListener(this);
+
+    @Getter
+    private final PhysicsListener physicsListener = new PhysicsListener(this);
 
     @Getter
     private GsonHelper gsonHelper;
@@ -209,7 +213,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         files.getBlockList().load();
         presetManager.load();
 
-        regenerationListener.load();
+        physicsListener.load();
 
         regionManager.reload();
 
@@ -238,8 +242,19 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     private void registerListeners() {
         PluginManager pluginManager = this.getServer().getPluginManager();
-        regenerationListener.load();
         pluginManager.registerEvents(regenerationListener, this);
+
+        // BlockPhysicsEvent#getSourceBlock is only present on >1.13.2
+        // On lower versions simply disable all the features related to physics.
+        if (versionManager.isCurrentAbove("1.13.2", true)) {
+            physicsListener.load();
+            pluginManager.registerEvents(physicsListener, this);
+        } else {
+            if (!getConfig().isSet("Disable-Physics") || getConfig().getBoolean("Disable-Physics", false)) {
+                log.warning("Option `Disable-Physics` has no effect on versions below 1.13.2.");
+            }
+        }
+
         pluginManager.registerEvents(new PlayerListener(this), this);
     }
 

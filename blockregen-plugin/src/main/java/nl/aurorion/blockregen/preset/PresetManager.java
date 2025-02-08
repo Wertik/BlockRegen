@@ -181,6 +181,11 @@ public class PresetManager {
 
         preset.setDisablePhysics(section.getBoolean("disable-physics", false));
 
+        // BlockPhysics#getSourceBlock is missing
+        if (preset.isDisablePhysics() && plugin.getVersionManager().isCurrentBelow("1.13.2", false)) {
+            log.warning("Option `disable-physics` has not effect on versions below 1.13.2");
+        }
+
         // Apply fortune
         preset.setApplyFortune(section.getBoolean("apply-fortune", true));
 
