@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public interface Operand {
     Object value(ConditionContext ctx);
 
-    Pattern PLACEHOLDER_PATTERN = Pattern.compile("(%\\w+%)");
+    Pattern PLACEHOLDER_PATTERN = Pattern.compile("(%\\S+%)");
 
     @Log
     class Parser {
