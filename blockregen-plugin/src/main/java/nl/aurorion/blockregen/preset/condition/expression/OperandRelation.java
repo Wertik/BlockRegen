@@ -17,10 +17,12 @@ public enum OperandRelation {
             .add(LocalTime.class, (t1, t2) -> t1.equals(t2) || t1.isBefore(t2))),
     EQ("==", TypedComparisons
             .of(Number.class, Objects::equals)
-            .add(LocalTime.class, Objects::equals)),
+            .add(LocalTime.class, Objects::equals)
+            .add(String.class, Objects::equals)),
     NEQ("!=", TypedComparisons
             .of(Number.class, (num1, num2) -> num1.doubleValue() != num2.doubleValue())
-            .add(LocalTime.class, (t1, t2) -> !Objects.equals(t1, t2))),
+            .add(LocalTime.class, (t1, t2) -> !Objects.equals(t1, t2))
+            .add(String.class, (a, b) -> !Objects.equals(a, b))),
     LT("<", TypedComparisons
             .of(Number.class, (num1, num2) -> num1.doubleValue() < num2.doubleValue())
             .add(LocalTime.class, LocalTime::isBefore)),
