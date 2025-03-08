@@ -47,11 +47,7 @@ public class AncientMethods implements Methods {
             DyeColor color = ((Colorable) data).getColor();
             dataValue = color.getWoolData();
         } else {
-            // Ignore data
             dataValue = data.getData();
-            log.fine(() -> String.format("Ignoring material data: %s:%d", state.getType(), dataValue));
-
-            return XMaterial.matchXMaterial(state.getType());
         }
 
         XMaterial xMaterial = XMaterial.matchXMaterial(String.format("%s:%d", block.getType().toString(), dataValue)).orElse(null);

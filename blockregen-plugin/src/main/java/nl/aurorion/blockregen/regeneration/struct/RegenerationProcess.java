@@ -75,7 +75,7 @@ public class RegenerationProcess {
         this.worldName = block.getWorld().getName();
 
         this.originalData = originalData;
-        this.originalMaterial = XMaterial.matchXMaterial(block.getType());
+        this.originalMaterial = BlockRegenPlugin.getInstance().getVersionManager().getMethods().getType(block);
     }
 
     // Return true if the process started, false otherwise.
