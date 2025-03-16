@@ -7,6 +7,11 @@ import nl.aurorion.blockregen.util.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Message system, loaded on enable & reload.
@@ -120,40 +125,78 @@ public enum Message {
         this.value = value;
     }
 
-    public String get() {
-        return Colors.color(Text.parse(insertPrefix ? "%prefix%" + this.value : this.value));
+    private String getPrefixed() {
+        return insertPrefix ? "%prefix%" + this.value : this.value;
     }
 
-    public String get(Player player) {
-        return Colors.color(Text.parse(insertPrefix ? "%prefix%" + this.value : this.value, player));
+    public boolean isEmpty() {
+        return this.value == null || this.value.isEmpty();
     }
 
-    public void send(CommandSender target) {
-        target.sendMessage(get());
+    public @Nullable String get() {
+        return this.isEmpty() ? null : Colors.color(Text.parse(this.getPrefixed()));
     }
 
-    public void send(Player player) {
-        player.sendMessage(get(player));
+    public @NotNull Optional<String> optional() {
+        return Optional.ofNullable(this.get());
+    }
+
+    public @NotNull Optional<String> optional(@NotNull Player player) {
+        return Optional.ofNullable(this.get(player));
+    }
+
+    public void mapAndSend(@NotNull CommandSender sender, @NotNull Function<String, String> mapper) {
+        this.optional().map(mapper).ifPresent(s -> sender.sendMessage(Colors.color(s)));
+    }
+
+    public void mapAndSend(@NotNull Player player, @NotNull Function<String, String> mapper) {
+        this.optional(player).map(mapper).ifPresent(s -> player.sendMessage(Colors.color(s)));
+    }
+
+    public @Nullable String get(@NotNull Player player) {
+        return this.isEmpty() ? null : Colors.color(Text.parse(getPrefixed(), player));
+    }
+
+    public void send(@NotNull CommandSender target) {
+        if (this.get() != null) {
+            target.sendMessage();
+        }
+    }
+
+    public void send(@NotNull Player player) {
+        String message = this.get(player);
+        if (message != null) {
+            player.sendMessage(message);
+        }
     }
 
     public static void load() {
-        FileConfiguration messages = BlockRegenPluginImpl.getInstance().getFiles().getMessages().getFileConfiguration();
+        FileConfiguration messageSection = BlockRegenPluginImpl.getInstance().getFiles().getMessages().getFileConfiguration();
 
-        if (!messages.contains("Insert-Prefix"))
-            messages.set("Insert-Prefix", true);
-        insertPrefix = messages.getBoolean("Insert-Prefix", true);
+        if (!messageSection.contains("Insert-Prefix")) {
+            messageSection.set("Insert-Prefix", true);
+        }
+
+        boolean shouldSave = false;
+
+        insertPrefix = messageSection.getBoolean("Insert-Prefix", true);
 
         for (Message msg : values()) {
-            String str = messages.getString("Messages." + msg.getPath());
+            final String path = "Messages." + msg.getPath();
 
-            if (str == null) {
-                messages.set("Messages." + msg.getPath(), msg.getValue());
+            boolean set = messageSection.isSet(path);
+
+            if (!set) {
+                shouldSave = true;
+                messageSection.set(path, msg.getValue());
                 continue;
             }
 
-            msg.setValue(str);
+            msg.setValue(messageSection.getString(path));
         }
 
-        BlockRegenPluginImpl.getInstance().getFiles().getMessages().save();
+        if (shouldSave) {
+            BlockRegenPluginImpl.getInstance().getFiles().getMessages().save();
+        }
     }
 }

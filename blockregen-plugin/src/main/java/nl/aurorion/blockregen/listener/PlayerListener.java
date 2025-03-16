@@ -54,7 +54,7 @@ public class PlayerListener implements Listener {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 selection.setFirst(event.getClickedBlock().getLocation());
 
-                player.sendMessage(Message.SELECT_FIRST.get(player)
+                Message.SELECT_FIRST.mapAndSend(player, str -> str
                         .replace("%x%", String.format("%.0f", selection.getFirst().getX()))
                         .replace("%y%", String.format("%.0f", selection.getFirst().getY()))
                         .replace("%z%", String.format("%.0f", selection.getFirst().getZ())));
@@ -62,7 +62,7 @@ public class PlayerListener implements Listener {
                 // Selecting second.
                 selection.setSecond(event.getClickedBlock().getLocation());
 
-                player.sendMessage(Message.SELECT_SECOND.get(player)
+                Message.SELECT_SECOND.mapAndSend(player, str -> str
                         .replace("%x%", String.format("%.0f", selection.getSecond().getX()))
                         .replace("%y%", String.format("%.0f", selection.getSecond().getY()))
                         .replace("%z%", String.format("%.0f", selection.getSecond().getZ())));
@@ -82,46 +82,45 @@ public class PlayerListener implements Listener {
             BlockPreset preset = plugin.getPresetManager().getPreset(event.getClickedBlock());
 
             if (preset == null) {
-
                 RegenerationProcess process = plugin.getRegenerationManager().getProcess(event.getClickedBlock());
-
                 if (process == null) {
                     return;
                 }
-
                 preset = process.getPreset();
             }
+
+            final String presetName = preset.getName();
 
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 // Add a block
 
                 if (region.hasPreset(preset.getName())) {
-                    player.sendMessage(Message.HAS_PRESET_ALREADY.get(player)
+                    Message.HAS_PRESET_ALREADY.mapAndSend(player, str -> str
                             .replace("%region%", region.getName())
-                            .replace("%preset%", preset.getName()));
+                            .replace("%preset%", presetName));
                     return;
                 }
 
-                region.addPreset(preset.getName());
+                region.addPreset(presetName);
 
-                player.sendMessage(Message.PRESET_ADDED.get(player)
+                Message.PRESET_ADDED.mapAndSend(player, str -> str
                         .replace("%region%", region.getName())
-                        .replace("%preset%", preset.getName()));
+                        .replace("%preset%", presetName));
             } else {
                 // Remove a block
 
-                if (!region.hasPreset(preset.getName())) {
-                    player.sendMessage(Message.DOES_NOT_HAVE_PRESET.get(player)
+                if (!region.hasPreset(presetName)) {
+                    Message.DOES_NOT_HAVE_PRESET.mapAndSend(player, str -> str
                             .replace("%region%", region.getName())
-                            .replace("%preset%", preset.getName()));
+                            .replace("%preset%", presetName));
                     return;
                 }
 
-                region.removePreset(preset.getName());
+                region.removePreset(presetName);
 
-                player.sendMessage(Message.PRESET_REMOVED.get(player)
+                Message.PRESET_REMOVED.mapAndSend(player, str -> str
                         .replace("%region%", region.getName())
-                        .replace("%preset%", preset.getName()));
+                        .replace("%preset%", presetName));
             }
 
             return;
@@ -137,9 +136,9 @@ public class PlayerListener implements Listener {
             NodeData data = plugin.getVersionManager().createNodeData();
             data.load(event.getClickedBlock());
 
-            player.sendMessage(Message.DATA_CHECK.get(player).replace("%block%", material.name()));
+            Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", material.name()));
             if (!data.isEmpty()) {
-                player.sendMessage(Message.DATA_CHECK_NODE_DATA.get(player).replace("%data%", String.format("%s%s", material.name(), data.getPrettyString())));
+                Message.DATA_CHECK_NODE_DATA.mapAndSend(player, str -> str.replace("%data%", String.format("%s%s", material.name(), data.getPrettyString())));
             }
         }
     }
@@ -151,7 +150,7 @@ public class PlayerListener implements Listener {
 
         // newVersion will be null when the checker is disabled, or there are no new available
         if (player.hasPermission("blockregen.admin") && plugin.newVersion != null) {
-            player.sendMessage(Message.UPDATE.get(player)
+            Message.UPDATE.mapAndSend(player, str -> str
                     .replaceAll("(?i)%newVersion%", plugin.newVersion)
                     .replaceAll("(?i)%version%", plugin.getDescription().getVersion()));
         }

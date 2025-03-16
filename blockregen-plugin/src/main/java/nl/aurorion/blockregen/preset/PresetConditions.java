@@ -55,7 +55,7 @@ public class PresetConditions {
 
         String requirements = composeToolRequirements();
 
-        player.sendMessage(Message.TOOL_REQUIRED_ERROR.get(player)
+        Message.TOOL_REQUIRED_ERROR.mapAndSend(player, str -> str
                 .replace("%tool%", requirements));
         log.fine(() -> String.format("Player doesn't have the required tools. Tool: %s, required: %s",
                 tool.getType(), requirements));
@@ -97,7 +97,7 @@ public class PresetConditions {
             }
         }
 
-        player.sendMessage(Message.ENCHANT_REQUIRED_ERROR.get(player)
+        Message.ENCHANT_REQUIRED_ERROR.mapAndSend(player, str -> str
                 .replace("%enchant%", requirements));
         log.fine(String.format("Player doesn't have the required enchants. Enchants: %s, required: %s", enchants, requirements));
         return false;
@@ -126,7 +126,7 @@ public class PresetConditions {
 
         String requirements = compressJobRequirements();
 
-        player.sendMessage(Message.JOBS_REQUIRED_ERROR.get(player)
+        Message.JOBS_REQUIRED_ERROR.mapAndSend(player, str -> str
                 .replace("%job%", requirements));
         log.fine(() -> String.format("Player doesn't have the required jobs. Jobs: %s, required: %s", jobsPlayer.getJobProgression().stream().map(JobProgression::toString).collect(Collectors.joining(", ")), requirements));
         return false;

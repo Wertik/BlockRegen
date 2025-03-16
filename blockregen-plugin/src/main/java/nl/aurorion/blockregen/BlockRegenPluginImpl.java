@@ -221,7 +221,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
             regenerationManager.reloadAutoSave();
 
         this.consoleHandler.removeListener(sender);
-        sender.sendMessage(Message.RELOAD.get());
+        Message.RELOAD.optional().ifPresent(sender::sendMessage);
     }
 
     @Override

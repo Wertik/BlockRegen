@@ -2,16 +2,16 @@ package nl.aurorion.blockregen.command;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.collect.Lists;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
-import nl.aurorion.blockregen.util.Colors;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
+import nl.aurorion.blockregen.region.RegionSelection;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.region.struct.RegenerationRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationWorld;
-import nl.aurorion.blockregen.region.RegionSelection;
+import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.util.Locations;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -144,7 +144,7 @@ public class Commands implements CommandExecutor {
                 }
 
                 if (args.length > 1) {
-                    sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                    Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                             .replace("%help%", String.format("/%s regions", label)));
                     return false;
                 }
@@ -160,7 +160,7 @@ public class Commands implements CommandExecutor {
                 player = (Player) sender;
 
                 if (!player.hasPermission("blockregen.region")) {
-                    player.sendMessage(Message.NO_PERM.get(player));
+                    Message.NO_PERM.send(player);
                     return false;
                 }
 
@@ -172,7 +172,7 @@ public class Commands implements CommandExecutor {
                 switch (args[1].toLowerCase()) {
                     case "list": {
                         if (args.length > 2) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region list", label)));
                             return false;
                         }
@@ -182,11 +182,11 @@ public class Commands implements CommandExecutor {
                     }
                     case "world": {
                         if (args.length > 4) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region world <name> <worldName>", label)));
                             return false;
                         } else if (args.length < 4) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region world <name> <worldName>", label)));
                             return false;
                         }
@@ -208,18 +208,18 @@ public class Commands implements CommandExecutor {
 
                         RegenerationArea area = plugin.getRegionManager().createWorld(args[2], args[3]);
                         plugin.getRegionManager().addArea(area);
-                        player.sendMessage(Colors.color(Message.REGION_FROM_WORLD.get(player)
+                        Message.REGION_FROM_WORLD.mapAndSend(player, str -> str
                                 .replace("%region%", args[2])
-                                .replace("%world%", args[3])));
+                                .replace("%world%", args[3]));
                         break;
                     }
                     case "priority": {
                         if (args.length > 4) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region priority <name> <priority>", label)));
                             return false;
                         } else if (args.length < 4) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region priority <name> <priority>", label)));
                             return false;
                         }
@@ -233,7 +233,7 @@ public class Commands implements CommandExecutor {
                         try {
                             priority = Integer.parseInt(args[3]);
                         } catch (NumberFormatException e) {
-                            player.sendMessage(Message.ARGUMENT_NOT_A_NUMBER.get(player)
+                            Message.ARGUMENT_NOT_A_NUMBER.mapAndSend(player, str -> str
                                     .replace("%arg%", "priority")
                                     .replace("%value%", args[3]));
                             break;
@@ -242,18 +242,18 @@ public class Commands implements CommandExecutor {
                         RegenerationArea area = plugin.getRegionManager().getArea(args[2]);
                         area.setPriority(priority);
                         plugin.getRegionManager().sort();
-                        player.sendMessage(Colors.color(Message.REGION_PRIORITY_CHANGED.get(player)
+                        Message.REGION_PRIORITY_CHANGED.mapAndSend(player, str -> str
                                 .replace("%region%", args[2])
-                                .replace("%priority%", args[3])));
+                                .replace("%priority%", args[3]));
                         break;
                     }
                     case "set": {
                         if (args.length > 3) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region set <name>", label)));
                             return false;
                         } else if (args.length < 3) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region set <name>", label)));
                             return false;
                         }
@@ -277,21 +277,21 @@ public class Commands implements CommandExecutor {
                         }
 
                         if (!plugin.getRegionManager().finishSelection(args[2], selection)) {
-                            sender.sendMessage(Message.COULD_NOT_CREATE_REGION.get(player));
+                            Message.COULD_NOT_CREATE_REGION.send(player);
                             return false;
                         }
 
-                        player.sendMessage(Colors.color(Message.SET_REGION.get(player)
-                                .replace("%region%", args[2])));
+                        Message.SET_REGION.mapAndSend(player, str -> str
+                                .replace("%region%", args[2]));
                         return false;
                     }
                     case "delete": {
                         if (args.length > 3) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region delete <name>", label)));
                             return false;
                         } else if (args.length < 3) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region delete <name>", label)));
                             return false;
                         }
@@ -307,11 +307,11 @@ public class Commands implements CommandExecutor {
                     }
                     case "all": {
                         if (args.length > 3) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region all <name>", label)));
                             return false;
                         } else if (args.length < 3) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region all <name>", label)));
                             return false;
                         }
@@ -323,16 +323,16 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        player.sendMessage(Colors.color(String.format(Message.SET_ALL.get(player), region.switchAll() ? "&aall" : "&cnot all")));
+                        Message.SET_ALL.mapAndSend(player, str -> String.format(str, region.switchAll() ? "&aall" : "&cnot all"));
                         return false;
                     }
                     case "add": {
                         if (args.length > 4) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region add <name> <preset>", label)));
                             return false;
                         } else if (args.length < 4) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region add <name> <preset>", label)));
                             return false;
                         }
@@ -347,31 +347,31 @@ public class Commands implements CommandExecutor {
                         BlockPreset preset = plugin.getPresetManager().getPreset(args[3]);
 
                         if (preset == null) {
-                            player.sendMessage(Message.INVALID_PRESET.get(player)
+                            Message.INVALID_PRESET.mapAndSend(player, str -> str
                                     .replace("%preset%", args[3]));
                             return false;
                         }
 
                         if (region.hasPreset(preset.getName())) {
-                            player.sendMessage(Message.HAS_PRESET_ALREADY.get(player)
+                            Message.HAS_PRESET_ALREADY.mapAndSend(player, str -> str
                                     .replace("%region%", args[2])
                                     .replace("%preset%", args[3]));
                             return false;
                         }
 
                         region.addPreset(preset.getName());
-                        player.sendMessage(Message.PRESET_ADDED.get(player)
+                        Message.PRESET_ADDED.mapAndSend(player, str -> str
                                 .replace("%preset%", args[3])
                                 .replace("%region%", args[2]));
                         break;
                     }
                     case "remove": {
                         if (args.length > 4) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region remove <name> <preset>", label)));
                             return false;
                         } else if (args.length < 4) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region remove <name> <preset>", label)));
                             return false;
                         }
@@ -386,31 +386,31 @@ public class Commands implements CommandExecutor {
                         BlockPreset preset = plugin.getPresetManager().getPreset(args[3]);
 
                         if (preset == null) {
-                            player.sendMessage(Message.INVALID_PRESET.get(player)
+                            Message.INVALID_PRESET.mapAndSend(player, str -> str
                                     .replace("%preset%", args[3]));
                             return false;
                         }
 
                         if (!region.hasPreset(preset.getName())) {
-                            player.sendMessage(Message.DOES_NOT_HAVE_PRESET.get(player)
+                            Message.DOES_NOT_HAVE_PRESET.mapAndSend(player, str -> str
                                     .replace("%region%", args[2])
                                     .replace("%preset%", args[3]));
                             return false;
                         }
 
                         region.removePreset(preset.getName());
-                        player.sendMessage(Message.PRESET_REMOVED.get(player)
+                        Message.PRESET_REMOVED.mapAndSend(player, str -> str
                                 .replace("%preset%", args[3])
                                 .replace("%region%", args[2]));
                         break;
                     }
                     case "clear": {
                         if (args.length > 3) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
+                            Message.TOO_MANY_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region clear <name>", label)));
                             return false;
                         } else if (args.length < 3) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player, str -> str
                                     .replace("%help%", String.format("/%s region clear <name>", label)));
                             return false;
                         }
@@ -423,18 +423,18 @@ public class Commands implements CommandExecutor {
                         }
 
                         region.clearPresets();
-                        player.sendMessage(Message.PRESETS_CLEARED.get(player)
+                        Message.PRESETS_CLEARED.mapAndSend(player, str -> str
                                 .replace("%region%", region.getName()));
                         break;
                     }
                     case "copy": {
                         if (args.length > 4) {
-                            sender.sendMessage(Message.TOO_MANY_ARGS.get(player)
-                                    .replace("%help%", String.format("/%s region copy <region-from> <region-to>", label)));
+                            Message.TOO_MANY_ARGS.mapAndSend(player,
+                                    str -> str.replace("%help%", String.format("/%s region copy <region-from> <region-to>", label)));
                             return false;
                         } else if (args.length < 4) {
-                            sender.sendMessage(Message.NOT_ENOUGH_ARGS.get(player)
-                                    .replace("%help%", String.format("/%s region copy <region-from> <region-to>", label)));
+                            Message.NOT_ENOUGH_ARGS.mapAndSend(player,
+                                    str -> str.replace("%help%", String.format("/%s region copy <region-from> <region-to>", label)));
                             return false;
                         }
 
@@ -455,9 +455,9 @@ public class Commands implements CommandExecutor {
                         regionTo.clearPresets();
 
                         regionFrom.getPresets().forEach(regionTo::addPreset);
-                        player.sendMessage(Message.PRESETS_COPIED.get(player)
-                                .replace("%regionFrom%", regionFrom.getName())
-                                .replace("%regionTo%", regionTo.getName()));
+                        Message.PRESETS_COPIED.mapAndSend(player, str ->
+                                str.replace("%regionFrom%", regionFrom.getName())
+                                        .replace("%regionTo%", regionTo.getName()));
                         break;
                     }
                     default:
@@ -491,7 +491,7 @@ public class Commands implements CommandExecutor {
                     } else if (arg.equalsIgnoreCase("-w") && it.hasNext()) {
                         worldName = it.next();
                     } else {
-                        sender.sendMessage(Message.UNKNOWN_ARGUMENT.get());
+                        Message.UNKNOWN_ARGUMENT.send(sender);
                         return false;
                     }
                 }
@@ -508,8 +508,7 @@ public class Commands implements CommandExecutor {
 
                 Bukkit.getScheduler().runTask(plugin, () -> toRegen.forEach(RegenerationProcess::regenerate));
 
-                sender.sendMessage(Message.REGENERATED_PROCESSES.get()
-                        .replace("%count%", String.valueOf(toRegen.size())));
+                Message.REGENERATED_PROCESSES.mapAndSend(sender, str -> str.replace("%count%", String.valueOf(toRegen.size())));
                 break;
             }
             case "stats": {
@@ -576,7 +575,7 @@ public class Commands implements CommandExecutor {
                 }
 
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(Message.ONLY_PLAYERS.get());
+                    Message.ONLY_PLAYERS.send(sender);
                     return false;
                 }
 
@@ -589,7 +588,7 @@ public class Commands implements CommandExecutor {
                     }
 
                     plugin.getConsoleHandler().removeListener(sender);
-                    sender.sendMessage(Message.DEBUG_OFF.get(player));
+                    Message.DEBUG_OFF.send(player);
                 } else {
                     // Change log level.
                     if (plugin.getLogLevel().intValue() > Level.FINE.intValue()) {
@@ -597,7 +596,7 @@ public class Commands implements CommandExecutor {
                     }
 
                     plugin.getConsoleHandler().addListener(sender);
-                    sender.sendMessage(Message.DEBUG_ON.get(player));
+                    Message.DEBUG_ON.send(player);
                 }
                 break;
             case "discord":
@@ -615,7 +614,7 @@ public class Commands implements CommandExecutor {
                 break;
             case "events":
                 if (!sender.hasPermission("blockregen.events")) {
-                    sender.sendMessage(Message.NO_PERM.get());
+                    Message.NO_PERM.send(sender);
                     return false;
                 }
 
@@ -647,18 +646,17 @@ public class Commands implements CommandExecutor {
                         PresetEvent event = plugin.getEventManager().getEvent(name);
 
                         if (event == null) {
-                            sender.sendMessage(Message.EVENT_NOT_FOUND.get());
+                            Message.EVENT_NOT_FOUND.send(sender);
                             return false;
                         }
 
                         if (event.isEnabled()) {
-                            sender.sendMessage(Message.EVENT_ALREADY_ACTIVE.get());
+                            Message.EVENT_ALREADY_ACTIVE.send(sender);
                             return false;
                         }
 
                         plugin.getEventManager().enableEvent(event);
-                        sender.sendMessage(Colors
-                                .color(Message.ACTIVATE_EVENT.get().replace("%event%", event.getDisplayName())));
+                        Message.ACTIVATE_EVENT.mapAndSend(sender, str -> str.replace("%event%", event.getDisplayName()));
                         return false;
                     }
 
@@ -668,18 +666,17 @@ public class Commands implements CommandExecutor {
                         PresetEvent event = plugin.getEventManager().getEvent(name);
 
                         if (event == null) {
-                            sender.sendMessage(Message.EVENT_NOT_FOUND.get());
+                            Message.EVENT_NOT_FOUND.send(sender);
                             return false;
                         }
 
                         if (!event.isEnabled()) {
-                            sender.sendMessage(Message.EVENT_NOT_ACTIVE.get());
+                            Message.EVENT_NOT_ACTIVE.send(sender);
                             return false;
                         }
 
                         plugin.getEventManager().disableEvent(event);
-                        sender.sendMessage(Colors
-                                .color(Message.DEACTIVATE_EVENT.get().replace("%event%", event.getDisplayName())));
+                        Message.DEACTIVATE_EVENT.mapAndSend(sender, str -> str.replace("%event%", event.getDisplayName()));
                         return false;
                     }
                 }
@@ -746,7 +743,7 @@ public class Commands implements CommandExecutor {
 
     private boolean checkConsole(CommandSender sender) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Message.ONLY_PLAYERS.get());
+            Message.ONLY_PLAYERS.send(sender);
             return true;
         }
 
