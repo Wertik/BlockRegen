@@ -359,6 +359,11 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
+                        // Turn off the all switch if it's the first preset added.
+                        if (region.isAll() && region.getPresets().isEmpty()) {
+                            region.setAll(false);
+                        }
+
                         region.addPreset(preset.getName());
                         Message.PRESET_ADDED.mapAndSend(player, str -> str
                                 .replace("%preset%", args[3])
@@ -396,6 +401,12 @@ public class Commands implements CommandExecutor {
                                     .replace("%region%", args[2])
                                     .replace("%preset%", args[3]));
                             return false;
+                        }
+
+                        // Turn off ALL and invert if it's the first edit.
+                        if (region.isAll() && region.getPresets().isEmpty()) {
+                            region.setAll(false);
+                            plugin.getPresetManager().getPresets().values().forEach(p -> region.addPreset(p.getName()));
                         }
 
                         region.removePreset(preset.getName());
@@ -451,6 +462,8 @@ public class Commands implements CommandExecutor {
                             Message.UNKNOWN_REGION.send(player);
                             return false;
                         }
+
+                        regionTo.setAll(regionFrom.isAll());
 
                         regionTo.clearPresets();
 
