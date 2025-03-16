@@ -577,11 +577,24 @@ public class RegenerationListener implements Listener {
                 ItemStack item = entry.getKey();
 
                 if (entry.getValue()) {
-                    items.add(blockState.getWorld().dropItemNaturally(blockState.getLocation().clone().add(.5, .5, .5), item));
                     log.fine(() -> "Dropping item " + item.getType() + "x" + item.getAmount());
+                    items.add(blockState.getWorld().dropItemNaturally(blockState.getLocation().clone().add(.5, .5, .5), item));
                 } else {
-                    player.getInventory().addItem(item);
                     log.fine(() -> "Giving item " + item.getType() + "x" + item.getAmount());
+
+                    Map<Integer, ItemStack> left = player.getInventory().addItem(item);
+                    if (!left.isEmpty()) {
+                        if (plugin.getConfig().getBoolean("Drop-Items-When-Full", true)) {
+                            log.fine(() -> "Inventory full. Dropping item on the ground.");
+
+                            Message.INVENTORY_FULL_DROPPED.send(player);
+
+                            ItemStack leftStack = left.get(left.keySet().iterator().next());
+                            items.add(player.getWorld().dropItemNaturally(player.getLocation(), leftStack));
+                        } else {
+                            Message.INVENTORY_FULL_LOST.send(player);
+                        }
+                    }
                 }
             }
 

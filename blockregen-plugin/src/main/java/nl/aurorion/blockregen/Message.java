@@ -100,7 +100,10 @@ public enum Message {
     ENCHANT_REQUIRED_ERROR("Enchant-Required-Error", "&cYour tool has to have at least one of the following enchantment(s): &b%enchant%&c."),
     JOBS_REQUIRED_ERROR("Jobs-Error", "&cYou need to reach following job levels in order to break this block: &b%job%"),
     PERMISSION_BLOCK_ERROR("Permission-Error", "&cYou don't have the permission to break this block."),
-    PERMISSION_REGION_ERROR("Permission-Region-Error", "&cYou don't have the permission to break in this region.");
+    PERMISSION_REGION_ERROR("Permission-Region-Error", "&cYou don't have the permission to break in this region."),
+
+    INVENTORY_FULL_DROPPED("Inventory-Full-Dropped", "&cInventory is full! Some drops fell on the ground."),
+    INVENTORY_FULL_LOST("Inventory-Full-Lost", "&cInventory is full! Some drops were lost.");
 
     @Getter
     private final String path;

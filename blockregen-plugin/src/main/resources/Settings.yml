@@ -34,7 +34,12 @@ Worlds-Enabled:
 # When a regenerating block is broken (aka the replace-block), the process is cancelled, and it doesn't regenerate.
 Bypass-In-Creative: true
 
-# Enable to manually give out Jobs rewards.
+# When the inventory is full and drop-naturally is false, drop the items on the ground.
+# Along with dropping the items a message is sent.
+# That can be turned off by setting it (Message.yml Inventory-Full) to an empty string.
+Drop-Items-When-Full: true
+
+# Enable to manually give out Jobs rewards.z
 # Sometimes this causes duplicated rewards. If that happens, disable them here.
 Jobs-Rewards: true
 
