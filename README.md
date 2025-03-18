@@ -10,6 +10,8 @@ Watch a video about how this plugin works [here](https://www.youtube.com/watch?v
 
 ``1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.20, 1.21`` (as of 3.10.8)
 
+Even though versions below 1.16 are supported. This plugin requires at least java 17 to run.
+
 ### Notes
 
 * Versions 1.8 (and any below) don't support boss bars for events or particles.
