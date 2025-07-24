@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -442,7 +443,7 @@ public class RegenerationListener implements Listener {
         // Run rewards async
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Map<ItemStack, Boolean> drops = new HashMap<>();
-            int experience = 0;
+            AtomicInteger experience = new AtomicInteger(0);
 
             // Items and exp
             if (preset.isNaturalBreak()) {
@@ -451,7 +452,7 @@ public class RegenerationListener implements Listener {
                     drops.put(drop, preset.isDropNaturally());
                 }
 
-                experience += vanillaExperience;
+                experience.addAndGet(vanillaExperience);
             } else {
                 for (DropItem drop : preset.getRewards().getDrops()) {
                     log.fine(drop.getCondition() + " " + drop.getCondition().matches(ctx));
@@ -475,7 +476,7 @@ public class RegenerationListener implements Listener {
 
                     ExperienceDrop experienceDrop = drop.getExperienceDrop();
                     if (experienceDrop != null) {
-                        experience += experienceDrop.getAmount().getInt();
+                        experience.addAndGet(experienceDrop.getAmount().getInt());
                     }
                 }
             }
@@ -490,7 +491,7 @@ public class RegenerationListener implements Listener {
                     drops.keySet().forEach(drop -> drop.setAmount(drop.getAmount() * 2));
                 }
                 if (presetEvent.isDoubleExperience()) {
-                    experience *= 2;
+                    experience.set(experience.get() * 2);
                 }
 
                 // Item reward
@@ -525,7 +526,7 @@ public class RegenerationListener implements Listener {
 
             // Drop/give all the items & experience at once
             giveItems(drops, state, player);
-            giveExp(block.getLocation(), player, experience, preset.isDropNaturally());
+            giveExp(block.getLocation(), player, experience.get(), preset.isDropNaturally());
 
             // Trigger Jobs Break if enabled
             if (plugin.getConfig().getBoolean("Jobs-Rewards", false) && plugin.getCompatibilityManager().getJobs().isLoaded()) {
@@ -533,7 +534,7 @@ public class RegenerationListener implements Listener {
             }
 
             // Other rewards - commands, money etc.
-            preset.getRewards().give(player, (str) -> Text.parse(str, player, block));
+            preset.getRewards().give(player, (str) -> Text.replace(Text.parse(str, player, block), "earned_experience", experience.get()));
 
             if (preset.getSound() != null) {
                 preset.getSound().play(block.getLocation());
