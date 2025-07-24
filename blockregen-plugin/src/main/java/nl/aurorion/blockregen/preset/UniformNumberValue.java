@@ -19,7 +19,7 @@ public class UniformNumberValue implements NumberValue {
 
     @Override
     public double getDouble() {
-        return Math.max(BlockRegenPluginImpl.getInstance().getRandom().nextDouble() * high, low);
+        return BlockRegenPluginImpl.getInstance().getRandom().nextDouble() * (high - low) + low;
     }
 
     @Override
