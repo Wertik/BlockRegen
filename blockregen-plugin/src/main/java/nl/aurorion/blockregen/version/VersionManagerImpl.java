@@ -54,7 +54,8 @@ public class VersionManagerImpl implements VersionManager {
         setupWorldGuard();
 
         /*
-         * Latest - 1.13+
+         * Pink 1.20+
+         * Latest/Modern - 1.13+
          * Legacy - 1.12 - 1.9
          * Ancient - 1.8 - 1.7
          */

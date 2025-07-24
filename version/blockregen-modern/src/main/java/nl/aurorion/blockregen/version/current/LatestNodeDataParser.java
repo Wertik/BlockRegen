@@ -17,6 +17,7 @@ public class LatestNodeDataParser implements NodeDataParser {
     protected  <T extends LatestNodeData> NodeDataDeserializer<T> createLatestDeserializer() {
         return new NodeDataDeserializer<T>()
                 .property("age", (nodeData, value) -> nodeData.setAge(Integer.parseInt(value)))
+                .property("waterlogged", (nodeData, value) -> nodeData.setWaterlogged(Boolean.parseBoolean(value)))
                 .property("facing", (nodeData, value) -> nodeData.setFacing(NodeDataDeserializer.tryParseEnum(value, BlockFace.class)))
                 .property("rotation", (nodeData, value) -> nodeData.setRotation(NodeDataDeserializer.tryParseEnum(value, BlockFace.class)))
                 .property("axis", (nodeData, value) -> nodeData.setAxis(NodeDataDeserializer.tryParseEnum(value, Axis.class)))
