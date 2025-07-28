@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -29,6 +30,7 @@ import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
 import nl.aurorion.blockregen.version.VersionManagerImpl;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -36,6 +38,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Random;
@@ -299,6 +302,19 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         parentLogger.setLevel(Level.INFO);
 
         this.consoleHandler = null;
+    }
+
+    @Nullable
+    public XMaterial getBlockType(@NotNull Block block) {
+        try {
+            return getVersionManager().getMethods().getType(block);
+        } catch (IllegalArgumentException e) {
+            log.fine(() -> "Unknown material " + block.getType());
+            if (!getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                throw e;
+            }
+            return null;
+        }
     }
 
     @Override

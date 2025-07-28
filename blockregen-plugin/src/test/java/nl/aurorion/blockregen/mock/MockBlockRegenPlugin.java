@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.mock;
 
+import com.cryptomorin.xseries.XMaterial;
 import lombok.Getter;
 import nl.aurorion.blockregen.ConsoleHandler;
 import nl.aurorion.blockregen.GsonHelper;
@@ -15,6 +16,7 @@ import nl.aurorion.blockregen.preset.PresetManager;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import org.bukkit.Server;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -197,6 +199,11 @@ public class MockBlockRegenPlugin implements BlockRegenPlugin {
 
     @Override
     public ConsoleHandler getConsoleHandler() {
+        return null;
+    }
+
+    @Override
+    public XMaterial getBlockType(Block block) {
         return null;
     }
 

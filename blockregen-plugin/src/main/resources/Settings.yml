@@ -12,6 +12,12 @@ Update-Checker: true
 # this might give you a better insight into what the plugin is doing.
 Debug-Enabled: false
 
+# Silently fail when an unknown material is encountered instead of throwing an exception.
+#
+# Modded materials are not supported by the plugin. Newly added materials might not yet be.
+# Enabling this will at least shut up all the errors in the console.
+Ignore-Unknown-Materials: false
+
 # Enable regions.
 #
 # Set to true if you wish to use regeneration regions (areas) instead of worlds.

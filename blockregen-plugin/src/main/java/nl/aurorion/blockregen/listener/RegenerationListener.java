@@ -66,7 +66,7 @@ public class RegenerationListener implements Listener {
             return;
         }
 
-        XMaterial xMaterial = plugin.getVersionManager().getMethods().getType(block);
+        XMaterial xMaterial = plugin.getBlockType(block);
         if (xMaterial != XMaterial.FARMLAND) {
             return;
         }
@@ -248,22 +248,24 @@ public class RegenerationListener implements Listener {
         // Crop possibly above this block.
         BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, region);
         if (abovePreset != null && abovePreset.isHandleCrops()) {
-            XMaterial aboveType = plugin.getVersionManager().getMethods().getType(above);
+            XMaterial aboveType = plugin.getBlockType(above);
 
-            if (Blocks.isMultiblockCrop(plugin, above)) {
-                // Multiblock crops (cactus, sugarcane,...)
-                handleMultiblockCrop(above, player, abovePreset, region, vanillaExperience);
-            } else if (XBlock.isCrop(aboveType) || Blocks.reliesOnBlockBelow(aboveType)) {
-                // Single crops (wheat, carrots,...)
-                log.fine(() -> "Handling block above...");
+            if (aboveType != null) {
+                if (Blocks.isMultiblockCrop(aboveType)) {
+                    // Multiblock crops (cactus, sugarcane,...)
+                    handleMultiblockCrop(above, player, abovePreset, region, vanillaExperience);
+                } else if (XBlock.isCrop(aboveType) || Blocks.reliesOnBlockBelow(aboveType)) {
+                    // Single crops (wheat, carrots,...)
+                    log.fine(() -> "Handling block above...");
 
-                List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
+                    List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
-                RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, region);
-                process.start();
+                    RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, region);
+                    process.start();
 
-                // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
-                handleRewards(above.getState(), abovePreset, player, vanillaDrops, 0);
+                    // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
+                    handleRewards(above.getState(), abovePreset, player, vanillaDrops, 0);
+                }
             }
         }
 
@@ -352,7 +354,17 @@ public class RegenerationListener implements Listener {
             }
         }, area);
 
-        Block base = findBase(block);
+        Block base;
+        try {
+            base = findBase(block);
+        } catch (IllegalArgumentException e) {
+            // invalid material
+            log.fine(() -> "handleMultiBlockCrop: " + e.getMessage());
+            if (!plugin.getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                throw e;
+            }
+            return;
+        }
 
         log.fine(() -> "Base " + Blocks.blockToString(base));
 

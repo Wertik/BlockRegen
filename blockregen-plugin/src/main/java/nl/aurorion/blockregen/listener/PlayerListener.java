@@ -41,13 +41,22 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        XMaterial handMaterial;
+        try {
+            handMaterial = XMaterial.matchXMaterial(plugin.getVersionManager().getMethods().getItemInMainHand(player));
+        } catch (IllegalArgumentException e) {
+            log.fine(() -> "Unknown tool material.");
+            Message.UNKNOWN_TOOL_MATERIAL.send(player);
+            if (!BlockRegenPluginImpl.getInstance().getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                throw e;
+            }
+            return;
+        }
+
         // Region selection
 
         // Use our own selection only if WorldEdit is not installed.
-
-        XMaterial handMaterial = XMaterial.matchXMaterial(plugin.getVersionManager().getMethods().getItemInMainHand(player));
-
-        if (player.hasPermission("blockregen.select") && handMaterial == XMaterial.WOODEN_AXE && plugin.getVersionManager().getWorldEditProvider() == null) {
+        if (player.hasPermission("blockregen.select") && plugin.getVersionManager().getWorldEditProvider() == null && handMaterial == XMaterial.WOODEN_AXE) {
             RegionSelection selection = plugin.getRegionManager().getOrCreateSelection(player);
 
             // Selecting first.
@@ -131,7 +140,14 @@ public class PlayerListener implements Listener {
         if (plugin.getRegenerationManager().hasDataCheck(player)) {
             event.setCancelled(true);
 
-            XMaterial material = plugin.getVersionManager().getMethods().getType(event.getClickedBlock());
+            XMaterial material;
+            try {
+                material = plugin.getVersionManager().getMethods().getType(event.getClickedBlock());
+            } catch (IllegalArgumentException e) {
+                log.fine("Unknown block material " + event.getClickedBlock().getType() + " in data check.");
+                Message.UNKNOWN_MATERIAL.send(player);
+                return;
+            }
 
             NodeData data = plugin.getVersionManager().createNodeData();
             data.load(event.getClickedBlock());
