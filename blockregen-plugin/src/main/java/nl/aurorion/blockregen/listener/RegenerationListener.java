@@ -32,6 +32,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -536,7 +537,7 @@ public class RegenerationListener implements Listener {
 
             // Drop/give all the items & experience at once
             giveItems(drops, state, player);
-            giveExp(block.getLocation(), player, experience.get(), preset.isDropNaturally());
+            giveExp(block.getLocation(), player, experience.get(), preset.isDropNaturally(), preset.isApplyMending());
 
             // Trigger Jobs Break if enabled
             if (plugin.getConfig().getBoolean("Jobs-Rewards", false) && plugin.getCompatibilityManager().getJobs().isLoaded()) {
@@ -567,16 +568,24 @@ public class RegenerationListener implements Listener {
         log.fine(() -> String.format("Spawning xp (%d).", amount));
     }
 
-    private void giveExp(Location location, Player player, int amount, boolean naturally) {
-
-        if (amount == 0) {
+    /**
+     * @param applyMending Whether to apply mending when {@code naturally} is false.
+     */
+    private void giveExp(@NotNull Location location, @NotNull Player player, int amount, boolean naturally, boolean applyMending) {
+        if (amount <= 0) {
             return;
         }
 
         if (naturally) {
             spawnExp(location, amount);
         } else {
-            player.giveExp(amount);
+            if (applyMending) {
+                // Simulate mending. On Spigot there's no API. 1.13+
+                int remainingExperience = plugin.getVersionManager().getMethods().applyMending(player, amount);
+                player.giveExp(remainingExperience);
+            } else {
+                player.giveExp(amount);
+            }
         }
     }
 

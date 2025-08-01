@@ -36,4 +36,9 @@ public class MockMethods implements Methods {
     public void handleDropItemEvent(Player player, BlockState blockState, List<Item> items) {
         //
     }
+
+    @Override
+    public int applyMending(Player player, int experience) {
+        return experience;
+    }
 }

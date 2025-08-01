@@ -27,6 +27,7 @@ public class BlockPreset {
     private boolean naturalBreak;
     private boolean applyFortune;
     private boolean dropNaturally;
+    private boolean applyMending;
 
     // Disable physics of neighbouring blocks
     private boolean disablePhysics;

@@ -3,12 +3,12 @@ package nl.aurorion.blockregen.preset;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.google.common.base.Strings;
-import nl.aurorion.blockregen.conditional.Condition;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.event.struct.EventBossBar;
@@ -191,6 +191,9 @@ public class PresetManager {
 
         // Drop naturally
         preset.setDropNaturally(section.getBoolean("drop-naturally", true));
+
+        // Apply mending
+        preset.setApplyMending(section.getBoolean("apply-mending", true));
 
         // Handle crops
         preset.setHandleCrops(section.getBoolean("handle-crops", true));

@@ -66,4 +66,10 @@ public class AncientMethods implements Methods {
     public void handleDropItemEvent(Player player, BlockState blockState, List<Item> items) {
         //
     }
+
+    @Override
+    public int applyMending(Player player, int experience) {
+        // Mending not added until 1.9.
+        return experience;
+    }
 }

@@ -43,4 +43,6 @@ public interface Methods {
     ItemStack getItemInMainHand(@NotNull Player player);
 
     void handleDropItemEvent(Player player, BlockState blockState, List<Item> items);
+
+    int applyMending(Player player, int experience);
 }
