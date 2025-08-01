@@ -39,21 +39,26 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
             }
 
             String typeName = matcher.group(1);
+            String id;
+            boolean powerPickaxe;
+            if (typeName.equalsIgnoreCase("powerpickaxe")) {
+                id = matcher.group(2);
+                powerPickaxe = true;
+            } else {
+                powerPickaxe = false;
+                Type type = MMOItems.plugin.getTypes().get(typeName);
+                if (type == null) {
+                    throw new ParseException("Invalid MMOItems item type " + typeName + ".");
+                }
 
-            Type type = MMOItems.plugin.getTypes().get(typeName);
+                id = matcher.group(2);
 
-            if (type == null) {
-                throw new ParseException("Invalid MMOItems item type " + typeName + ".");
+                MMOItem item = MMOItems.plugin.getMMOItem(type, id);
+
+                if (item == null) {
+                    throw new ParseException("Invalid MMOItems item '" + type + ":" + id + "'.");
+                }
             }
-
-            String id = matcher.group(2);
-
-            MMOItem item = MMOItems.plugin.getMMOItem(type, id);
-
-            if (item == null) {
-                throw new ParseException("Invalid MMOItems item '" + type + ":" + id + "'.");
-            }
-
             return Condition.of((ctx) -> {
                 ItemStack tool = (ItemStack) ctx.mustVar("tool");
                 NBTItem nbtItem = NBTItem.get(tool);
@@ -63,6 +68,12 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
                 }
 
                 if (!nbtItem.hasType() || !nbtItem.hasTag("MMOITEMS_ITEM_ID")) {
+                    return false;
+                }
+                if (powerPickaxe) {
+                    if (nbtItem.hasTag("MMOITEMS_PICKAXE_POWER")) {
+                        return Integer.parseInt(id) >= nbtItem.getInteger("MMOITEMS_PICKAXE_POWER");
+                    }
                     return false;
                 }
 
