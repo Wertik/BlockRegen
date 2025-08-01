@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.compatibility.impl;
 
-import com.linecorp.conditional.Condition;
+import nl.aurorion.blockregen.conditional.Condition;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.Type;

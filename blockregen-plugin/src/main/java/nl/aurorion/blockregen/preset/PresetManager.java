@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.preset;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.google.common.base.Strings;
-import com.linecorp.conditional.Condition;
+import nl.aurorion.blockregen.conditional.Condition;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
@@ -277,7 +277,7 @@ public class PresetManager {
     private Condition loadConditions(@NotNull ConfigurationSection root, @NotNull String key) {
         Object node = root.get(key);
         if (node == null) {
-            return Condition.trueCondition();
+            return Condition.truthy();
         }
         return Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions);
     }
@@ -410,7 +410,7 @@ public class PresetManager {
                     .ifNotFull(NumberValue.fixed(1))
                     .apply(drop::setAmount);
             LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))
-                    .ifNotFull(Condition.trueCondition())
+                    .ifNotFull(Condition.truthy())
                     .apply(drop::setCondition);
             return drop;
         }
@@ -443,7 +443,7 @@ public class PresetManager {
                 .apply(drop::setCustomModelData);
 
         LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))
-                .ifNotFull(Condition.trueCondition())
+                .ifNotFull(Condition.truthy())
                 .apply(drop::setCondition);
 
         if (section.isSet("item-model")) {

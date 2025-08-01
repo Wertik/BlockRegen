@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.preset.condition;
 
-import com.linecorp.conditional.Condition;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.conditional.Condition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

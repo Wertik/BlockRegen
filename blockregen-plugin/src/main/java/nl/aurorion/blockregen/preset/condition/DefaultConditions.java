@@ -3,8 +3,8 @@ package nl.aurorion.blockregen.preset.condition;
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.collect.Lists;
-import com.linecorp.conditional.Condition;
-import com.linecorp.conditional.ConditionContext;
+import nl.aurorion.blockregen.conditional.Condition;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
@@ -51,9 +51,9 @@ public class DefaultConditions {
                                         }, ConditionRelation.AND))
                                 .extender((ctx) -> {
                                     ItemStack item = (ItemStack) ctx.mustVar("tool");
-                                    return ConditionContext.of(
-                                            "material", XMaterial.matchXMaterial(item),
-                                            "enchants", item.getEnchantments());
+                                    return ConditionContext.empty()
+                                            .with("material", XMaterial.matchXMaterial(item))
+                                            .with("enchants", item.getEnchantments());
                                 }), ConditionRelation.AND)
         );
     }

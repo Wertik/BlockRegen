@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.preset.drop;
 
-import com.linecorp.conditional.Condition;
+import nl.aurorion.blockregen.conditional.Condition;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;

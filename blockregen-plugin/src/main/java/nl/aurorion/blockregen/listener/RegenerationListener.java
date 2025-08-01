@@ -2,7 +2,6 @@ package nl.aurorion.blockregen.listener;
 
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
-import com.linecorp.conditional.ConditionContext;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import lombok.extern.java.Log;
@@ -10,6 +9,7 @@ import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
 import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.preset.drop.DropItem;
@@ -188,11 +188,10 @@ public class RegenerationListener implements Listener {
             return;
         }
 
-        ConditionContext ctx = ConditionContext.of(
-                "player", player,
-                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player),
-                "block", block
-        );
+        ConditionContext ctx = ConditionContext.empty()
+                .with("player", player)
+                .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
+                .with("block", block);
 
         // Check advanced conditions
         try {
@@ -446,11 +445,10 @@ public class RegenerationListener implements Listener {
         Function<String, String> parser = (str) -> Text.parse(str, player, block);
 
         // Conditions
-        ConditionContext ctx = ConditionContext.of(
-                "player", player,
-                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player),
-                "block", block
-        );
+        ConditionContext ctx = ConditionContext.empty()
+                .with("player", player)
+                .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
+                .with("block", block);
 
         // Run rewards async
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {

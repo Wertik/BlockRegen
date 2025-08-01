@@ -1,8 +1,8 @@
 package nl.aurorion.blockregen;
 
-import com.linecorp.conditional.Condition;
-import com.linecorp.conditional.ConditionContext;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.conditional.Condition;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.preset.condition.ConditionProvider;
 import nl.aurorion.blockregen.preset.condition.ConditionRelation;
 import nl.aurorion.blockregen.preset.condition.Conditions;
@@ -36,9 +36,9 @@ public class ConditionLoadingTests {
     private final GenericConditionProvider conditionProvider = GenericConditionProvider.empty();
 
     public ConditionLoadingTests() {
-        this.conditionProvider.addProvider("above", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") > Integer.parseInt(String.valueOf(node))).alias("above"));
-        this.conditionProvider.addProvider("below", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") < Integer.parseInt(String.valueOf(node))).alias("below"));
-        this.conditionProvider.addProvider("equals", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") == Integer.parseInt(String.valueOf(node))).alias("equals"));
+        this.conditionProvider.addProvider("above", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") > Integer.parseInt(String.valueOf(node)), "above"));
+        this.conditionProvider.addProvider("below", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") < Integer.parseInt(String.valueOf(node)), "below"));
+        this.conditionProvider.addProvider("equals", (key, node) -> Condition.of((ctx) -> (int) ctx.mustVar("value") == Integer.parseInt(String.valueOf(node)), "equals"));
     }
 
     @Test
@@ -211,7 +211,7 @@ public class ConditionLoadingTests {
     @Test
     public void propagatesContextThroughWrappers() {
         Condition condition = Conditions.wrap(
-                Condition.of((ctx) -> (double) ctx.mustVar("sqrt") > 2).alias("sqrt > 2"),
+                Condition.of((ctx) -> (double) ctx.mustVar("sqrt") > 2, "sqrt > 2"),
                 (ctx) -> {
                     // Take value and sqrt it
                     int v = (int) ctx.mustVar("value");

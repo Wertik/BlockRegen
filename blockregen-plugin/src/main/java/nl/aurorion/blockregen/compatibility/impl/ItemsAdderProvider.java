@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.compatibility.impl;
 
-import com.linecorp.conditional.Condition;
+import nl.aurorion.blockregen.conditional.Condition;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import lombok.extern.java.Log;

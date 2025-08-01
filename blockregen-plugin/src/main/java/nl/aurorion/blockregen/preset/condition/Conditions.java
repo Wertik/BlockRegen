@@ -1,8 +1,8 @@
 package nl.aurorion.blockregen.preset.condition;
 
-import com.linecorp.conditional.Condition;
-import com.linecorp.conditional.ConditionContext;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.conditional.Condition;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -140,7 +140,7 @@ public class Conditions {
         Map<String, Object> result = new HashMap<>();
 
         for (ConditionContext context : contexts) {
-            Map<String, Object> vars = context.contextVariables();
+            Map<String, Object> vars = context.values();
             result.putAll(vars);
         }
         return ConditionContext.of(result);
