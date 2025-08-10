@@ -5,10 +5,10 @@ import com.cryptomorin.xseries.XMaterial;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -125,12 +125,12 @@ public class RegenerationListener implements Listener {
         World world = block.getWorld();
 
         boolean useRegions = plugin.getConfig().getBoolean("Use-Regions", false);
-        RegenerationArea region = plugin.getRegionManager().getArea(block);
+        RegenerationArea area = plugin.getRegionManager().getArea(block);
 
         boolean isInWorld = plugin.getConfig().getStringList("Worlds-Enabled").contains(world.getName());
-        boolean isInRegion = region != null;
+        boolean isInArea = area != null;
 
-        boolean isInZone = useRegions ? isInRegion : isInWorld;
+        boolean isInZone = useRegions ? isInArea : isInWorld;
 
         if (!isInZone) {
             return;
@@ -138,15 +138,11 @@ public class RegenerationListener implements Listener {
 
         log.fine(() -> String.format("Handling %s.", Locations.locationToString(block.getLocation())));
 
-        BlockPreset preset = plugin.getPresetManager().getPreset(block, region);
+        BlockPreset preset = plugin.getPresetManager().getPreset(block, area);
 
-        boolean isConfigured = useRegions ? preset != null && region.hasPreset(preset.getName()) : preset != null;
+        boolean isConfigured = preset != null;
 
         if (!isConfigured) {
-            if (useRegions && preset != null && !region.hasPreset(preset.getName())) {
-                log.fine(() -> String.format("Region %s does not have preset %s configured.", region.getName(), preset.getName()));
-            }
-
             if (plugin.getConfig().getBoolean("Disable-Other-Break")) {
                 event.setCancelled(true);
                 log.fine(() -> String.format("%s is not a configured preset. Denied block break.", block.getType()));
@@ -158,10 +154,10 @@ public class RegenerationListener implements Listener {
         }
 
         // Check region permissions
-        if (isInRegion && lacksPermission(player, "blockregen.region", region.getName()) && !player.isOp()) {
+        if (isInArea && lacksPermission(player, "blockregen.region", area.getName()) && !player.isOp()) {
             event.setCancelled(true);
             Message.PERMISSION_REGION_ERROR.send(player);
-            log.fine(() -> String.format("Player doesn't have permissions for region %s", region.getName()));
+            log.fine(() -> String.format("Player doesn't have permissions for region %s", area.getName()));
             return;
         }
 
@@ -207,12 +203,9 @@ public class RegenerationListener implements Listener {
             return;
         }
 
-        // Event API
-        // todo: fire for trampling as well?
-        if (event instanceof BlockBreakEvent) {
-            BlockBreakEvent blockBreakEvent = (BlockBreakEvent) event;
-
-            BlockRegenBlockBreakEvent blockRegenBlockBreakEvent = new BlockRegenBlockBreakEvent(blockBreakEvent, preset);
+        if (event instanceof Event) {
+            Event e = (Event) event;
+            BlockRegenBlockBreakEvent blockRegenBlockBreakEvent = new BlockRegenBlockBreakEvent(block, preset, e, type, area);
             Bukkit.getServer().getPluginManager().callEvent(blockRegenBlockBreakEvent);
 
             if (blockRegenBlockBreakEvent.isCancelled()) {
@@ -238,7 +231,7 @@ public class RegenerationListener implements Listener {
 
         // Multiblock vegetation - sugarcane, cacti, bamboo
         if (Blocks.isMultiblockCrop(plugin, block) && preset.isHandleCrops()) {
-            handleMultiblockCrop(block, player, preset, region, vanillaExperience);
+            handleMultiblockCrop(block, player, preset, area, vanillaExperience);
             return;
         }
 
@@ -246,21 +239,21 @@ public class RegenerationListener implements Listener {
         log.fine(() -> "Above: " + above.getType());
 
         // Crop possibly above this block.
-        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, region);
+        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, area);
         if (abovePreset != null && abovePreset.isHandleCrops()) {
             XMaterial aboveType = plugin.getBlockType(above);
 
             if (aboveType != null) {
                 if (Blocks.isMultiblockCrop(aboveType)) {
                     // Multiblock crops (cactus, sugarcane,...)
-                    handleMultiblockCrop(above, player, abovePreset, region, vanillaExperience);
+                    handleMultiblockCrop(above, player, abovePreset, area, vanillaExperience);
                 } else if (XBlock.isCrop(aboveType) || Blocks.reliesOnBlockBelow(aboveType)) {
                     // Single crops (wheat, carrots,...)
                     log.fine(() -> "Handling block above...");
 
                     List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
-                    RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, region);
+                    RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, area);
                     process.start();
 
                     // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
@@ -269,7 +262,7 @@ public class RegenerationListener implements Listener {
             }
         }
 
-        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, region);
+        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, area);
         handleBreak(process, preset, block, player, vanillaExperience);
     }
 
