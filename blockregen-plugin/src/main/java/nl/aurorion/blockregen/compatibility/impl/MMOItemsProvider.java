@@ -7,7 +7,7 @@ import net.Indyuce.mmoitems.api.Type;
 import net.Indyuce.mmoitems.api.block.CustomBlock;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MMOIItemsMaterial;

@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.mock;
 
-import nl.aurorion.blockregen.api.version.VersionManager;
+import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.version.api.*;
 
 public class MockVersionManager implements VersionManager {

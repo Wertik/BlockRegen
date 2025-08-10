@@ -4,7 +4,7 @@ import nl.aurorion.blockregen.conditional.Condition;
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.api.NexoItems;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.NexoMaterial;

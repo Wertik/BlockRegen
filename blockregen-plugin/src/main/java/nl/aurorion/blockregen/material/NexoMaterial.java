@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.material;
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.mechanics.Mechanic;
 import lombok.Getter;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

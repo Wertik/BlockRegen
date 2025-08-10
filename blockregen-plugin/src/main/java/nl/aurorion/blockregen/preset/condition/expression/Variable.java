@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.preset.condition.expression;
 import nl.aurorion.blockregen.conditional.ConditionContext;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.util.Text;
 import org.bukkit.entity.Player;
 

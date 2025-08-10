@@ -10,7 +10,7 @@ import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import nl.aurorion.blockregen.preset.condition.expression.Operand;

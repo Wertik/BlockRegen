@@ -4,7 +4,7 @@ import lombok.extern.java.Log;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.block.CustomBlock;
 import net.Indyuce.mmoitems.api.util.MushroomState;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.block.Block;
 
 import java.util.Optional;

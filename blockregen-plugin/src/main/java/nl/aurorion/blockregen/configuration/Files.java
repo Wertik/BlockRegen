@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.configuration;
 
 import lombok.Getter;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 
 public class Files {
 

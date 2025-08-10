@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.compatibility.impl;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;

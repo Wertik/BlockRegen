@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.regeneration;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.AutoSaveTask;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;

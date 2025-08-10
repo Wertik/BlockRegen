@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.drop.ItemProvider;

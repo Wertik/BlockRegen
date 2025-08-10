@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.compatibility;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 
 // Provider for compatibility with other plugins.
 @Log
