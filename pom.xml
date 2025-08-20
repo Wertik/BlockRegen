@@ -5,7 +5,7 @@
 
     <groupId>nl.aurorion.blockregen</groupId>
     <artifactId>BlockRegen</artifactId>
-    <version>3.24.0</version>
+    <version>3.24.1</version>
     <modules>
         <module>blockregen-version</module>
         <module>blockregen-common</module>
@@ -21,6 +21,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>8</maven.compiler.release>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
 
     <build>
