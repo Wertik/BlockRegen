@@ -70,13 +70,14 @@ public class PresetRewards {
 
     private List<Command> parseCommands(@NotNull List<String> strCommands) {
         List<Command> commands = new ArrayList<>();
-        // Parse the input.
+
         for (String strCmd : strCommands) {
             if (strCmd.contains(";")) {
-                String[] args = strCmd.split(";");
+                // Split around any extra spaces.
+                // 50 ; say Hello
+                String[] args = strCmd.split(" *; *");
 
                 double chance;
-
                 try {
                     chance = Double.parseDouble(args[0]);
                 } catch (NumberFormatException e) {
