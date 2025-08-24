@@ -2,14 +2,14 @@ package nl.aurorion.blockregen.listener;
 
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
-import com.linecorp.conditional.ConditionContext;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.preset.drop.DropItem;
@@ -32,12 +32,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -65,7 +67,7 @@ public class RegenerationListener implements Listener {
             return;
         }
 
-        XMaterial xMaterial = plugin.getVersionManager().getMethods().getType(block);
+        XMaterial xMaterial = plugin.getBlockType(block);
         if (xMaterial != XMaterial.FARMLAND) {
             return;
         }
@@ -123,12 +125,12 @@ public class RegenerationListener implements Listener {
         World world = block.getWorld();
 
         boolean useRegions = plugin.getConfig().getBoolean("Use-Regions", false);
-        RegenerationArea region = plugin.getRegionManager().getArea(block);
+        RegenerationArea area = plugin.getRegionManager().getArea(block);
 
         boolean isInWorld = plugin.getConfig().getStringList("Worlds-Enabled").contains(world.getName());
-        boolean isInRegion = region != null;
+        boolean isInArea = area != null;
 
-        boolean isInZone = useRegions ? isInRegion : isInWorld;
+        boolean isInZone = useRegions ? isInArea : isInWorld;
 
         if (!isInZone) {
             return;
@@ -136,15 +138,11 @@ public class RegenerationListener implements Listener {
 
         log.fine(() -> String.format("Handling %s.", Locations.locationToString(block.getLocation())));
 
-        BlockPreset preset = plugin.getPresetManager().getPreset(block, region);
+        BlockPreset preset = plugin.getPresetManager().getPreset(block, area);
 
-        boolean isConfigured = useRegions ? preset != null && region.hasPreset(preset.getName()) : preset != null;
+        boolean isConfigured = preset != null;
 
         if (!isConfigured) {
-            if (useRegions && preset != null && !region.hasPreset(preset.getName())) {
-                log.fine(() -> String.format("Region %s does not have preset %s configured.", region.getName(), preset.getName()));
-            }
-
             if (plugin.getConfig().getBoolean("Disable-Other-Break")) {
                 event.setCancelled(true);
                 log.fine(() -> String.format("%s is not a configured preset. Denied block break.", block.getType()));
@@ -156,10 +154,10 @@ public class RegenerationListener implements Listener {
         }
 
         // Check region permissions
-        if (isInRegion && lacksPermission(player, "blockregen.region", region.getName()) && !player.isOp()) {
+        if (isInArea && lacksPermission(player, "blockregen.region", area.getName()) && !player.isOp()) {
             event.setCancelled(true);
             Message.PERMISSION_REGION_ERROR.send(player);
-            log.fine(() -> String.format("Player doesn't have permissions for region %s", region.getName()));
+            log.fine(() -> String.format("Player doesn't have permissions for region %s", area.getName()));
             return;
         }
 
@@ -187,11 +185,10 @@ public class RegenerationListener implements Listener {
             return;
         }
 
-        ConditionContext ctx = ConditionContext.of(
-                "player", player,
-                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player),
-                "block", block
-        );
+        ConditionContext ctx = ConditionContext.empty()
+                .with("player", player)
+                .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
+                .with("block", block);
 
         // Check advanced conditions
         try {
@@ -206,12 +203,9 @@ public class RegenerationListener implements Listener {
             return;
         }
 
-        // Event API
-        // todo: fire for trampling as well?
-        if (event instanceof BlockBreakEvent) {
-            BlockBreakEvent blockBreakEvent = (BlockBreakEvent) event;
-
-            BlockRegenBlockBreakEvent blockRegenBlockBreakEvent = new BlockRegenBlockBreakEvent(blockBreakEvent, preset);
+        if (event instanceof Event) {
+            Event e = (Event) event;
+            BlockRegenBlockBreakEvent blockRegenBlockBreakEvent = new BlockRegenBlockBreakEvent(block, preset, e, type, area);
             Bukkit.getServer().getPluginManager().callEvent(blockRegenBlockBreakEvent);
 
             if (blockRegenBlockBreakEvent.isCancelled()) {
@@ -237,7 +231,7 @@ public class RegenerationListener implements Listener {
 
         // Multiblock vegetation - sugarcane, cacti, bamboo
         if (Blocks.isMultiblockCrop(plugin, block) && preset.isHandleCrops()) {
-            handleMultiblockCrop(block, player, preset, region, vanillaExperience);
+            handleMultiblockCrop(block, player, preset, area, vanillaExperience);
             return;
         }
 
@@ -245,28 +239,30 @@ public class RegenerationListener implements Listener {
         log.fine(() -> "Above: " + above.getType());
 
         // Crop possibly above this block.
-        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, region);
+        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, area);
         if (abovePreset != null && abovePreset.isHandleCrops()) {
-            XMaterial aboveType = plugin.getVersionManager().getMethods().getType(above);
+            XMaterial aboveType = plugin.getBlockType(above);
 
-            if (Blocks.isMultiblockCrop(plugin, above)) {
-                // Multiblock crops (cactus, sugarcane,...)
-                handleMultiblockCrop(above, player, abovePreset, region, vanillaExperience);
-            } else if (XBlock.isCrop(aboveType) || Blocks.reliesOnBlockBelow(aboveType)) {
-                // Single crops (wheat, carrots,...)
-                log.fine(() -> "Handling block above...");
+            if (aboveType != null) {
+                if (Blocks.isMultiblockCrop(aboveType)) {
+                    // Multiblock crops (cactus, sugarcane,...)
+                    handleMultiblockCrop(above, player, abovePreset, area, vanillaExperience);
+                } else if (XBlock.isCrop(aboveType) || Blocks.reliesOnBlockBelow(aboveType)) {
+                    // Single crops (wheat, carrots,...)
+                    log.fine(() -> "Handling block above...");
 
-                List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
+                    List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
-                RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, region);
-                process.start();
+                    RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, area);
+                    process.start();
 
-                // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
-                handleRewards(above.getState(), abovePreset, player, vanillaDrops, 0);
+                    // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
+                    handleRewards(above.getState(), abovePreset, player, vanillaDrops, 0);
+                }
             }
         }
 
-        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, region);
+        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, area);
         handleBreak(process, preset, block, player, vanillaExperience);
     }
 
@@ -351,7 +347,17 @@ public class RegenerationListener implements Listener {
             }
         }, area);
 
-        Block base = findBase(block);
+        Block base;
+        try {
+            base = findBase(block);
+        } catch (IllegalArgumentException e) {
+            // invalid material
+            log.fine(() -> "handleMultiBlockCrop: " + e.getMessage());
+            if (!plugin.getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                throw e;
+            }
+            return;
+        }
 
         log.fine(() -> "Base " + Blocks.blockToString(base));
 
@@ -433,16 +439,15 @@ public class RegenerationListener implements Listener {
         Function<String, String> parser = (str) -> Text.parse(str, player, block);
 
         // Conditions
-        ConditionContext ctx = ConditionContext.of(
-                "player", player,
-                "tool", plugin.getVersionManager().getMethods().getItemInMainHand(player),
-                "block", block
-        );
+        ConditionContext ctx = ConditionContext.empty()
+                .with("player", player)
+                .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
+                .with("block", block);
 
         // Run rewards async
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Map<ItemStack, Boolean> drops = new HashMap<>();
-            int experience = 0;
+            AtomicInteger experience = new AtomicInteger(0);
 
             // Items and exp
             if (preset.isNaturalBreak()) {
@@ -451,7 +456,7 @@ public class RegenerationListener implements Listener {
                     drops.put(drop, preset.isDropNaturally());
                 }
 
-                experience += vanillaExperience;
+                experience.addAndGet(vanillaExperience);
             } else {
                 for (DropItem drop : preset.getRewards().getDrops()) {
                     log.fine(drop.getCondition() + " " + drop.getCondition().matches(ctx));
@@ -475,7 +480,7 @@ public class RegenerationListener implements Listener {
 
                     ExperienceDrop experienceDrop = drop.getExperienceDrop();
                     if (experienceDrop != null) {
-                        experience += experienceDrop.getAmount().getInt();
+                        experience.addAndGet(experienceDrop.getAmount().getInt());
                     }
                 }
             }
@@ -490,7 +495,7 @@ public class RegenerationListener implements Listener {
                     drops.keySet().forEach(drop -> drop.setAmount(drop.getAmount() * 2));
                 }
                 if (presetEvent.isDoubleExperience()) {
-                    experience *= 2;
+                    experience.set(experience.get() * 2);
                 }
 
                 // Item reward
@@ -525,7 +530,7 @@ public class RegenerationListener implements Listener {
 
             // Drop/give all the items & experience at once
             giveItems(drops, state, player);
-            giveExp(block.getLocation(), player, experience, preset.isDropNaturally());
+            giveExp(block.getLocation(), player, experience.get(), preset.isDropNaturally(), preset.isApplyMending());
 
             // Trigger Jobs Break if enabled
             if (plugin.getConfig().getBoolean("Jobs-Rewards", false) && plugin.getCompatibilityManager().getJobs().isLoaded()) {
@@ -533,7 +538,7 @@ public class RegenerationListener implements Listener {
             }
 
             // Other rewards - commands, money etc.
-            preset.getRewards().give(player, (str) -> Text.parse(str, player, block));
+            preset.getRewards().give(player, (str) -> Text.replace(Text.parse(str, player, block), "earned_experience", experience.get()));
 
             if (preset.getSound() != null) {
                 preset.getSound().play(block.getLocation());
@@ -556,16 +561,24 @@ public class RegenerationListener implements Listener {
         log.fine(() -> String.format("Spawning xp (%d).", amount));
     }
 
-    private void giveExp(Location location, Player player, int amount, boolean naturally) {
-
-        if (amount == 0) {
+    /**
+     * @param applyMending Whether to apply mending when {@code naturally} is false.
+     */
+    private void giveExp(@NotNull Location location, @NotNull Player player, int amount, boolean naturally, boolean applyMending) {
+        if (amount <= 0) {
             return;
         }
 
         if (naturally) {
             spawnExp(location, amount);
         } else {
-            player.giveExp(amount);
+            if (applyMending) {
+                // Simulate mending. On Spigot there's no API. 1.13+
+                int remainingExperience = plugin.getVersionManager().getMethods().applyMending(player, amount);
+                player.giveExp(remainingExperience);
+            } else {
+                player.giveExp(amount);
+            }
         }
     }
 

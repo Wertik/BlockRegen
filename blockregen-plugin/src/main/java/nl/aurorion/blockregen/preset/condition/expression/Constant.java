@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
-import com.linecorp.conditional.ConditionContext;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import lombok.Getter;
 
 public class Constant implements Operand {

@@ -2,11 +2,16 @@ package nl.aurorion.blockregen.api;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.aurorion.blockregen.listener.EventType;
 import nl.aurorion.blockregen.preset.BlockPreset;
+import nl.aurorion.blockregen.region.struct.RegenerationArea;
+import org.bukkit.block.Block;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Fired after the original BlockBreakEvent.
@@ -17,18 +22,29 @@ public class BlockRegenBlockBreakEvent extends BlockRegenBlockEvent implements C
     private static final HandlerList HANDLERS = new HandlerList();
 
     /**
-     * Original BLockBreakEvent which caused BlockRegen to take action.
+     * The event that caused BlockRegen triggering.
      */
     @Getter
-    private final BlockBreakEvent blockBreakEvent;
+    @NotNull
+    private final Event event;
+
+    @Getter
+    @NotNull
+    private final EventType eventType;
+
+    @Getter
+    @Nullable
+    private final RegenerationArea area;
 
     @Getter
     @Setter
     private boolean cancelled = false;
 
-    public BlockRegenBlockBreakEvent(BlockBreakEvent blockBreakEvent, BlockPreset blockPreset) {
-        super(blockBreakEvent.getBlock(), blockPreset);
-        this.blockBreakEvent = blockBreakEvent;
+    public BlockRegenBlockBreakEvent(@NotNull Block block, @NotNull BlockPreset blockPreset, @NotNull Event event, @NotNull EventType eventType, @Nullable RegenerationArea area) {
+        super(block, blockPreset);
+        this.event = event;
+        this.eventType = eventType;
+        this.area = area;
     }
 
     public static HandlerList getHandlerList() {

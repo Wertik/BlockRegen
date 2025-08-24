@@ -1,8 +1,6 @@
-package nl.aurorion.blockregen.api;
+package nl.aurorion.blockregen;
 
-import nl.aurorion.blockregen.BlockRegenPluginImpl;
-import nl.aurorion.blockregen.ConsoleHandler;
-import nl.aurorion.blockregen.GsonHelper;
+import com.cryptomorin.xseries.XMaterial;
 import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
 import nl.aurorion.blockregen.drop.ItemManager;
@@ -12,7 +10,8 @@ import nl.aurorion.blockregen.particle.ParticleManager;
 import nl.aurorion.blockregen.preset.PresetManager;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
-import nl.aurorion.blockregen.api.version.VersionManager;
+import nl.aurorion.blockregen.version.VersionManager;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -29,8 +28,7 @@ public interface BlockRegenPlugin extends Plugin {
 
     void reload(CommandSender sender);
 
-    @NotNull
-    Level getLogLevel();
+    @NotNull Level getLogLevel();
 
     void setLogLevel(@NotNull Level level);
 
@@ -62,6 +60,8 @@ public interface BlockRegenPlugin extends Plugin {
     GsonHelper getGsonHelper();
 
     ConsoleHandler getConsoleHandler();
+
+    XMaterial getBlockType(Block block);
 
     @NotNull CompatibilityManager getCompatibilityManager();
 }

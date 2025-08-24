@@ -3,12 +3,12 @@ package nl.aurorion.blockregen.preset;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.google.common.base.Strings;
-import com.linecorp.conditional.Condition;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.event.struct.EventBossBar;
@@ -192,6 +192,9 @@ public class PresetManager {
         // Drop naturally
         preset.setDropNaturally(section.getBoolean("drop-naturally", true));
 
+        // Apply mending
+        preset.setApplyMending(section.getBoolean("apply-mending", true));
+
         // Handle crops
         preset.setHandleCrops(section.getBoolean("handle-crops", true));
 
@@ -277,7 +280,7 @@ public class PresetManager {
     private Condition loadConditions(@NotNull ConfigurationSection root, @NotNull String key) {
         Object node = root.get(key);
         if (node == null) {
-            return Condition.trueCondition();
+            return Condition.truthy();
         }
         return Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions);
     }
@@ -410,7 +413,7 @@ public class PresetManager {
                     .ifNotFull(NumberValue.fixed(1))
                     .apply(drop::setAmount);
             LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))
-                    .ifNotFull(Condition.trueCondition())
+                    .ifNotFull(Condition.truthy())
                     .apply(drop::setCondition);
             return drop;
         }
@@ -443,7 +446,7 @@ public class PresetManager {
                 .apply(drop::setCustomModelData);
 
         LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))
-                .ifNotFull(Condition.trueCondition())
+                .ifNotFull(Condition.truthy())
                 .apply(drop::setCondition);
 
         if (section.isSet("item-model")) {

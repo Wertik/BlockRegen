@@ -4,8 +4,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
-import nl.aurorion.blockregen.api.version.VersionManager;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.util.Versions;
 import nl.aurorion.blockregen.version.ancient.AncientMethods;
 import nl.aurorion.blockregen.version.ancient.AncientNodeData;
@@ -54,7 +53,8 @@ public class VersionManagerImpl implements VersionManager {
         setupWorldGuard();
 
         /*
-         * Latest - 1.13+
+         * Pink 1.20+
+         * Latest/Modern - 1.13+
          * Legacy - 1.12 - 1.9
          * Ancient - 1.8 - 1.7
          */

@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.util;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.experimental.UtilityClass;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.block.Block;
 
 @UtilityClass

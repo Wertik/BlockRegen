@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.version.current;
 
 import com.cryptomorin.xseries.XBlock;
+import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
@@ -12,11 +13,15 @@ import org.bukkit.block.BlockState;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -101,5 +106,82 @@ public class LatestMethods implements Methods {
     @Override
     public @NotNull ItemStack getItemInMainHand(@NotNull Player player) {
         return player.getInventory().getItemInMainHand();
+    }
+
+    @Nullable
+    private ItemStack getRepairableItem(@NotNull Player player) {
+        Enchantment mending = XEnchantment.MENDING.get();
+
+        if (mending == null) {
+            log.fine("Mending not supported");
+            return null;
+        }
+
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack item = player.getInventory().getItem(slot);
+
+            if (item == null) {
+                continue;
+            }
+
+            ItemMeta meta = item.getItemMeta();
+
+            // Damageable added in 1.13
+            if (!(meta instanceof Damageable)) {
+                continue;
+            }
+
+            Damageable damageable = (Damageable) meta;
+
+            if (!damageable.hasDamage()) {
+                continue;
+            }
+
+            if (meta.getEnchantLevel(mending) > 0) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Apply the mending enchantment to the players items.
+     *
+     * @return experience How much experience wasn't used up by mending and should be added to the players exp.
+     */
+    @Override
+    public int applyMending(@NotNull Player player, int experience) {
+        if (experience <= 0) {
+            return 0;
+        }
+
+        ItemStack repairableItem = getRepairableItem(player);
+
+        if (repairableItem == null) {
+            return experience;
+        }
+
+        // Actually repair the item.
+        ItemMeta meta = repairableItem.getItemMeta();
+
+        if (meta == null) {
+            return experience;
+        }
+
+        Damageable damageable = (Damageable) meta;
+
+        int totalDurability = experience * 2;
+
+        int min = Math.min(totalDurability, damageable.getDamage());
+
+        int experienceUsed = (int) Math.ceil(min / 2.0);
+
+        // PlayerItemMendEvent un-callable due to ExperienceOrb being required. We don't have one. Too much effort.
+
+        damageable.setDamage(damageable.getDamage() - min);
+
+        repairableItem.setItemMeta(meta);
+
+        return applyMending(player, experience - experienceUsed);
     }
 }

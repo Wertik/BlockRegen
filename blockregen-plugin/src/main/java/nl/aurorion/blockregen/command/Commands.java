@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.command;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.collect.Lists;
 import nl.aurorion.blockregen.Message;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;

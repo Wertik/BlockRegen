@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.preset;
 
 import com.cryptomorin.xseries.XSound;
-import com.linecorp.conditional.Condition;
+import nl.aurorion.blockregen.conditional.Condition;
 import lombok.Data;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
@@ -27,6 +27,7 @@ public class BlockPreset {
     private boolean naturalBreak;
     private boolean applyFortune;
     private boolean dropNaturally;
+    private boolean applyMending;
 
     // Disable physics of neighbouring blocks
     private boolean disablePhysics;

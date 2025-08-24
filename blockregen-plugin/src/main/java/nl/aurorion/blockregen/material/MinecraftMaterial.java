@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.material;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.Getter;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.util.Blocks;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.block.Block;
@@ -33,13 +33,8 @@ public class MinecraftMaterial implements BlockRegenMaterial {
 
     @Override
     public boolean check(Block block) {
-        boolean res = this.plugin.getVersionManager().getMethods().compareType(block, this.material);
-
-        if (this.nodeData != null) {
-            res &= this.nodeData.matches(block);
-        }
-
-        return res;
+        XMaterial xMaterial = this.plugin.getBlockType(block);
+        return xMaterial == this.material && (this.nodeData == null || this.nodeData.matches(block));
     }
 
     @Override

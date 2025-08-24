@@ -42,6 +42,8 @@ public class LatestNodeData implements NodeData {
 
     private String skull;
 
+    private Boolean waterlogged;
+
     // -- Note Blocks
 
     private Boolean powered;
@@ -121,6 +123,13 @@ public class LatestNodeData implements NodeData {
             }
         }
 
+        if (data instanceof Waterlogged && this.waterlogged != null) {
+            Waterlogged waterlogged = (Waterlogged) data;
+            if (waterlogged.isWaterlogged() != this.waterlogged) {
+                return false;
+            }
+        }
+
         if (data instanceof NoteBlock) {
             NoteBlock noteBlock = (NoteBlock) data;
             if (this.octave != null && this.octave != noteBlock.getNote().getOctave()) {
@@ -195,6 +204,11 @@ public class LatestNodeData implements NodeData {
             this.age = ageable.getAge();
         }
 
+        if (data instanceof Waterlogged) {
+            Waterlogged waterlogged = (Waterlogged) data;
+            this.waterlogged = waterlogged.isWaterlogged();
+        }
+
         if (data instanceof NoteBlock) {
             NoteBlock noteBlock = (NoteBlock) data;
             this.instrument = noteBlock.getInstrument();
@@ -245,6 +259,11 @@ public class LatestNodeData implements NodeData {
             } else {
                 ageable.setAge(this.age);
             }
+        }
+
+        if (blockData instanceof Waterlogged && this.waterlogged != null) {
+            Waterlogged waterlogged = (Waterlogged) blockData;
+            waterlogged.setWaterlogged(this.waterlogged);
         }
 
         if (blockData instanceof NoteBlock) {

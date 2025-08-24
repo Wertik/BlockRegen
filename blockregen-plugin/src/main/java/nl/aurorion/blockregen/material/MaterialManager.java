@@ -5,7 +5,7 @@ import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.parser.MaterialParser;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;

@@ -3,7 +3,6 @@ package nl.aurorion.blockregen;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.Getter;
 import lombok.Setter;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MaterialManager;
 import nl.aurorion.blockregen.material.MinecraftMaterial;

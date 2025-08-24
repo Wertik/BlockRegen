@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
 import com.google.common.base.Strings;
-import com.linecorp.conditional.ConditionContext;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;

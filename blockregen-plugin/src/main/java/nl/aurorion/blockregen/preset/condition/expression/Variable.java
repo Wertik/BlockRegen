@@ -1,9 +1,9 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
-import com.linecorp.conditional.ConditionContext;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.util.Text;
 import org.bukkit.entity.Player;
 
@@ -19,7 +19,7 @@ public class Variable implements Operand {
 
     @Override
     public Object value(ConditionContext ctx) {
-        String result = Text.parse(content, ctx.contextVariables().values().toArray());
+        String result = Text.parse(content, ctx.values().values().toArray());
         if (BlockRegenPlugin.getInstance().isUsePlaceholderAPI()) {
             result = PlaceholderAPI.setPlaceholders((Player) ctx.mustVar("player"), result);
         }

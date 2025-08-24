@@ -1,11 +1,13 @@
 package nl.aurorion.blockregen.preset;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.preset.drop.DropItem;
+import nl.aurorion.blockregen.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -32,24 +34,27 @@ public class PresetRewards {
     private List<DropItem> drops = new ArrayList<>();
 
     public void give(Player player, Function<String, String> parser) {
+        AtomicDouble money = new AtomicDouble(0.0);
         if (BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().isLoaded()) {
-            double money = this.money.getDouble();
-            if (money > 0) {
-                BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().get().depositPlayer(player, money);
+            money.set(this.money.getDouble());
+            double m = money.get();
+            if (m > 0) {
+                BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().get().depositPlayer(player, m);
             }
         }
 
-        // Sync commands
+        final Function<String, String> finalParser = (string) -> Text.replace(parser.apply(string), "earned_money", money.get());
+
         Bukkit.getScheduler().runTask(BlockRegenPluginImpl.getInstance(), () -> {
             for (Command command : playerCommands) {
                 if (command.shouldExecute()) {
-                    Bukkit.dispatchCommand(player, parser.apply(command.getCommand()));
+                    Bukkit.dispatchCommand(player, finalParser.apply(command.getCommand()));
                 }
             }
 
             for (Command command : consoleCommands) {
                 if (command.shouldExecute()) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parser.apply(command.getCommand()));
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalParser.apply(command.getCommand()));
                 }
             }
         });
@@ -65,13 +70,14 @@ public class PresetRewards {
 
     private List<Command> parseCommands(@NotNull List<String> strCommands) {
         List<Command> commands = new ArrayList<>();
-        // Parse the input.
+
         for (String strCmd : strCommands) {
             if (strCmd.contains(";")) {
-                String[] args = strCmd.split(";");
+                // Split around any extra spaces.
+                // 50 ; say Hello
+                String[] args = strCmd.split(" *; *");
 
                 double chance;
-
                 try {
                     chance = Double.parseDouble(args[0]);
                 } catch (NumberFormatException e) {

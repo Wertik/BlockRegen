@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.preset.condition;
 
-import com.linecorp.conditional.ConditionContext;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import org.jetbrains.annotations.NotNull;
 
 public interface ContextExtender {
@@ -9,7 +9,6 @@ public interface ContextExtender {
      * and the resulting context is merged with the original one.
      *
      * @param ctx Original context.
-     *
      * @return Newly provided context.
      */
     @NotNull

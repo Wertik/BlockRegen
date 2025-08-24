@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.region;
 
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.region.struct.RawRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;

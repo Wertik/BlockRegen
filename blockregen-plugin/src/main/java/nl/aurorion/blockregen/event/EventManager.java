@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.event;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;

@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.api.version;
+package nl.aurorion.blockregen.version;
 
 import nl.aurorion.blockregen.version.api.*;
 

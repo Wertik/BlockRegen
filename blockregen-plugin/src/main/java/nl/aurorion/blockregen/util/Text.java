@@ -6,6 +6,7 @@ import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -19,13 +20,21 @@ public class Text {
     private static final Map<String, Pattern> PATTERNS = new HashMap<>();
 
     @NotNull
-    private static Pattern getPattern(@NotNull String placeholder) {
+    public static Pattern getPattern(@NotNull String placeholder) {
         Pattern pattern = PATTERNS.get(placeholder);
         if (pattern == null) {
             pattern = Pattern.compile("(?i)%" + placeholder + "%");
             PATTERNS.put(placeholder, pattern);
         }
         return pattern;
+    }
+
+    @Contract("null,_,_->null")
+    public static String replace(String text, @NotNull String placeholder, Object value) {
+        if (Strings.isNullOrEmpty(text)) {
+            return text;
+        }
+        return getPattern(placeholder).matcher(text).replaceAll(String.valueOf(value));
     }
 
     // Parse placeholders with different objects as context.
@@ -43,16 +52,16 @@ public class Text {
                 if (BlockRegenPluginImpl.getInstance().isUsePlaceholderAPI()) {
                     string = PlaceholderAPI.setPlaceholders((Player) o, string);
                 }
-                string = getPattern("player_x").matcher(string).replaceAll(String.valueOf(Math.round(player.getLocation().getX())));
-                string = getPattern("player_y").matcher(string).replaceAll(String.valueOf(Math.round(player.getLocation().getY())));
-                string = getPattern("player_z").matcher(string).replaceAll(String.valueOf(Math.round(player.getLocation().getZ())));
-                string = getPattern("player_world").matcher(string).replaceAll(player.getLocation().getWorld().getName());
+                string = Text.replace(string, "player_x", Math.round(player.getLocation().getX()));
+                string = Text.replace(string, "player_y", Math.round(player.getLocation().getY()));
+                string = Text.replace(string, "player_z", Math.round(player.getLocation().getZ()));
+                string = Text.replace(string, "player_world", player.getLocation().getWorld().getName());
             } else if (o instanceof Block) {
                 Block block = (Block) o;
-                string = getPattern("block_x").matcher(string).replaceAll(String.valueOf(block.getLocation().getBlockX()));
-                string = getPattern("block_y").matcher(string).replaceAll(String.valueOf(block.getLocation().getBlockY()));
-                string = getPattern("block_z").matcher(string).replaceAll(String.valueOf(block.getLocation().getBlockZ()));
-                string = getPattern("block_world").matcher(string).replaceAll(block.getWorld().getName());
+                string = Text.replace(string, "block_x", block.getLocation().getBlockX());
+                string = Text.replace(string, "block_y", block.getLocation().getBlockY());
+                string = Text.replace(string, "block_z", block.getLocation().getBlockZ());
+                string = Text.replace(string, "block_world", block.getWorld().getName());
             }
         }
 

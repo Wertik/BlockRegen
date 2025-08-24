@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.drop;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.api.BlockRegenPlugin;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

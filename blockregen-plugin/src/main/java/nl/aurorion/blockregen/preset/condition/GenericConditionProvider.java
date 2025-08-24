@@ -1,11 +1,12 @@
 package nl.aurorion.blockregen.preset.condition;
 
-import com.linecorp.conditional.ComposedCondition;
-import com.linecorp.conditional.Condition;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.conditional.ComposedCondition;
+import nl.aurorion.blockregen.conditional.Condition;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Log
 public class GenericConditionProvider implements ConditionProvider {
 
     @Getter
@@ -131,9 +133,13 @@ public class GenericConditionProvider implements ConditionProvider {
                     entry.getRelation(),
                     entry.getProvider());
 
+            log.fine(String.valueOf(condition instanceof ComposedCondition));
+            log.fine(condition.getAlias());
+            log.fine(key);
+
             // Don't alias composed conditions to let them unwind go deeper on #toString.
-            if (!(condition instanceof ComposedCondition) && condition.alias() == null) {
-                condition = condition.alias(key);
+            if (!(condition instanceof ComposedCondition) && condition.getAlias() == null) {
+                condition.alias(key);
             }
         } catch (ParseException e) {
             throw new ParseException("Failed to parse '" + key + "': " + e.getMessage(), e);
