@@ -405,7 +405,10 @@ public class PresetManager {
             }
 
             DropItem drop = new ExternalDropItem(provider, id);
+
             drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
+            drop.setApplyFortune(section.getBoolean("apply-fortune", preset.isApplyFortune()));
+
             LoadResult.tryLoad(section, "chance", NumberValue.Parser::load)
                     .ifNotFull(NumberValue.fixed(100))
                     .apply(drop::setChance);
@@ -435,6 +438,7 @@ public class PresetManager {
                 .collect(Collectors.toSet()));
 
         drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
+        drop.setApplyFortune(section.getBoolean("apply-fortune", preset.isApplyFortune()));
 
         drop.setExperienceDrop(ExperienceDrop.load(section.getConfigurationSection("exp"), drop));
 
