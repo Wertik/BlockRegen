@@ -470,7 +470,7 @@ public class RegenerationListener implements Listener {
                         continue;
                     }
 
-                    if (preset.isApplyFortune()) {
+                    if (drop.isApplyFortune()) {
                         itemStack.setAmount(Items.applyFortune(block.getType(),
                                 plugin.getVersionManager().getMethods().getItemInMainHand(player))
                                 + itemStack.getAmount());
