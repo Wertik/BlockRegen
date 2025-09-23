@@ -224,7 +224,7 @@ public class RegenerationProcess {
         }
 
         regenerateInto.setType(block);
-        originalData.apply(block); // Apply original data
+        if(regenerateInto instanceof MinecraftMaterial) originalData.apply(block); // Only apply original data for vanilla Minecraft materials, not custom blocks
         regenerateInto.applyData(block); // Override with configured data if any
         log.fine(() -> "Regenerated " + this);
     }
@@ -270,7 +270,7 @@ public class RegenerationProcess {
         }
 
         replaceMaterial.setType(block);
-        this.originalData.apply(block); // Apply original data
+        if(replaceMaterial instanceof MinecraftMaterial) this.originalData.apply(block); // Only apply original data for vanilla Minecraft materials, not custom blocks
         replaceMaterial.applyData(block); // Apply configured data if any
 
         // Otherwise skull textures wouldn't update.
