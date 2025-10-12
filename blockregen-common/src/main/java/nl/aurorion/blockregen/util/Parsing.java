@@ -100,7 +100,7 @@ public class Parsing {
 
     /**
      * @throws ParseException If the parsing fails.
-     * */
+     */
     @NotNull
     @Contract("null,_->fail")
     public static XMaterial parseMaterial(@Nullable String input, boolean blocksOnly) {
@@ -123,7 +123,7 @@ public class Parsing {
 
     /**
      * @throws ParseException If the parsing fails.
-     * */
+     */
     @NotNull
     @Contract("null->fail")
     public static XMaterial parseMaterial(@Nullable String input) {
