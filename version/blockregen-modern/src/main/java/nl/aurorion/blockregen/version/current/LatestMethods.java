@@ -31,6 +31,15 @@ import java.util.List;
 @Log
 public class LatestMethods implements Methods {
 
+    private final EquipmentSlot[] PLAYER_EQUIPMENT_SLOTS = {
+            EquipmentSlot.CHEST,
+            EquipmentSlot.FEET,
+            EquipmentSlot.HAND,
+            EquipmentSlot.HEAD,
+            EquipmentSlot.LEGS,
+            EquipmentSlot.OFF_HAND
+    };
+
     @Override
     public boolean isBarColorValid(@Nullable String string) {
         return parseColor(string) != null;
@@ -117,7 +126,7 @@ public class LatestMethods implements Methods {
             return null;
         }
 
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
+        for (EquipmentSlot slot : PLAYER_EQUIPMENT_SLOTS) {
             ItemStack item = player.getInventory().getItem(slot);
 
             if (item == null) {
