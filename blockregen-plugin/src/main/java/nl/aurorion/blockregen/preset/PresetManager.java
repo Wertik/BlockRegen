@@ -469,7 +469,15 @@ public class PresetManager {
                 .ifNotFull(NumberValue.fixed(100))
                 .apply(drop::setChance);
 
-        LoadResult.tryLoad(section, "custom-model-data", String.class, Parsing::parseInt)
+        LoadResult.tryLoad(section, "custom-model-data", (val) -> {
+                    if (val instanceof String) {
+                        return Parsing.parseInt((String) val);
+                    }
+                    if (val instanceof Number) {
+                        return (Integer) val;
+                    }
+                    throw new ParseException(String.format("Invalid type ('%s') of value '%s'",  val.getClass().getSimpleName(), val));
+                })
                 .apply(drop::setCustomModelData);
 
         LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))

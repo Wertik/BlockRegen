@@ -1,9 +1,11 @@
 package nl.aurorion.blockregen.configuration;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +24,9 @@ public class LoadResult<T, E extends Exception> {
     private State state;
     private T value;
     private final E exception;
+
+    @Getter
+    private boolean throwByDefault = true;
 
     private LoadResult(T value, E e, State state) {
         this.value = value;
@@ -147,13 +152,25 @@ public class LoadResult<T, E extends Exception> {
         return this;
     }
 
+    @NotNull
+    public LoadResult<T, E> setThrowByDefault(boolean val) {
+        this.throwByDefault = val;
+        return this;
+    }
+
     public void apply(Consumer<T> consumer) {
+        if (this.throwByDefault) {
+            this.throwIfError();
+        }
         if (this.state == State.FULL) {
             consumer.accept(this.value);
         }
     }
 
     public T get() {
+        if (this.throwByDefault) {
+            this.throwIfError();
+        }
         return value;
     }
 
