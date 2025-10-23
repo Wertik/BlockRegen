@@ -4,7 +4,6 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.command.Commands;
 import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
@@ -22,10 +21,13 @@ import nl.aurorion.blockregen.particle.impl.FlameCrown;
 import nl.aurorion.blockregen.particle.impl.WitchSpell;
 import nl.aurorion.blockregen.preset.PresetManager;
 import nl.aurorion.blockregen.preset.condition.DefaultConditions;
+import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
+import nl.aurorion.blockregen.regeneration.RegenerationEventHandlerImpl;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.version.NodeDataAdapter;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
+import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.version.VersionManagerImpl;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
@@ -94,6 +96,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     @Getter
     private final CompatibilityManager compatibilityManager = new CompatibilityManager(this);
+
+    @Getter
+    private final RegenerationEventHandler regenerationEventHandler = new RegenerationEventHandlerImpl(this);
 
     @Getter
     private final RegenerationListener regenerationListener = new RegenerationListener(this);
@@ -258,6 +263,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         }
 
         pluginManager.registerEvents(new PlayerListener(this), this);
+        versionManager.registerVersionedListeners();
     }
 
     private void checkPlaceholderAPI() {

@@ -6,8 +6,8 @@ import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import com.bekvon.bukkit.residence.protection.ResidencePermissions;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.listener.EventType;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.regeneration.RegenerationEventType;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -18,13 +18,13 @@ public class ResidenceProvider extends CompatibilityProvider {
         super(plugin);
     }
 
-    public boolean canBreak(Block block, Player player, EventType type) {
+    public boolean canBreak(Block block, Player player, RegenerationEventType type) {
         ClaimedResidence residence = ResidenceApi.getResidenceManager().getByLoc(block.getLocation());
 
         if (residence != null) {
             ResidencePermissions permissions = residence.getPermissions();
 
-            if (type == EventType.BLOCK_BREAK) {
+            if (type == RegenerationEventType.BLOCK_BREAK) {
                 // has neither build nor destroy
                 // let residence run its protection
                 if (!permissions.playerHas(player, Flags.destroy, true) &&
@@ -32,7 +32,7 @@ public class ResidenceProvider extends CompatibilityProvider {
                     log.fine(() -> "Let Residence handle block break.");
                     return false;
                 }
-            } else if (type == EventType.TRAMPLING) {
+            } else if (type == RegenerationEventType.TRAMPLING) {
                 if (!permissions.playerHas(player, Flags.trample, true)) {
                     log.fine(() -> "Let Residence handle trample.");
                     return false;

@@ -63,4 +63,9 @@ public class MockVersionManager implements VersionManager {
     public NodeDataParser getNodeDataParser() {
         return null;
     }
+
+    @Override
+    public void registerVersionedListeners() {
+        //
+    }
 }

@@ -8,6 +8,7 @@ import nl.aurorion.blockregen.event.EventManager;
 import nl.aurorion.blockregen.material.MaterialManager;
 import nl.aurorion.blockregen.particle.ParticleManager;
 import nl.aurorion.blockregen.preset.PresetManager;
+import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.version.VersionManager;
@@ -56,6 +57,8 @@ public interface BlockRegenPlugin extends Plugin {
     @NotNull MaterialManager getMaterialManager();
 
     @NotNull ItemManager getItemManager();
+
+    @NotNull RegenerationEventHandler getRegenerationEventHandler();
 
     GsonHelper getGsonHelper();
 
