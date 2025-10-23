@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
-import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -224,7 +224,9 @@ public class RegenerationProcess {
         }
 
         regenerateInto.setType(block);
-        if(regenerateInto instanceof MinecraftMaterial) originalData.apply(block); // Only apply original data for vanilla Minecraft materials, not custom blocks
+        if (regenerateInto.applyOriginalData()) {
+            originalData.apply(block);
+        }
         regenerateInto.applyData(block); // Override with configured data if any
         log.fine(() -> "Regenerated " + this);
     }
@@ -270,7 +272,9 @@ public class RegenerationProcess {
         }
 
         replaceMaterial.setType(block);
-        if(replaceMaterial instanceof MinecraftMaterial) this.originalData.apply(block); // Only apply original data for vanilla Minecraft materials, not custom blocks
+        if (replaceMaterial.applyOriginalData()) {
+            this.originalData.apply(block);
+        }
         replaceMaterial.applyData(block); // Apply configured data if any
 
         // Otherwise skull textures wouldn't update.

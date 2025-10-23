@@ -60,6 +60,11 @@ public class MinecraftMaterial implements BlockRegenMaterial {
     }
 
     @Override
+    public boolean applyOriginalData() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "MinecraftMaterial{" +
                 "material=" + material +
