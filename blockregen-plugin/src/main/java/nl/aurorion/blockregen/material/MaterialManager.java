@@ -94,7 +94,12 @@ public class MaterialManager {
                 withChance = false;
             }
 
-            BlockRegenMaterial material = parser.parseMaterial(rawMaterialInput);
+            BlockRegenMaterial material;
+            try {
+                material = parser.parseMaterial(rawMaterialInput);
+            } catch (Exception e) {
+                throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", rawMaterialInput, parser.getClass().getSimpleName()), e, true);
+            }
 
             if (withChance) {
                 String rawChanceInput = input.substring(lastColon);
@@ -110,8 +115,12 @@ public class MaterialManager {
             }
         } else {
             log.fine(() -> "Single material input for parseMaterialAndChance: '" + input + "'");
-            BlockRegenMaterial material = parser.parseMaterial(input);
-            return new Pair<>(material, null);
+            try {
+                BlockRegenMaterial material = parser.parseMaterial(input);
+                return new Pair<>(material, null);
+            } catch (Exception e) {
+                throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", input, parser.getClass().getSimpleName()), e, true);
+            }
         }
     }
 

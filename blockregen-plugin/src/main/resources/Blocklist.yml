@@ -6,33 +6,31 @@
 # For a detailed description on how to configure this plugin please refer to the wiki.
 # https://github.com/Wertik/BlockRegen/wiki
 
-Blocks:
-
-  # Breaking a diamond ore requires a netherite pickaxe.
-  # If the ore is broken at a y level below 100, diamonds get dropped with the pickaxe's fortune applied (if any).
-  # All the items are put straight into the player's inventory.
-  # The ore regenerates after 3 to 10 seconds.
-  #
-  # Create a region with /blockregen region world random world
-  # (creates a region 'random' that contains the whole world)
-  #
-  # Break a diamond ore.
-  diamonds:
-    target-material: diamond_ore
-    regen-delay: 3-10
-    natural-break: false
-    drop-naturally: false
-    conditions:
-      tool:
-        material: NETHERITE_PICKAXE
-    drop-item:
-      diamond:
-        material: diamond
-        amount: 1-3
-        apply-fortune: true
-        conditions:
-          placeholder: "%player_y% < 100"
-      rubbish:
-        material: cobblestone
-        amount: 1
-        apply-fortune: false
+# Breaking a diamond ore requires a netherite pickaxe.
+# If the ore is broken at a y level below 100, diamonds get dropped with the pickaxe's fortune applied (if any).
+# All the items are put straight into the player's inventory.
+# The ore regenerates after 3 to 10 seconds.
+#
+# Create a region with /blockregen region world random world
+# (creates a region 'random' that contains the whole world)
+#
+# Break a diamond ore.
+diamonds:
+  target-material: diamond_ore
+  regen-delay: 3-10
+  natural-break: false
+  drop-naturally: false
+  conditions:
+    tool:
+      material: NETHERITE_PICKAXE
+  drop-item:
+    diamond:
+      material: diamond
+      amount: 1-3
+      apply-fortune: true
+      conditions:
+        placeholder: "%player_y% < 100"
+    rubbish:
+      material: cobblestone
+      amount: 1
+      apply-fortune: false
