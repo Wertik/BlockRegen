@@ -5,7 +5,7 @@
 
     <groupId>nl.aurorion.blockregen</groupId>
     <artifactId>BlockRegen</artifactId>
-    <version>3.25.1</version>
+    <version>3.25.2-SNAPSHOT</version>
     <modules>
         <module>blockregen-version</module>
         <module>blockregen-common</module>
@@ -103,7 +103,7 @@
         <dependency>
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
-            <version>13.3.3</version>
+            <version>13.5.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
