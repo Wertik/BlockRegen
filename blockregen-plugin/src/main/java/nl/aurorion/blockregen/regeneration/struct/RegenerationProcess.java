@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.regeneration.struct;
 
+import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.Data;
 import lombok.Getter;
@@ -163,9 +164,8 @@ public class RegenerationProcess {
             XMaterial belowType = plugin.getVersionManager().getMethods().getType(below);
             RegenerationProcess processBelow = plugin.getRegenerationManager().getProcess(below);
 
-            // Sugarcane on sugarcane (aka not solid, still can be placed)
-            // + kelp on kelp
-            if (!below.getType().isSolid() && belowType != XMaterial.SUGAR_CANE && !Blocks.isKelp(belowType) && !Blocks.isSeagrass(belowType)) {
+            // Sugarcane on sugarcane, etc. (aka not solid, still can be stacked on top)
+            if (!below.getType().isSolid() && regenerateInto.getType() != belowType) {
                 if (processBelow != null) {
                     long delay = processBelow.getRegenerationTime() >= this.getRegenerationTime() ? processBelow.getRegenerationTime() - this.getRegenerationTime() + 100 : 1000;
 

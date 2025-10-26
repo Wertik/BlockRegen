@@ -104,7 +104,7 @@ public class LatestMethods implements Methods {
 
     @Override
     public void setType(@NotNull Block block, @NotNull XMaterial xMaterial) {
-        XBlock.setType(block, xMaterial);
+        XBlock.setType(block, xMaterial, false);
     }
 
     @Override

@@ -78,12 +78,12 @@ public class LegacyMethods implements Methods {
     public void setType(@NotNull Block block, @NotNull XMaterial xMaterial) {
         // Quick and dirty fix for XMaterial being wrong.
         if (xMaterial == XMaterial.WHEAT) {
-            block.setType(Material.CROPS);
+            block.setType(Material.CROPS, false);
             block.getState().setData(new MaterialData(xMaterial.parseMaterial(), xMaterial.getData()));
             return;
         }
 
-        XBlock.setType(block, xMaterial);
+        XBlock.setType(block, xMaterial, false);
     }
 
     @Override

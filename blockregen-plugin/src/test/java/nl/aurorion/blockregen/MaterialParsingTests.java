@@ -20,7 +20,6 @@ import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// todo: 100% code coverage
 public class MaterialParsingTests {
 
     private final BlockRegenPlugin plugin = new MockBlockRegenPlugin();
@@ -44,6 +43,11 @@ public class MaterialParsingTests {
         @Override
         public void setType(Block block) {
 
+        }
+
+        @Override
+        public XMaterial getType() {
+            return null;
         }
     }
 

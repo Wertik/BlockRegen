@@ -60,6 +60,11 @@ public class MinecraftMaterial implements BlockRegenMaterial {
     }
 
     @Override
+    public XMaterial getType() {
+        return material;
+    }
+
+    @Override
     public boolean applyOriginalData() {
         return true;
     }

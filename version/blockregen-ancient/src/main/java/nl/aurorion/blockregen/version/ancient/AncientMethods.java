@@ -26,7 +26,7 @@ public class AncientMethods implements Methods {
     @Override
     public void setType(@NotNull Block block, @NotNull XMaterial xMaterial) {
         /* Raw data is set correctly through the #setType() method. */
-        XBlock.setType(block, xMaterial);
+        XBlock.setType(block, xMaterial, false);
     }
 
     // Basically copy XBlock.getType(), but fix the 1.8 "Wood not found" and match only material outside of Colorable & Tree

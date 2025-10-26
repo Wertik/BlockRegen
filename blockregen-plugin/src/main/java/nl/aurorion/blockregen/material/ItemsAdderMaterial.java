@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.material;
 
+import com.cryptomorin.xseries.XMaterial;
 import dev.lone.itemsadder.api.CustomBlock;
 import lombok.extern.java.Log;
 import org.bukkit.block.Block;
@@ -29,6 +30,11 @@ public class ItemsAdderMaterial implements BlockRegenMaterial {
     public void setType(Block block) {
         CustomBlock customBlock = CustomBlock.getInstance(this.id);
         customBlock.place(block.getLocation());
+    }
+
+    @Override
+    public XMaterial getType() {
+        return XMaterial.matchXMaterial(CustomBlock.getBaseBlockData(this.id).getMaterial());
     }
 
     @Override

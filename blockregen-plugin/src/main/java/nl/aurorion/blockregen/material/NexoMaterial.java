@@ -1,7 +1,9 @@
 package nl.aurorion.blockregen.material;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.mechanics.Mechanic;
+import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
 import lombok.Getter;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.block.Block;
@@ -57,6 +59,15 @@ public class NexoMaterial implements BlockRegenMaterial {
     @Override
     public void setType(Block block) {
         NexoBlocks.place(this.itemId, block.getLocation());
+    }
+
+    @Override
+    public XMaterial getType() {
+        CustomBlockMechanic mechanic = NexoBlocks.customBlockMechanic(this.itemId);
+        if (mechanic == null) {
+            throw new IllegalArgumentException(String.format("Invalid next block: %s", this.itemId));
+        }
+        return XMaterial.matchXMaterial(mechanic.getBlockData().getMaterial());
     }
 
     @Override
