@@ -7,7 +7,7 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
-import nl.aurorion.blockregen.region.RegionSelection;
+import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.region.struct.RegenerationRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationWorld;

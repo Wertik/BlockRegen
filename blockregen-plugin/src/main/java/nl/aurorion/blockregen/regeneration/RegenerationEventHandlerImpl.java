@@ -527,7 +527,9 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
                 if (entry.getValue()) {
                     log.fine(() -> "Dropping item " + item.getType() + "x" + item.getAmount());
-                    items.add(blockState.getWorld().dropItemNaturally(blockState.getLocation().clone().add(.5, .5, .5), item));
+
+                    Location location = blockState.getLocation().clone().add(.5, .5, .5);
+                    items.add(Items.createDroppedItem(location, item));
                 } else {
                     log.fine(() -> "Giving item " + item.getType() + "x" + item.getAmount());
 
@@ -539,7 +541,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
                             Message.INVENTORY_FULL_DROPPED.send(player);
 
                             ItemStack leftStack = left.get(left.keySet().iterator().next());
-                            items.add(player.getWorld().dropItemNaturally(player.getLocation(), leftStack));
+                            items.add(Items.createDroppedItem(player.getLocation(), leftStack));
                         } else {
                             Message.INVENTORY_FULL_LOST.send(player);
                         }

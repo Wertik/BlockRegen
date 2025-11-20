@@ -88,18 +88,15 @@ public class LatestMethods implements Methods {
 
     @Override
     public void handleDropItemEvent(Player player, BlockState blockState, List<Item> items) {
-        BlockDropItemEvent event = new BlockDropItemEvent(blockState.getBlock(), blockState, player, new ArrayList<>(items));
+        BlockDropItemEvent event = new BlockDropItemEvent(blockState.getBlock(), blockState, player, items);
         Bukkit.getPluginManager().callEvent(event);
 
-        // Delete the entities if any other plugins cancel the event or clear the drops.
-        // Otherwise, we get duplicated drops from enchantment plugins.
-        // Note: This means that any changes a plugin applies to the items is not going to be reflected on the drops.
-        // Note: I am not sure how to make that work, nor whether it should be a thing.
-
-        if (event.isCancelled() || event.getItems().isEmpty()) {
-            log.fine(() -> "Drops got cancelled.");
-            items.forEach(Entity::remove);
+        if (event.isCancelled()) {
+            items.stream().filter(Entity::isValid).forEach(Entity::remove);
+            return;
         }
+
+        items.stream().filter(item -> !item.isValid()).forEach((item) -> item.getWorld().addEntity(item));
     }
 
     @Override

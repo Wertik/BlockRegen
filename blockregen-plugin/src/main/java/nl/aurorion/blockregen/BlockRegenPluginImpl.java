@@ -9,6 +9,7 @@ import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
 import nl.aurorion.blockregen.drop.ItemManager;
 import nl.aurorion.blockregen.event.EventManager;
+import nl.aurorion.blockregen.listener.DebugListener;
 import nl.aurorion.blockregen.listener.PhysicsListener;
 import nl.aurorion.blockregen.listener.PlayerListener;
 import nl.aurorion.blockregen.listener.RegenerationListener;
@@ -35,6 +36,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -105,6 +107,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     @Getter
     private final PhysicsListener physicsListener = new PhysicsListener(this);
+
+    @Getter
+    private final DebugListener debugListener = new DebugListener(this);
 
     @Getter
     private GsonHelper gsonHelper;
@@ -197,9 +202,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     @Override
     public void reload(CommandSender sender) {
-
         if (!(sender instanceof ConsoleCommandSender)) {
-            this.consoleHandler.addListener(sender);
+            consoleHandler.addListener(sender);
         }
 
         eventManager.disableAll();
@@ -214,6 +218,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         configureLogger();
 
+        registerDebugListener();
+
         files.getMessages().load();
         Message.load();
 
@@ -224,11 +230,23 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         regionManager.reload();
 
-        if (getConfig().getBoolean("Auto-Save.Enabled", false))
+        if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
             regenerationManager.reloadAutoSave();
+        }
 
-        this.consoleHandler.removeListener(sender);
+        consoleHandler.removeListener(sender);
         Message.RELOAD.optional().ifPresent(sender::sendMessage);
+    }
+
+    private void registerDebugListener() {
+        boolean debug = files.getSettings().getFileConfiguration().getBoolean("Debug-Enabled", false);
+
+        if (debug && !debugListener.isRegistered()) {
+            getServer().getPluginManager().registerEvents(debugListener, this);
+        }
+        if (!debug && debugListener.isRegistered()) {
+            HandlerList.unregisterAll(debugListener);
+        }
     }
 
     @Override
@@ -264,6 +282,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         pluginManager.registerEvents(new PlayerListener(this), this);
         versionManager.registerVersionedListeners();
+
+        registerDebugListener();
     }
 
     private void checkPlaceholderAPI() {
