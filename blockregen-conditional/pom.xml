@@ -6,7 +6,7 @@
     <parent>
         <groupId>nl.aurorion.blockregen</groupId>
         <artifactId>BlockRegen</artifactId>
-        <version>3.26.1</version>
+        <version>3.26.2</version>
     </parent>
 
     <artifactId>blockregen-conditional</artifactId>

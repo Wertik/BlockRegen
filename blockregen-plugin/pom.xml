@@ -5,7 +5,7 @@
     <parent>
         <artifactId>BlockRegen</artifactId>
         <groupId>nl.aurorion.blockregen</groupId>
-        <version>3.26.1</version>
+        <version>3.26.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -134,31 +134,31 @@
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-common</artifactId>
-            <version>3.26.1</version>
+            <version>3.26.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-conditional</artifactId>
-            <version>3.26.1</version>
+            <version>3.26.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-version</artifactId>
-            <version>3.26.1</version>
+            <version>3.26.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-legacy</artifactId>
-            <version>3.26.1</version>
+            <version>3.26.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-ancient</artifactId>
-            <version>3.26.1</version>
+            <version>3.26.2</version>
             <scope>compile</scope>
         </dependency>
         <!-- Spigot API -->
@@ -341,13 +341,13 @@
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-modern</artifactId>
-            <version>3.26.1</version>
+            <version>3.26.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-pink</artifactId>
-            <version>3.26.1</version>
+            <version>3.26.2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
