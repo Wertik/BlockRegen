@@ -25,7 +25,6 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -176,11 +175,6 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
         int vanillaExperience = eventControl.getDefaultExperience();
         eventControl.cancelDrops();
-
-        if (event instanceof PlayerHarvestBlockEvent) {
-            PlayerHarvestBlockEvent e = (PlayerHarvestBlockEvent) event;
-            log.fine(String.format("drop count: %d", e.getItemsHarvested().size()));
-        }
 
         // Multiblock vegetation - sugarcane, cacti, bamboo
         if (Blocks.isMultiblockCrop(plugin, block) && preset.isHandleCrops()) {
