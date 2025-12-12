@@ -26,16 +26,20 @@ public class RawRegion {
     private final int priority;
 
     @Getter
+    private final Boolean disableOtherBreak;
+
+    @Getter
     @Setter
     private boolean reattempt = false;
 
-    public RawRegion(String name, String min, String max, List<String> blockPresets, boolean all, int priority) {
+    public RawRegion(String name, String min, String max, List<String> blockPresets, boolean all, int priority, Boolean disableOtherBreak) {
         this.name = name;
         this.min = min;
         this.max = max;
         this.blockPresets = blockPresets;
         this.all = all;
         this.priority = priority;
+        this.disableOtherBreak = disableOtherBreak;
     }
 
     public RegenerationRegion build() {
@@ -50,6 +54,7 @@ public class RawRegion {
         Location actualMax = new Location(min.getWorld(), Double.max(min.getX(), max.getX()), Double.max(min.getY(), max.getY()), Double.max(min.getZ(), max.getZ()));
 
         RegenerationRegion region = new RegenerationRegion(name, actualMin, actualMax);
+        region.setDisableOtherBreak(disableOtherBreak);
         region.setPriority(priority);
         region.setAll(all);
         return region;

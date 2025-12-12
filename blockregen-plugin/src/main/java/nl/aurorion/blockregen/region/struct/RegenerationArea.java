@@ -9,17 +9,25 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-// An area of regeneration.
-// Either a whole world or a cuboid region (so far).
+/**
+ * A common interface for an Area in which blocks regenerate.
+ */
 public abstract class RegenerationArea {
+
     @Getter
     protected final String name;
 
     protected final Set<String> presets = new HashSet<>();
 
-    @Setter
     @Getter
+    @Setter
     protected boolean all = true;
+
+    @Getter
+    @Setter
+    @Nullable
+    // null => take from Settings.yml
+    protected Boolean disableOtherBreak = null;
 
     // After changing the priority, always call RegionManager#sort to resort the regions.
     @Getter
@@ -34,6 +42,7 @@ public abstract class RegenerationArea {
 
     public void serialize(ConfigurationSection section) {
         section.set("All", this.all);
+        section.set("Disable-Other-Break", this.disableOtherBreak);
         section.set("Presets", new ArrayList<>(this.presets));
         section.set("Priority", this.priority);
     }
@@ -70,6 +79,7 @@ public abstract class RegenerationArea {
                 ", presets=" + presets +
                 ", all=" + all +
                 ", priority=" + priority +
+                ", disableOtherBreak=" + this.disableOtherBreak +
                 '}';
     }
 }

@@ -87,7 +87,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         World world = block.getWorld();
 
         boolean useRegions = plugin.getConfig().getBoolean("Use-Regions", false);
-        RegenerationArea area = plugin.getRegionManager().getArea(block);
+        RegenerationArea area = useRegions ? plugin.getRegionManager().getArea(block) : null;
 
         boolean isInWorld = plugin.getConfig().getStringList("Worlds-Enabled").contains(world.getName());
         boolean isInArea = area != null;
@@ -98,6 +98,23 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             return;
         }
 
+        // Check region permissions
+        if (isInArea && Permissions.lacksPermission(player, "blockregen.region", area.getName())) {
+            eventControl.cancel();
+            Message.PERMISSION_REGION_ERROR.send(player);
+            log.fine(() -> String.format("Player doesn't have permissions for region %s", area.getName()));
+            return;
+        }
+
+        // Check block permissions
+        // Mostly kept out of backwards compatibility with peoples settings and expectancies over how this works.
+        if (Permissions.lacksPermission(player, "blockregen.block", block.getType().toString())) {
+            eventControl.cancel();
+            Message.PERMISSION_BLOCK_ERROR.send(player);
+            log.fine(() -> String.format("Player doesn't have permission for block %s.", block.getType()));
+            return;
+        }
+
         log.fine(() -> String.format("Handling %s.", Locations.locationToString(block.getLocation())));
 
         BlockPreset preset = plugin.getPresetManager().getPreset(block, area);
@@ -105,7 +122,14 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         boolean isConfigured = preset != null;
 
         if (!isConfigured) {
-            if (plugin.getConfig().getBoolean("Disable-Other-Break")) {
+            boolean disableOtherBreak;
+            if (useRegions && area.getDisableOtherBreak() != null) {
+                disableOtherBreak = area.getDisableOtherBreak();
+            } else {
+                disableOtherBreak = plugin.getConfig().getBoolean("Disable-Other-Break", false);
+            }
+
+            if (disableOtherBreak) {
                 eventControl.cancel();
                 log.fine(() -> String.format("%s is not a configured preset. Denied block break.", block.getType()));
                 return;
@@ -115,25 +139,8 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             return;
         }
 
-        // Check region permissions
-        if (isInArea && Permissions.lacksPermission(player, "blockregen.region", area.getName()) && !player.isOp()) {
-            eventControl.cancel();
-            Message.PERMISSION_REGION_ERROR.send(player);
-            log.fine(() -> String.format("Player doesn't have permissions for region %s", area.getName()));
-            return;
-        }
-
-        // Check block permissions
-        // Mostly kept out of backwards compatibility with peoples settings and expectancies over how this works.
-        if (Permissions.lacksPermission(player, "blockregen.block", block.getType().toString()) && !player.isOp()) {
-            Message.PERMISSION_BLOCK_ERROR.send(player);
-            eventControl.cancel();
-            log.fine(() -> String.format("Player doesn't have permission for block %s.", block.getType()));
-            return;
-        }
-
         // Check preset permissions
-        if (Permissions.lacksPermission(player, "blockregen.preset", preset.getName()) && !player.isOp()) {
+        if (Permissions.lacksPermission(player, "blockregen.preset", preset.getName())) {
             Message.PERMISSION_BLOCK_ERROR.send(player);
             eventControl.cancel();
             log.fine(() -> String.format("Player doesn't have permission for preset %s.", preset.getName()));

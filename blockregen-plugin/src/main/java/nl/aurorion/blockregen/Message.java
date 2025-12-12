@@ -42,6 +42,7 @@ public enum Message {
 
     TOOLS("Tools", "&7Gave you the tools."),
     UNKNOWN_ARGUMENT("Unknown-Argument", "&cUnknown argument."),
+    INVALID_OPTION("Invalid-Option", "&cInvalid option &f'%s'&c."),
 
     /**
      * Bypass
@@ -81,6 +82,7 @@ public enum Message {
     SELECT_FIRST("Select-First", "&7Set first position to &f%x%, %y%, %z%."),
     SELECT_SECOND("Select-Second", "&7Set second position to &f%x%, %y%, %z%."),
     SET_ALL("Set-All", "&7Region set to %s &7presets."),
+    SET_BREAK("Set-Break", "&7Preventing players from breaking other blocks set to %s."),
     INVALID_PRESET("Invalid-Preset", "&cPreset %preset% does not exist."),
 
     HAS_PRESET_ALREADY("Has-Preset-Already", "&7Region &f%region% &7has preset &f%preset% &7already."),
