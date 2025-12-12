@@ -172,6 +172,12 @@ public class RegenerationManager {
     }
 
     public void save(boolean sync) {
+
+        if (cache.isEmpty()) {
+            log.fine(() -> "No processes to save.");
+            return;
+        }
+
         cache.values().forEach(process -> process.setTimeLeft(process.getRegenerationTime() - System.currentTimeMillis()));
 
         // TODO: Shouldn't be required
@@ -190,7 +196,7 @@ public class RegenerationManager {
             future.join();
         }
 
-        log.info("Saved " + finalCache.size() + " regeneration processes..");
+        log.fine(() -> "Saved " + finalCache.size() + " regeneration processes..");
     }
 
     public void load() {
