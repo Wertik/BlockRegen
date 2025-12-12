@@ -14,6 +14,7 @@ import nl.aurorion.blockregen.preset.NumberValue;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import nl.aurorion.blockregen.preset.condition.expression.Operand;
 import nl.aurorion.blockregen.util.Parsing;
+import nl.aurorion.blockregen.util.Text;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +41,8 @@ public class DefaultConditions {
                                             XMaterial xMaterial = Parsing.parseMaterial((String) node);
 
                                             return Condition.of((ctx) -> ctx.get("material") == xMaterial)
-                                                    .alias("material == " + xMaterial);
+                                                    .alias("material == " + xMaterial)
+                                                    .pretty(xMaterial.toString());
                                         }, String.class))
                                 .addProvider("enchants", GenericConditionProvider.ProviderEntry.of(
                                         (key, node) -> {
@@ -49,7 +51,9 @@ public class DefaultConditions {
                                             Expression expression = Expression.withCustomOperands((str) -> getEnchantmentLevel(Parsing.parseEnchantment(str)), v);
 
                                             log.fine(() -> "Loaded enchants expression " + expression);
-                                            return Condition.of(expression::evaluate).alias(v);
+                                            return Condition.of(expression::evaluate)
+                                                    .alias(v)
+                                                    .pretty(Text.capitalize(v));
                                         }, ConditionRelation.AND))
                                 .extender((ctx) -> {
                                     ItemStack item = ctx.get("tool", ItemStack.class);
@@ -104,7 +108,8 @@ public class DefaultConditions {
                             String input = (String) node;
 
                             Expression expression = Expression.from(input);
-                            return Condition.of(expression::evaluate).alias(expression.pretty());
+                            return Condition.of(expression::evaluate)
+                                    .alias(expression.pretty());
                         },
                         String.class
                 )
@@ -125,7 +130,8 @@ public class DefaultConditions {
                                 throw new ParseException(e.getMessage());
                             }
                             final Random random = new Random();
-                            return Condition.of((ctx) -> random.nextDouble() < numberValue.getDouble() / 100).alias("chance (" + numberValue + "%)");
+                            return Condition.of((ctx) -> random.nextDouble() < numberValue.getDouble() / 100)
+                                    .alias("chance (" + numberValue + "%)");
                         },
                         Double.class, Integer.class, String.class
                 )

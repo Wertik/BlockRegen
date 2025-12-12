@@ -18,7 +18,6 @@ import java.util.function.Function;
  *
  * @author Wertik1206
  */
-// TODO: Recode without an enum.
 public enum Message {
 
     PREFIX("Prefix", "&6[&3BlockRegen&6] &r"),
@@ -111,6 +110,8 @@ public enum Message {
     PERMISSION_BLOCK_ERROR("Permission-Error", "&cYou don't have the permission to break this block."),
     PERMISSION_REGION_ERROR("Permission-Region-Error", "&cYou don't have the permission to break in this region."),
 
+    CONDITIONS_NOT_MET("Conditions-Not-Met", "&cIn order to break this block you have to meet these conditions: &f%condition%&c."),
+
     INVENTORY_FULL_DROPPED("Inventory-Full-Dropped", "&cInventory is full! Some drops fell on the ground."),
     INVENTORY_FULL_LOST("Inventory-Full-Lost", "&cInventory is full! Some drops were lost.");
 
@@ -129,7 +130,7 @@ public enum Message {
         this.value = value;
     }
 
-    private String getPrefixed() {
+    public String getRawPrefixed() {
         return insertPrefix ? "%prefix%" + this.value : this.value;
     }
 
@@ -138,7 +139,7 @@ public enum Message {
     }
 
     public @Nullable String get() {
-        return this.isEmpty() ? null : Colors.color(Text.parse(this.getPrefixed()));
+        return this.isEmpty() ? null : Colors.color(Text.parse(this.getRawPrefixed()));
     }
 
     public @NotNull Optional<String> optional() {
@@ -158,7 +159,7 @@ public enum Message {
     }
 
     public @Nullable String get(@NotNull Player player) {
-        return this.isEmpty() ? null : Colors.color(Text.parse(getPrefixed(), player));
+        return this.isEmpty() ? null : Colors.color(Text.parse(getRawPrefixed(), player));
     }
 
     public void send(@NotNull CommandSender target) {

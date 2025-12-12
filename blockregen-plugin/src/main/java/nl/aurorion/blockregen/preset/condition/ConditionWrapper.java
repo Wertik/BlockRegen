@@ -54,6 +54,12 @@ public class ConditionWrapper extends Condition {
     }
 
     @Override
+    @NotNull
+    public String pretty() {
+        return this.composed.pretty();
+    }
+
+    @Override
     public String toString() {
         return this.composed.toString();
     }

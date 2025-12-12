@@ -239,6 +239,8 @@ public class PresetManager {
             }
         }
 
+        preset.setConditionMessage(section.getString("conditions-message", null));
+
         // Particle
         String particleName = section.getString("particles");
         if (!Strings.isNullOrEmpty(particleName)) {

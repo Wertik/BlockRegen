@@ -162,6 +162,12 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         // Check advanced conditions
         try {
             if (!preset.getCondition().matches(ctx)) {
+                String message = preset.getConditionMessage();
+                if (message == null) {
+                    message = Message.CONDITIONS_NOT_MET.getRawPrefixed();
+                }
+                player.sendMessage(Colors.color(Text.replace(Text.parse(message, block, player),
+                        "condition", preset.getCondition().pretty())));
                 eventControl.cancel();
                 log.fine(() -> "Player doesn't meet conditions.");
                 return;
