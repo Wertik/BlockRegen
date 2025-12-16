@@ -81,13 +81,11 @@ public class RegenerationManager {
         Objects.requireNonNull(block);
         Objects.requireNonNull(preset);
 
-        // Read the original material from BlockState to ensure we get the correct type
-        // even if the block has already changed to AIR
-        org.bukkit.block.BlockState blockState = block.getState();
+        // Read the original material
         NodeData nodeData = plugin.getVersionManager().createNodeData();
         nodeData.load(block);
 
-        RegenerationProcess process = new RegenerationProcess(block, blockState, nodeData, preset);
+        RegenerationProcess process = new RegenerationProcess(block, nodeData, preset);
 
         process.setWorldName(block.getWorld().getName());
         if (region != null) {

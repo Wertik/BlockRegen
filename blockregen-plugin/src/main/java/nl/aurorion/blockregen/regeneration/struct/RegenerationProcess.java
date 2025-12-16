@@ -65,7 +65,7 @@ public class RegenerationProcess {
 
     private transient BukkitTask task;
 
-    public RegenerationProcess(Block block, org.bukkit.block.BlockState blockState, NodeData originalData, BlockPreset preset) {
+    public RegenerationProcess(Block block, NodeData originalData, BlockPreset preset) {
         this.block = block;
         this.location = new SimpleLocation(block);
 
@@ -75,14 +75,7 @@ public class RegenerationProcess {
         this.worldName = block.getWorld().getName();
 
         this.originalData = originalData;
-        // Use BlockState to get the original material type before the block changed
-        org.bukkit.Material stateMaterial = blockState.getType();
-        try {
-            this.originalMaterial = com.cryptomorin.xseries.XMaterial.matchXMaterial(stateMaterial);
-        } catch (IllegalArgumentException e) {
-            // Fallback to using the block if BlockState doesn't work.
-            this.originalMaterial = BlockRegenPlugin.getInstance().getVersionManager().getMethods().getType(block);
-        }
+        this.originalMaterial = BlockRegenPlugin.getInstance().getVersionManager().getMethods().getType(block);
     }
 
     // Return true if the process started, false otherwise.
