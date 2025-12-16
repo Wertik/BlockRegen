@@ -16,8 +16,12 @@ public class Files {
 
     public Files(BlockRegenPlugin plugin) {
         this.settings = new ConfigFile(plugin, "Settings.yml");
+
         this.messages = new ConfigFile(plugin, "Messages.yml");
+
         this.blockList = new ConfigFile(plugin, "Blocklist.yml");
+        this.blockList.setForceEscapeTargetMaterial(true);
+
         this.regions = new ConfigFile(plugin, "Regions.yml");
     }
 
