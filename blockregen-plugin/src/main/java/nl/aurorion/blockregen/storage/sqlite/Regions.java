@@ -18,16 +18,16 @@ public class Regions {
     }
 
     @Contract("null->null")
-    private static Boolean getOptionalBoolean(@Nullable Object x) throws StorageException {
-        if (x == null) {
+    private static Boolean getOptionalBoolean(@Nullable Object o) throws StorageException {
+        if (o == null) {
             return null;
         }
 
-        if (x instanceof Integer) {
-            return (int) x == 1;
+        if (o instanceof Integer) {
+            return (int) o == 1;
         }
 
-        throw new StorageException("Invalid type for optional boolean " + x.getClass().getSimpleName());
+        throw new StorageException("Invalid type for optional boolean " + o.getClass().getSimpleName());
     }
 
     @NotNull
@@ -46,11 +46,11 @@ public class Regions {
 
             switch (type) {
                 case CUBOID:
-                    String top_left = resultSet.getString("cuboid_top_left");
-                    String bottom_right = resultSet.getString("cuboid_bottom_right");
+                    String topLeft = resultSet.getString("cuboid_top_left");
+                    String bottomRight = resultSet.getString("cuboid_bottom_right");
 
-                    BlockPosition pos1 = BlockPosition.from(worldName, top_left);
-                    BlockPosition pos2 = BlockPosition.from(worldName, bottom_right);
+                    BlockPosition pos1 = BlockPosition.from(worldName, topLeft);
+                    BlockPosition pos2 = BlockPosition.from(worldName, bottomRight);
 
                     region = CuboidRegion.create(name, pos1, pos2);
                     break;
