@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,6 +82,7 @@ public class ConfigFile {
 
                     if (!matcher.matches()) {
                         builder.append(line);
+                        builder.append('\n');
                         continue;
                     }
 
@@ -104,14 +106,14 @@ public class ConfigFile {
                 config.loadFromString(builder.toString());
                 this.fileConfiguration = config;
             } catch (InvalidConfigurationException e) {
-                log.severe("Invalid YAML configuration in " + this.path + ": " + e.getMessage());
+                log.log(Level.SEVERE, "Invalid YAML configuration in " + this.path + ": " + e.getMessage(), e);
                 this.fileConfiguration = new YamlConfiguration();
             }
         } catch (IOException e) {
-            log.severe("Could not read file " + this.path + ": " + e.getMessage());
+            log.log(Level.SEVERE, "Could not read file " + this.path + ": " + e.getMessage(), e);
             this.fileConfiguration = new YamlConfiguration();
         } catch (Exception e) {
-            log.severe("Error processing file " + this.path + ": " + e.getMessage());
+            log.log(Level.SEVERE, "Error processing file " + this.path + ": " + e.getMessage(), e);
             this.fileConfiguration = new YamlConfiguration();
         }
 
