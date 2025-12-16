@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.region;
 
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.storage.StorageException;
 import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -96,7 +97,13 @@ public class RegionManager {
 
         StorageDriver driver = plugin.getWarehouse().getSelectedDriver();
 
-        Future<List<Region>> future = driver.loadRegions();
+        Future<List<Region>> future = null;
+        try {
+            future = driver.loadRegions();
+        } catch (StorageException e) {
+            // todo
+            throw new RuntimeException(e);
+        }
 
         try {
             loadedAreas.addAll(future.get(6000, TimeUnit.MILLISECONDS));
@@ -132,7 +139,13 @@ public class RegionManager {
     }
 
     public void save() {
-        Future<Void> future = plugin.getWarehouse().getSelectedDriver().updateRegions(loadedAreas);
+        Future<Void> future = null;
+        try {
+            future = plugin.getWarehouse().getSelectedDriver().updateRegions(loadedAreas);
+        } catch (StorageException e) {
+            // todo
+            throw new RuntimeException(e);
+        }
 
         try {
             future.get(6000, TimeUnit.MILLISECONDS);
@@ -156,7 +169,12 @@ public class RegionManager {
             Region region = it.next();
 
             if (Objects.equals(region.getName(), name)) {
-                this.plugin.getWarehouse().getSelectedDriver().deleteRegion(region);
+                try {
+                    this.plugin.getWarehouse().getSelectedDriver().deleteRegion(region);
+                } catch (StorageException e) {
+                    // todo
+                    throw new RuntimeException(e);
+                }
                 it.remove();
                 break;
             }
@@ -177,7 +195,12 @@ public class RegionManager {
 
     public void addRegion(@NotNull Region region) {
         this.loadedAreas.add(region);
-        this.plugin.getWarehouse().getSelectedDriver().saveRegion(region);
+        try {
+            this.plugin.getWarehouse().getSelectedDriver().saveRegion(region);
+        } catch (StorageException e) {
+            // todo
+            throw new RuntimeException(e);
+        }
         this.sort();
         log.fine(() -> "Added area " + region);
     }
