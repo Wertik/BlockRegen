@@ -3,6 +3,7 @@ package nl.aurorion.blockregen.region;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.configuration.ConfigFile;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.region.struct.RawRegion;
@@ -113,7 +114,7 @@ public class RegionManager {
         List<String> presets = section.getStringList("Presets");
         int priority = section.getInt("Priority", 1);
 
-        Boolean disableOtherBreak = section.getObject("Disable-Other-Break", Boolean.class);
+        Boolean disableOtherBreak = ConfigFile.parseOptionalBoolean(section.get("Disable-Other-Break"));
 
         RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority, disableOtherBreak);
 

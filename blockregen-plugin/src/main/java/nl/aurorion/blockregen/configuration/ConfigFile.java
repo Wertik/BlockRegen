@@ -8,6 +8,7 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +41,17 @@ public class ConfigFile {
     public ConfigFile(BlockRegenPlugin plugin, String path) {
         this.path = path.contains(".yml") ? path : path + ".yml";
         this.plugin = plugin;
+    }
+
+    @Nullable
+    public static Boolean parseOptionalBoolean(@Nullable Object obj) {
+        if (obj == null) { return null; }
+
+        if (obj instanceof Boolean) {
+            return (Boolean) obj;
+        }
+
+        return null;
     }
 
     public void load() {
