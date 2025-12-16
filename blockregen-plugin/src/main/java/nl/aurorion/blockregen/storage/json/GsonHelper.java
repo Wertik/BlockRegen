@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen;
+package nl.aurorion.blockregen.storage.json;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
@@ -22,13 +22,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-/**
- * Gson (json) save and load helper class.
- * <p>
- * Copied from DevportUtils by devport.space
- *
- * @author qwz
- */
 @Log
 public class GsonHelper {
 
@@ -111,8 +104,9 @@ public class GsonHelper {
 
         Path path = Paths.get(dataPath);
 
-        if (!Files.exists(path))
+        if (!Files.exists(path)) {
             return null;
+        }
 
         String input;
         try {
@@ -122,8 +116,9 @@ public class GsonHelper {
             return null;
         }
 
-        if (Strings.isNullOrEmpty(input))
+        if (Strings.isNullOrEmpty(input)) {
             return null;
+        }
 
         return gson.fromJson(input, type);
     }
@@ -137,16 +132,18 @@ public class GsonHelper {
     public <T> CompletableFuture<List<T>> loadListAsync(@NotNull final String dataPath, @NotNull Class<T> innerClazz) {
         Path path = Paths.get(dataPath);
 
-        if (!Files.exists(path))
+        if (!Files.exists(path)) {
             return new CompletableFuture<>();
+        }
 
         final Type type = mapList(innerClazz);
 
         return read(path).thenApplyAsync(buffer -> {
             String output = new String(buffer.array(), StandardCharsets.UTF_8).trim();
 
-            if (Strings.isNullOrEmpty(output))
+            if (Strings.isNullOrEmpty(output)) {
                 return null;
+            }
 
             return gson.fromJson(output, type);
         });

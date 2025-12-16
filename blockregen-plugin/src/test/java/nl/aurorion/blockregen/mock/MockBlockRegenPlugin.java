@@ -3,7 +3,8 @@ package nl.aurorion.blockregen.mock;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.Getter;
 import nl.aurorion.blockregen.ConsoleHandler;
-import nl.aurorion.blockregen.GsonHelper;
+import nl.aurorion.blockregen.storage.Warehouse;
+import nl.aurorion.blockregen.storage.json.GsonHelper;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
 import nl.aurorion.blockregen.version.VersionManager;
@@ -67,6 +68,9 @@ public class MockBlockRegenPlugin implements BlockRegenPlugin {
 
     @Getter
     private final CompatibilityManager compatibilityManager = new CompatibilityManager(this);
+
+    @Getter
+    private final Warehouse warehouse = new Warehouse(this);
 
     @Override
     public void reload(CommandSender sender) {

@@ -26,6 +26,9 @@ import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
 import nl.aurorion.blockregen.regeneration.RegenerationEventHandlerImpl;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
+import nl.aurorion.blockregen.storage.Warehouse;
+import nl.aurorion.blockregen.storage.json.GsonHelper;
+import nl.aurorion.blockregen.storage.sqlite.SQLiteStorageDriver;
 import nl.aurorion.blockregen.version.NodeDataAdapter;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
 import nl.aurorion.blockregen.version.VersionManager;
@@ -112,6 +115,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
     private final DebugListener debugListener = new DebugListener(this);
 
     @Getter
+    private final Warehouse warehouse = new Warehouse(this);
+
+    @Getter
     private GsonHelper gsonHelper;
 
     @Getter
@@ -154,6 +160,10 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         compatibilityManager.discover(false);
 
+        warehouse.registerStorageProvider("sqlite", SQLiteStorageDriver.Provider.in(getDataFolder()));
+
+        warehouse.initializeStorage();
+
         presetManager.load();
         regionManager.load();
         regenerationManager.load();
@@ -192,7 +202,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
             presetManager.reattemptLoad();
             regenerationManager.reattemptLoad();
-            regionManager.reattemptLoad();
+            /*regionManager.reattemptLoad();*/
 
             if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
                 regenerationManager.startAutoSave();

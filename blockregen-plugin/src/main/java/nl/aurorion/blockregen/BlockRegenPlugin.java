@@ -11,6 +11,8 @@ import nl.aurorion.blockregen.preset.PresetManager;
 import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
+import nl.aurorion.blockregen.storage.Warehouse;
+import nl.aurorion.blockregen.storage.json.GsonHelper;
 import nl.aurorion.blockregen.version.VersionManager;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -59,6 +61,8 @@ public interface BlockRegenPlugin extends Plugin {
     @NotNull ItemManager getItemManager();
 
     @NotNull RegenerationEventHandler getRegenerationEventHandler();
+
+    @NotNull Warehouse getWarehouse();
 
     GsonHelper getGsonHelper();
 

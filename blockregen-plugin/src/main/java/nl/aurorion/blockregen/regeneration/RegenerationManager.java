@@ -5,8 +5,7 @@ import lombok.extern.java.Log;
 import nl.aurorion.blockregen.AutoSaveTask;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.preset.BlockPreset;
-import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
-import nl.aurorion.blockregen.region.struct.RegenerationArea;
+import nl.aurorion.blockregen.region.Region;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -77,7 +76,7 @@ public class RegenerationManager {
      * Helper for creating regeneration processes.
      */
     @NotNull
-    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockPreset preset, @Nullable RegenerationArea region) {
+    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockPreset preset, @Nullable Region region) {
         Objects.requireNonNull(block);
         Objects.requireNonNull(preset);
 

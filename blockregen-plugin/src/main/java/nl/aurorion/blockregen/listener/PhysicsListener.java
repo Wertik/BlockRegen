@@ -2,8 +2,8 @@ package nl.aurorion.blockregen.listener;
 
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
-import nl.aurorion.blockregen.region.struct.RegenerationArea;
+import nl.aurorion.blockregen.regeneration.RegenerationProcess;
+import nl.aurorion.blockregen.region.Region;
 import nl.aurorion.blockregen.util.Blocks;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -43,7 +43,7 @@ public class PhysicsListener implements Listener {
         World world = block.getWorld();
 
         boolean useRegions = this.useRegions;
-        RegenerationArea region = plugin.getRegionManager().getArea(block);
+        Region region = plugin.getRegionManager().getRegion(block);
 
         boolean isInWorld = this.worldsEnabled.contains(world.getName());
         boolean isInRegion = region != null;

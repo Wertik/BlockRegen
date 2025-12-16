@@ -20,14 +20,16 @@ public class Locations {
     // Deserialize location from string.
     @Nullable
     public Location locationFromString(@Nullable String str) {
-        if (Strings.isNullOrEmpty(str))
+        if (Strings.isNullOrEmpty(str)) {
             return null;
+        }
 
         String[] arr = str.split(";");
         World world = Bukkit.getWorld(arr[0]);
 
-        if (world == null || arr.length < 4)
+        if (world == null || arr.length < 4) {
             return null;
+        }
 
         return new Location(world, Double.parseDouble(arr[1]), Double.parseDouble(arr[2]), Double.parseDouble(arr[3]));
     }

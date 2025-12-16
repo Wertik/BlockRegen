@@ -1,12 +1,15 @@
-package nl.aurorion.blockregen.region.struct;
+package nl.aurorion.blockregen.region;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.util.Locations;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+// todo: shouldn't be needed anymore
 public class RawRegion {
 
     @Getter
@@ -42,7 +45,8 @@ public class RawRegion {
         this.disableOtherBreak = disableOtherBreak;
     }
 
-    public RegenerationRegion build() {
+    @Nullable
+    public CuboidRegion build() {
         Location min = Locations.locationFromString(this.min);
         Location max = Locations.locationFromString(this.max);
 
@@ -50,10 +54,11 @@ public class RawRegion {
             return null;
         }
 
-        Location actualMin = new Location(min.getWorld(), Double.min(min.getX(), max.getX()), Double.min(min.getY(), max.getY()), Double.min(min.getZ(), max.getZ()));
-        Location actualMax = new Location(min.getWorld(), Double.max(min.getX(), max.getX()), Double.max(min.getY(), max.getY()), Double.max(min.getZ(), max.getZ()));
+        if (min.getWorld() == null || max.getWorld() == null) {
+            return null;
+        }
 
-        RegenerationRegion region = new RegenerationRegion(name, actualMin, actualMax);
+        CuboidRegion region = CuboidRegion.create(name, BlockPosition.from(min.getBlock()), BlockPosition.from(max.getBlock()));
         region.setDisableOtherBreak(disableOtherBreak);
         region.setPriority(priority);
         region.setAll(all);

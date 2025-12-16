@@ -1,10 +1,11 @@
-package nl.aurorion.blockregen.regeneration.struct;
+package nl.aurorion.blockregen.regeneration;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
@@ -30,7 +31,7 @@ public class RegenerationProcess {
 
     private final UUID id = UUID.randomUUID();
 
-    private SimpleLocation location;
+    private BlockPosition location;
 
     private transient Block block;
 
@@ -67,7 +68,7 @@ public class RegenerationProcess {
 
     public RegenerationProcess(Block block, NodeData originalData, BlockPreset preset) {
         this.block = block;
-        this.location = new SimpleLocation(block);
+        this.location = BlockPosition.from(block);
 
         this.preset = preset;
         this.presetName = preset.getName();

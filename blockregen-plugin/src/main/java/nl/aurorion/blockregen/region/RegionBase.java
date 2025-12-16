@@ -1,18 +1,16 @@
-package nl.aurorion.blockregen.region.struct;
+package nl.aurorion.blockregen.region;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * A common interface for an Area in which blocks regenerate.
- */
-public abstract class RegenerationArea {
+public abstract class RegionBase implements Region {
 
     @Getter
     protected final String name;
@@ -34,40 +32,31 @@ public abstract class RegenerationArea {
     @Setter
     protected int priority = 1;
 
-    public RegenerationArea(String name) {
+    public RegionBase(String name) {
         this.name = name;
     }
 
-    public abstract boolean contains(@NotNull Block block);
-
-    public void serialize(ConfigurationSection section) {
-        section.set("All", this.all);
-        section.set("Disable-Other-Break", this.disableOtherBreak);
-        section.set("Presets", new ArrayList<>(this.presets));
-        section.set("Priority", this.priority);
-    }
-
-    public boolean switchAll() {
-        setAll(!isAll());
-        return isAll();
-    }
-
+    @Override
     public boolean hasPreset(@Nullable String preset) {
         return all || (preset != null && this.presets.contains(preset));
     }
 
+    @Override
     public void addPreset(@NotNull String preset) {
         this.presets.add(preset);
     }
 
+    @Override
     public void removePreset(@NotNull String preset) {
         this.presets.remove(preset);
     }
 
+    @Override
     public void clearPresets() {
         this.presets.clear();
     }
 
+    @Override
     public @NotNull Collection<String> getPresets() {
         return Collections.unmodifiableCollection(this.presets);
     }

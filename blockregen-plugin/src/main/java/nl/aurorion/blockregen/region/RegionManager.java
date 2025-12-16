@@ -1,31 +1,29 @@
 package nl.aurorion.blockregen.region;
 
-import com.google.common.base.Strings;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
-import nl.aurorion.blockregen.region.struct.RawRegion;
-import nl.aurorion.blockregen.region.struct.RegenerationArea;
-import nl.aurorion.blockregen.region.struct.RegenerationRegion;
-import nl.aurorion.blockregen.region.struct.RegenerationWorld;
-import nl.aurorion.blockregen.util.Locations;
+import nl.aurorion.blockregen.storage.StorageDriver;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Log
 public class RegionManager {
 
     private final BlockRegenPlugin plugin;
 
-    private final List<RegenerationArea> loadedAreas = new ArrayList<>();
+    private final List<Region> loadedAreas = new ArrayList<>();
 
     // Set of regions that failed to load.
     private final Set<RawRegion> failedRegions = new HashSet<>();
@@ -37,7 +35,7 @@ public class RegionManager {
     }
 
     public void sort() {
-        loadedAreas.sort((o1, o2) -> Comparator.comparing(RegenerationArea::getPriority).reversed().compare(o1, o2));
+        loadedAreas.sort((o1, o2) -> Comparator.comparing(Region::getPriority).reversed().compare(o1, o2));
     }
 
     // ---- Selection
@@ -64,34 +62,25 @@ public class RegionManager {
     }
 
     @NotNull
-    public RegenerationRegion createRegion(@NotNull String name, @NotNull RegionSelection selection) {
+    public CuboidRegion createCuboidRegion(@NotNull String name, @NotNull RegionSelection selection) {
         Location first = selection.getFirst();
         Location second = selection.getSecond();
 
-        if (first.getWorld() != second.getWorld()) {
-            throw new IllegalStateException("Selection points have to be in the same world.");
-        }
-
-        // Find out min and max.
-
-        Location min = new Location(first.getWorld(), Math.min(first.getX(), second.getX()), Math.min(first.getY(), second.getY()), Math.min(first.getZ(), second.getZ()));
-        Location max = new Location(first.getWorld(), Math.max(first.getX(), second.getX()), Math.max(first.getY(), second.getY()), Math.max(first.getZ(), second.getZ()));
-
-        return new RegenerationRegion(name, min, max);
+        return CuboidRegion.create(name, BlockPosition.from(first.getBlock()), BlockPosition.from(second.getBlock()));
     }
 
     public boolean finishSelection(@NotNull String name, @NotNull RegionSelection selection) {
-        RegenerationRegion region = createRegion(name, selection);
-        addArea(region);
+        CuboidRegion region = createCuboidRegion(name, selection);
+        addRegion(region);
         return true;
     }
 
     @NotNull
-    public RegenerationWorld createWorld(@NotNull String name, String worldName) {
-        return new RegenerationWorld(name, worldName);
+    public WorldRegion createWorldRegion(@NotNull String name, @NotNull String worldName) {
+        return WorldRegion.create(name, worldName);
     }
 
-    public void reattemptLoad() {
+    /*public void reattemptLoad() {
         if (failedRegions.isEmpty()) {
             return;
         }
@@ -100,130 +89,32 @@ public class RegionManager {
         int count = failedRegions.size();
         failedRegions.removeIf(rawRegion -> rawRegion.isReattempt() && loadRegion(rawRegion));
         log.info("Loaded " + (count - failedRegions.size()) + " of failed regions.");
-    }
-
-    @Nullable
-    private RawRegion loadRaw(@NotNull ConfigurationSection section) {
-        String name = section.getName();
-
-        String minString = section.getString("Min");
-        String maxString = section.getString("Max");
-
-        boolean all = section.getBoolean("All", true);
-        List<String> presets = section.getStringList("Presets");
-        int priority = section.getInt("Priority", 1);
-
-        Boolean disableOtherBreak = section.getObject("Disable-Other-Break", Boolean.class);
-
-        RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority, disableOtherBreak);
-
-        if (Strings.isNullOrEmpty(minString) || Strings.isNullOrEmpty(maxString)) {
-            this.failedRegions.add(rawRegion);
-            log.severe("Could not load region " + name + ", invalid location strings.");
-            return null;
-        }
-
-        if (!Locations.isLocationLoaded(minString) || !Locations.isLocationLoaded(maxString)) {
-            rawRegion.setReattempt(true);
-            this.failedRegions.add(rawRegion);
-            log.info("World for region " + name + " is not loaded. Reattempting after complete server load.");
-            return null;
-        }
-
-        return rawRegion;
-    }
-
-    private void loadWorldRegion(ConfigurationSection section, String name) {
-        String worldName = section.getString("worldName");
-
-        RegenerationWorld world = new RegenerationWorld(name, worldName);
-        world.setPriority(section.getInt("Priority", 1));
-        world.setAll(section.getBoolean("All", true));
-
-        List<String> presets = section.getStringList("Presets");
-
-        for (String presetName : presets) {
-            BlockPreset preset = plugin.getPresetManager().getPreset(presetName);
-
-            if (preset == null) {
-                log.warning(String.format("Preset %s isn't loaded, but is included in region %s.", presetName, world.getName()));
-            }
-
-            world.addPreset(presetName);
-        }
-
-        log.fine(() -> String.format("Loaded regeneration world %s", world));
-        this.loadedAreas.add(world);
-    }
+    }*/
 
     public void load() {
-        this.loadedAreas.clear();
-        plugin.getFiles().getRegions().load();
+        loadedAreas.clear();
 
-        FileConfiguration regions = plugin.getFiles().getRegions().getFileConfiguration();
+        StorageDriver driver = plugin.getWarehouse().getSelectedDriver();
 
-        ConfigurationSection parentSection = regions.getConfigurationSection("Regions");
+        Future<List<Region>> future = driver.loadRegions();
 
-        if (parentSection != null) {
-            for (String name : parentSection.getKeys(false)) {
-                ConfigurationSection section = parentSection.getConfigurationSection(name);
-
-                // Shouldn't happen
-                if (section == null) {
-                    continue;
-                }
-
-                // Load a world region
-                if (section.isSet("worldName")) {
-                    loadWorldRegion(section, name);
-                    continue;
-                }
-
-                // For normal regions we use RawRegion first to ensure it gets loaded (and later saved...).
-
-                RawRegion rawRegion = loadRaw(section);
-                if (rawRegion == null) {
-                    continue;
-                }
-                loadRegion(rawRegion);
-            }
+        try {
+            loadedAreas.addAll(future.get(6000, TimeUnit.MILLISECONDS));
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            // todo
+            throw new RuntimeException(e);
         }
 
-        this.sort();
-        log.info("Loaded " + this.loadedAreas.size() + " region(s)...");
+        log.info("Loaded " + loadedAreas.size() + " region(s)...");
     }
 
-    private boolean loadRegion(RawRegion rawRegion) {
-        RegenerationRegion region = rawRegion.build();
-
-        if (region == null) {
-            log.warning("Could not load region " + rawRegion.getName() + ", world " + rawRegion.getMax() + " still not loaded.");
-            return false;
-        }
-
-        // Attach presets
-        for (String presetName : rawRegion.getBlockPresets()) {
-            BlockPreset preset = plugin.getPresetManager().getPreset(presetName);
-
-            if (preset == null) {
-                log.warning(String.format("Preset %s isn't loaded, but is included in region %s.", presetName, rawRegion.getName()));
-            }
-
-            region.addPreset(presetName);
-        }
-
-        this.loadedAreas.add(region);
-        this.sort();
-        log.fine(() -> "Loaded region " + region);
-        return true;
-    }
 
     // Only attempt to reload the presets configured as they could've changed.
     // Reloading whole regions could lead to the regeneration disabling. Could hurt the builds etc.
     // -- Changed to preset names for regions, no need to reload, just print a warning when a preset is not loaded.
     public void reload() {
 
-        for (RegenerationArea area : this.loadedAreas) {
+        for (Region area : this.loadedAreas) {
             Collection<String> presets = area.getPresets();
 
             // Attach presets
@@ -241,52 +132,31 @@ public class RegionManager {
     }
 
     public void save() {
-        FileConfiguration regions = plugin.getFiles().getRegions().getFileConfiguration();
+        Future<Void> future = plugin.getWarehouse().getSelectedDriver().updateRegions(loadedAreas);
 
-        regions.set("Regions", null);
-
-        ConfigurationSection root = ensureRegionsSection(regions);
-
-        // Save failed regions to preserve them for next run. Maybe the world comes back.
-        for (RawRegion rawRegion : new HashSet<>(this.failedRegions)) {
-            ConfigurationSection regionSection = root.createSection(rawRegion.getName());
-
-            regionSection.set("Min", rawRegion.getMin());
-            regionSection.set("Max", rawRegion.getMax());
-
-            regionSection.set("All", rawRegion.isAll());
-            regionSection.set("Presets", rawRegion.getBlockPresets());
-            regionSection.set("Disable-Other-Break", rawRegion.getDisableOtherBreak());
+        try {
+            future.get(6000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | TimeoutException | ExecutionException e) {
+            // todo
+            throw new RuntimeException(e);
         }
-
-        for (RegenerationArea area : new HashSet<>(this.loadedAreas)) {
-            ConfigurationSection section = root.createSection(area.getName());
-            area.serialize(section);
-        }
-
-        plugin.getFiles().getRegions().save();
-
-        log.fine(() -> "Saved " + (this.loadedAreas.size() + this.failedRegions.size()) + " area(s)...");
-    }
-
-    private ConfigurationSection ensureRegionsSection(FileConfiguration configuration) {
-        return configuration.contains("Regions") ? configuration.getConfigurationSection("Regions") : configuration.createSection("Regions");
     }
 
     public boolean exists(String name) {
         return this.loadedAreas.stream().anyMatch(r -> r.getName().equals(name));
     }
 
-    public RegenerationArea getArea(@NotNull String name) {
+    public Region getRegion(@NotNull String name) {
         return this.loadedAreas.stream().filter(r -> r.getName().equals(name)).findAny().orElse(null);
     }
 
-    public void removeArea(@NotNull String name) {
-        Iterator<RegenerationArea> it = loadedAreas.iterator();
+    public void removeRegion(@NotNull String name) {
+        Iterator<Region> it = this.loadedAreas.iterator();
         while (it.hasNext()) {
-            RegenerationArea area = it.next();
+            Region region = it.next();
 
-            if (Objects.equals(area.getName(), name)) {
+            if (Objects.equals(region.getName(), name)) {
+                this.plugin.getWarehouse().getSelectedDriver().deleteRegion(region);
                 it.remove();
                 break;
             }
@@ -295,24 +165,25 @@ public class RegionManager {
     }
 
     @Nullable
-    public RegenerationArea getArea(@NotNull Block block) {
-        for (RegenerationArea area : this.loadedAreas) {
-            if (area.contains(block)) {
-                return area;
+    public Region getRegion(@NotNull Block block) {
+        BlockPosition position = BlockPosition.from(block);
+        for (Region region : this.loadedAreas) {
+            if (region.contains(position)) {
+                return region;
             }
         }
         return null;
     }
 
-    public void addArea(@NotNull RegenerationArea region) {
+    public void addRegion(@NotNull Region region) {
         this.loadedAreas.add(region);
+        this.plugin.getWarehouse().getSelectedDriver().saveRegion(region);
         this.sort();
         log.fine(() -> "Added area " + region);
-        save();
     }
 
     @NotNull
-    public List<RegenerationArea> getLoadedAreas() {
-        return Collections.unmodifiableList(loadedAreas);
+    public List<Region> getLoadedRegions() {
+        return Collections.unmodifiableList(this.loadedAreas);
     }
 }

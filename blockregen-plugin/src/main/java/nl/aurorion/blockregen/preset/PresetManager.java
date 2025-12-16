@@ -18,7 +18,7 @@ import nl.aurorion.blockregen.preset.condition.Conditions;
 import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
 import nl.aurorion.blockregen.preset.drop.*;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
-import nl.aurorion.blockregen.region.struct.RegenerationArea;
+import nl.aurorion.blockregen.region.Region;
 import nl.aurorion.blockregen.util.Parsing;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -64,7 +64,7 @@ public class PresetManager {
     }
 
     @Nullable
-    public BlockPreset getPreset(@NotNull Block block, @Nullable RegenerationArea region) {
+    public BlockPreset getPreset(@NotNull Block block, @Nullable Region region) {
         if (region == null) {
             return getPreset(block);
         }

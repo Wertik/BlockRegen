@@ -2,9 +2,9 @@ package nl.aurorion.blockregen.api;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.aurorion.blockregen.regeneration.RegenerationEventType;
 import nl.aurorion.blockregen.preset.BlockPreset;
-import nl.aurorion.blockregen.region.struct.RegenerationArea;
+import nl.aurorion.blockregen.regeneration.RegenerationEventType;
+import nl.aurorion.blockregen.region.Region;
 import org.bukkit.block.Block;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -33,13 +33,13 @@ public class BlockRegenBlockBreakEvent extends BlockRegenBlockEvent implements C
 
     @Getter
     @Nullable
-    private final RegenerationArea area;
+    private final Region area;
 
     @Getter
     @Setter
     private boolean cancelled = false;
 
-    public BlockRegenBlockBreakEvent(@NotNull Block block, @NotNull BlockPreset blockPreset, @NotNull Event event, @NotNull RegenerationEventType eventType, @Nullable RegenerationArea area) {
+    public BlockRegenBlockBreakEvent(@NotNull Block block, @NotNull BlockPreset blockPreset, @NotNull Event event, @NotNull RegenerationEventType eventType, @Nullable Region area) {
         super(block, blockPreset);
         this.event = event;
         this.eventType = eventType;

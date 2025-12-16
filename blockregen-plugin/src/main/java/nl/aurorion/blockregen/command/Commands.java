@@ -6,13 +6,12 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
-import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
+import nl.aurorion.blockregen.regeneration.RegenerationProcess;
+import nl.aurorion.blockregen.region.CuboidRegion;
+import nl.aurorion.blockregen.region.Region;
+import nl.aurorion.blockregen.region.WorldRegion;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
-import nl.aurorion.blockregen.region.struct.RegenerationArea;
-import nl.aurorion.blockregen.region.struct.RegenerationRegion;
-import nl.aurorion.blockregen.region.struct.RegenerationWorld;
 import nl.aurorion.blockregen.util.Colors;
-import nl.aurorion.blockregen.util.Locations;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -186,9 +185,9 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        for (RegenerationArea area : this.plugin.getRegionManager().getLoadedAreas()) {
-                            if (area instanceof RegenerationWorld) {
-                                RegenerationWorld world = (RegenerationWorld) area;
+                        for (Region area : this.plugin.getRegionManager().getLoadedRegions()) {
+                            if (area instanceof WorldRegion) {
+                                WorldRegion world = (WorldRegion) area;
                                 if (world.getWorldName().equals(args[3])) {
                                     Message.DUPLICATED_WORLD_REGION.send(sender);
                                     return false;
@@ -196,8 +195,8 @@ public class Commands implements CommandExecutor {
                             }
                         }
 
-                        RegenerationArea area = plugin.getRegionManager().createWorld(args[2], args[3]);
-                        plugin.getRegionManager().addArea(area);
+                        Region area = plugin.getRegionManager().createWorldRegion(args[2], args[3]);
+                        plugin.getRegionManager().addRegion(area);
                         Message.REGION_FROM_WORLD.mapAndSend(sender, str -> str
                                 .replace("%region%", args[2])
                                 .replace("%world%", args[3]));
@@ -229,7 +228,7 @@ public class Commands implements CommandExecutor {
                             break;
                         }
 
-                        RegenerationArea area = plugin.getRegionManager().getArea(args[2]);
+                        Region area = plugin.getRegionManager().getRegion(args[2]);
                         area.setPriority(priority);
                         plugin.getRegionManager().sort();
                         Message.REGION_PRIORITY_CHANGED.mapAndSend(sender, str -> str
@@ -297,7 +296,7 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        plugin.getRegionManager().removeArea(args[2]);
+                        plugin.getRegionManager().removeRegion(args[2]);
                         Message.REMOVE_REGION.send(sender);
                         return false;
                     }
@@ -312,14 +311,18 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        RegenerationArea region = plugin.getRegionManager().getArea(args[2]);
+                        Region region = plugin.getRegionManager().getRegion(args[2]);
 
                         if (region == null) {
                             Message.UNKNOWN_REGION.send(sender);
                             return false;
                         }
 
-                        Message.SET_ALL.mapAndSend(sender, str -> String.format(str, region.switchAll() ? "&aall" : "&cnot all"));
+                        region.setAll(!region.isAll());
+
+                        boolean res = region.isAll();
+
+                        Message.SET_ALL.mapAndSend(sender, str -> String.format(str, res ? "&aall" : "&cnot all"));
                         return false;
                     }
                     case "break": {
@@ -333,7 +336,7 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        RegenerationArea area = plugin.getRegionManager().getArea(args[2]);
+                        Region area = plugin.getRegionManager().getRegion(args[2]);
 
                         if (area == null) {
                             Message.UNKNOWN_REGION.send(sender);
@@ -378,7 +381,7 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        RegenerationArea region = plugin.getRegionManager().getArea(args[2]);
+                        Region region = plugin.getRegionManager().getRegion(args[2]);
 
                         if (region == null) {
                             Message.UNKNOWN_REGION.send(sender);
@@ -422,7 +425,7 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        RegenerationArea region = plugin.getRegionManager().getArea(args[2]);
+                        Region region = plugin.getRegionManager().getRegion(args[2]);
 
                         if (region == null) {
                             Message.UNKNOWN_REGION.send(sender);
@@ -467,7 +470,7 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        RegenerationArea region = plugin.getRegionManager().getArea(args[2]);
+                        Region region = plugin.getRegionManager().getRegion(args[2]);
 
                         if (region == null) {
                             Message.UNKNOWN_REGION.send(sender);
@@ -490,14 +493,14 @@ public class Commands implements CommandExecutor {
                             return false;
                         }
 
-                        RegenerationArea regionFrom = plugin.getRegionManager().getArea(args[2]);
+                        Region regionFrom = plugin.getRegionManager().getRegion(args[2]);
 
                         if (regionFrom == null) {
                             Message.UNKNOWN_REGION.send(sender);
                             return false;
                         }
 
-                        RegenerationArea regionTo = plugin.getRegionManager().getArea(args[3]);
+                        Region regionTo = plugin.getRegionManager().getRegion(args[3]);
 
                         if (regionTo == null) {
                             Message.UNKNOWN_REGION.send(sender);
@@ -531,7 +534,7 @@ public class Commands implements CommandExecutor {
 
                 BlockPreset preset = null;
                 String worldName = null;
-                RegenerationArea region = null;
+                Region region = null;
 
                 Iterator<String> it = Arrays.stream(workArgs).iterator();
 
@@ -541,7 +544,7 @@ public class Commands implements CommandExecutor {
                     if (arg.equalsIgnoreCase("-p") && it.hasNext()) {
                         preset = plugin.getPresetManager().getPreset(it.next());
                     } else if (arg.equalsIgnoreCase("-r") && it.hasNext()) {
-                        region = plugin.getRegionManager().getArea(it.next());
+                        region = plugin.getRegionManager().getRegion(it.next());
                     } else if (arg.equalsIgnoreCase("-w") && it.hasNext()) {
                         worldName = it.next();
                     } else {
@@ -768,15 +771,15 @@ public class Commands implements CommandExecutor {
 
     private void listRegions(CommandSender sender) {
         StringBuilder message = new StringBuilder("&8&m    &3 BlockRegen Regions &8&m    &r\n");
-        for (RegenerationArea area : plugin.getRegionManager().getLoadedAreas()) {
+        for (Region area : plugin.getRegionManager().getLoadedRegions()) {
 
             message.append(String.format(" &f%s\n", area.getName()));
 
-            if (area instanceof RegenerationRegion) {
-                RegenerationRegion region = (RegenerationRegion) area;
-                message.append(String.format("  &7Area: &f%s &8- &f%s", Locations.locationToString(region.getMin()), Locations.locationToString(region.getMax()))).append('\n');
-            } else if (area instanceof RegenerationWorld) {
-                RegenerationWorld world = (RegenerationWorld) area;
+            if (area instanceof CuboidRegion) {
+                CuboidRegion region = (CuboidRegion) area;
+                message.append(String.format("  &7Area: &f%s &8- &f%s", region.getMin().serialize(), region.getMax().serialize())).append('\n');
+            } else if (area instanceof WorldRegion) {
+                WorldRegion world = (WorldRegion) area;
                 message.append("  &7World: &f").append(world.getWorldName()).append('\n');
             }
 

@@ -70,3 +70,13 @@ Auto-Save:
   Enabled: true
   # Interval in seconds
   Interval: 600
+
+# Storage options
+Storage:
+  Driver: 'sqlite'
+
+  sqlite:
+    Path: 'blockregen.db'
+
+  json:
+    Path: 'Data.json'

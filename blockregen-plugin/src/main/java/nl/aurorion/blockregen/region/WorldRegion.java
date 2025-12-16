@@ -1,29 +1,27 @@
-package nl.aurorion.blockregen.region.struct;
+package nl.aurorion.blockregen.region;
 
 import lombok.Getter;
-import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
+import nl.aurorion.blockregen.util.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
-public class RegenerationWorld extends RegenerationArea {
+public class WorldRegion extends RegionBase {
 
     @Getter
     private final String worldName;
 
-    public RegenerationWorld(String name, String worldName) {
+    private WorldRegion(String name, String worldName) {
         super(name);
         this.worldName = worldName;
     }
 
-    @Override
-    public boolean contains(@NotNull Block block) {
-        return block.getWorld().getName().equals(this.worldName);
+    @NotNull
+    public static WorldRegion create(@NotNull String name, @NotNull String worldName) {
+        return new WorldRegion(name, worldName);
     }
 
     @Override
-    public void serialize(ConfigurationSection section) {
-        super.serialize(section);
-        section.set("worldName", this.worldName);
+    public boolean contains(@NotNull BlockPosition position) {
+        return position.getWorldName().equals(this.worldName);
     }
 
     @Override
