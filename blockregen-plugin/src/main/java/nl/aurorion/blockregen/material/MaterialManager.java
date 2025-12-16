@@ -139,7 +139,39 @@ public class MaterialManager {
         List<BlockRegenMaterial> targetMaterials = new ArrayList<>();
 
         for (String materialInput : materials) {
-            BlockRegenMaterial material = parseMaterial(materialInput);
+            if (materialInput == null) {
+                continue;
+            }
+
+            String trimmed = materialInput.trim();
+
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+
+            // Wildcard support for vanilla materials, e.g. '*_ORE' or '*_TERRACOTTA'
+            // Only apply when there is no explicit prefix.
+            if (trimmed.startsWith("*") && trimmed.indexOf('*', 1) == -1 && !trimmed.substring(1).isEmpty() && !trimmed.contains(":")) {
+                String suffix = trimmed.substring(1).toUpperCase(Locale.ROOT);
+                List<BlockRegenMaterial> expanded = new ArrayList<>();
+
+                for (XMaterial xMaterial : XMaterial.values()) {
+                    if (xMaterial.name().endsWith(suffix)) {
+                        // Delegate to the normal parsing logic to keep behaviour consistent.
+                        BlockRegenMaterial material = parseMaterial(xMaterial.name());
+                        expanded.add(material);
+                    }
+                }
+
+                if (expanded.isEmpty()) {
+                    throw new ParseException("Target material wildcard " + trimmed + " did not match any materials.");
+                }
+
+                targetMaterials.addAll(expanded);
+                continue;
+            }
+
+            BlockRegenMaterial material = parseMaterial(trimmed);
             targetMaterials.add(material);
         }
         return TargetMaterial.of(targetMaterials);
