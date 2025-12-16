@@ -2,6 +2,7 @@ package nl.aurorion.blockregen;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.util.Text;
 import org.bukkit.command.CommandSender;
@@ -18,6 +19,7 @@ import java.util.function.Function;
  *
  * @author Wertik1206
  */
+@Log
 public enum Message {
 
     PREFIX("Prefix", "&6[&3BlockRegen&6] &r"),
@@ -162,16 +164,17 @@ public enum Message {
         return this.isEmpty() ? null : Colors.color(Text.parse(getRawPrefixed(), player));
     }
 
-    public void send(@NotNull CommandSender target) {
-        if (this.get() != null) {
-            target.sendMessage();
+    public @Nullable String get(@NotNull CommandSender sender) {
+        if (sender instanceof Player) {
+            return get((Player) sender);
         }
+        return this.isEmpty() ? null : Colors.color(Text.parse(getRawPrefixed()));
     }
 
-    public void send(@NotNull Player player) {
-        String message = this.get(player);
+    public void send(@NotNull CommandSender target) {
+        String message = this.get(target);
         if (message != null) {
-            player.sendMessage(message);
+            target.sendMessage(message);
         }
     }
 
