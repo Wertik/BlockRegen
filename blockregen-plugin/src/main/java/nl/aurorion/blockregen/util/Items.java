@@ -5,16 +5,9 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import org.bukkit.Color;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +27,6 @@ public class Items {
         add(Color.WHITE);
         add(Color.YELLOW);
     }};
-
-    public Item createDroppedItem(Location location, ItemStack item) {
-        Item entity = location.getWorld().createEntity(location, Item.class);
-        entity.setItemStack(item);
-        return entity;
-    }
 
     /**
      * Returns the quantity of items to drop on block destruction.

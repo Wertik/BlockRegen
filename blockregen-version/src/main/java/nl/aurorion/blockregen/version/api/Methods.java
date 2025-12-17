@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.version.api;
 
 import com.cryptomorin.xseries.XMaterial;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.boss.BossBar;
@@ -45,4 +46,7 @@ public interface Methods {
     void handleDropItemEvent(Player player, BlockState blockState, List<Item> items);
 
     int applyMending(Player player, int experience);
+
+    @NotNull
+    Item createDroppedItem(@NotNull Location location, @NotNull ItemStack item);
 }

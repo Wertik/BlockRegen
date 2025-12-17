@@ -8,6 +8,7 @@ import lombok.extern.java.Log;
 import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.version.api.Methods;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.boss.BarColor;
@@ -25,8 +26,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Log
 public class LatestMethods implements Methods {
@@ -189,5 +190,15 @@ public class LatestMethods implements Methods {
         repairableItem.setItemMeta(meta);
 
         return applyMending(player, experience - experienceUsed);
+    }
+
+    @Override
+    public @NotNull Item createDroppedItem(@NotNull Location location, @NotNull ItemStack item) {
+        Objects.requireNonNull(location);
+        Objects.requireNonNull(location.getWorld(), "Location world not loaded.");
+
+        Item entity = location.getWorld().createEntity(location, Item.class);
+        entity.setItemStack(item);
+        return entity;
     }
 }
