@@ -246,7 +246,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
             this.debugListener.register();
         }
         if (!debug && debugListener.isRegistered()) {
-            HandlerList.unregisterAll(debugListener);
+            this.debugListener.unregister();
         }
     }
 

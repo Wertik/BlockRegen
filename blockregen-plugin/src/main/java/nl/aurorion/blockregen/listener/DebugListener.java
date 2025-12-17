@@ -7,6 +7,7 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
@@ -41,13 +42,15 @@ public class DebugListener implements Listener {
     }
 
     public void register() {
+        setRegistered(true);
+
         this.plugin.getServer().getPluginManager().registerEvent(BlockBreakEvent.class, this, EventPriority.MONITOR, (listener, event) -> {
             suppressThrows(() -> {
                 if (!(event instanceof BlockBreakEvent)) {
                     return;
                 }
                 BlockBreakEvent blockBreakEvent = (BlockBreakEvent) event;
-                log.fine(String.format("After break: %s, %s", blockBreakEvent.isCancelled(), blockBreakEvent.getBlock().getType()));
+                log.fine(String.format("BlockBreakEvent: %s, %s", blockBreakEvent.isCancelled(), blockBreakEvent.getBlock().getType()));
             });
         }, this.plugin);
 
@@ -67,7 +70,7 @@ public class DebugListener implements Listener {
                 Item item = ((Item) entity);
                 ItemStack itemStack = item.getItemStack();
 
-                log.fine(String.format("Item spawned: %s, %sx%d", entitySpawnEvent.isCancelled(), itemStack.getType(), itemStack.getAmount()));
+                log.fine(String.format("EntitySpawnEvent: %s, %sx%d", entitySpawnEvent.isCancelled(), itemStack.getType(), itemStack.getAmount()));
             });
         }, this.plugin);
 
@@ -79,11 +82,17 @@ public class DebugListener implements Listener {
                         return;
                     }
                     BlockDropItemEvent blockDropItemEvent = (BlockDropItemEvent) event;
-                    log.fine(String.format("After drop: %s, %s [%s]", blockDropItemEvent.isCancelled(), blockDropItemEvent.getBlockState().getType(), blockDropItemEvent.getItems().stream().map(
+                    log.fine(String.format("BlockDropItemEvent: %s, %s [%s]", blockDropItemEvent.isCancelled(), blockDropItemEvent.getBlockState().getType(), blockDropItemEvent.getItems().stream().map(
                             (i) -> i.getItemStack().getType() + "x" + i.getItemStack().getAmount()
                     ).collect(Collectors.joining(","))));
                 });
             }, this.plugin);
         }
+    }
+
+    public void unregister() {
+        this.setRegistered(false);
+        HandlerList.unregisterAll(this);
+        log.fine(() -> "Unregistered debug listener.");
     }
 }
