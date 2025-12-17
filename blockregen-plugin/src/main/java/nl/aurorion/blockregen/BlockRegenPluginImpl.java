@@ -242,7 +242,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         boolean debug = files.getSettings().getFileConfiguration().getBoolean("Debug-Enabled", false);
 
         if (debug && !debugListener.isRegistered()) {
-            getServer().getPluginManager().registerEvents(debugListener, this);
+            log.fine(() -> "Registered debug listener.");
+            this.debugListener.register();
         }
         if (!debug && debugListener.isRegistered()) {
             HandlerList.unregisterAll(debugListener);
