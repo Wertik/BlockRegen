@@ -25,6 +25,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemFlag;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -227,29 +228,9 @@ public class PresetManager {
         // Regenerate whole
         preset.setRegenerateWhole(section.getBoolean("regenerate-whole", false));
 
-        // Block Break Sound
-        String sound = section.getString("sound");
-
-        if (!Strings.isNullOrEmpty(sound)) {
-            Optional<XSound> xSound = XSound.of(sound);
-            if (!xSound.isPresent()) {
-                log.warning("Sound '" + sound + "' in preset " + name + " is invalid.");
-            } else {
-                preset.setSound(xSound.get());
-            }
-        }
-
-        // Break sound for player
-        String sound = section.getString("player-sound");
-
-        if (!Strings.isNullOrEmpty(sound)) {
-            Optional<XSound> xSound = XSound.of(sound);
-            if (!xSound.isPresent()) {
-                log.warning("Sound '" + sound + "' in preset " + name + " is invalid.");
-            } else {
-                preset.setPlayerSound(xSound.get());
-            }
-        }
+        // Block break sounds
+        preset.setSound(parseSound(name, section.getString("sound")));
+        preset.setPlayerSound(parseSound(name, section.getString("player-sound")));
 
         preset.setConditionMessage(section.getString("conditions-message", null));
 
@@ -308,6 +289,17 @@ public class PresetManager {
 
         presets.put(name, preset);
         log.fine(() -> "Loaded preset " + preset);
+    }
+
+    @Contract("_,null->null;_,!null->!null")
+    private XSound parseSound(@NotNull String preset, String value) {
+        Optional<XSound> xSound = XSound.of(value);
+        if (!xSound.isPresent()) {
+            log.warning("Sound '" + value + "' in preset " + preset + " is invalid.");
+            return null;
+        } else {
+            return xSound.get();
+        }
     }
 
     /**
@@ -490,7 +482,7 @@ public class PresetManager {
                     if (val instanceof Number) {
                         return (Integer) val;
                     }
-                    throw new ParseException(String.format("Invalid type ('%s') of value '%s'",  val.getClass().getSimpleName(), val));
+                    throw new ParseException(String.format("Invalid type ('%s') of value '%s'", val.getClass().getSimpleName(), val));
                 })
                 .apply(drop::setCustomModelData);
 
