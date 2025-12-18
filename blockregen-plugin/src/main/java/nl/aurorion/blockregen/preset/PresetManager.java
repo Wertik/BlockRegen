@@ -296,7 +296,7 @@ public class PresetManager {
         if (value == null) {
             return null;
         }
-        
+
         Optional<XSound> xSound = XSound.of(value);
         if (!xSound.isPresent()) {
             log.warning("Sound '" + value + "' in preset " + preset + " is invalid.");
