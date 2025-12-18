@@ -239,6 +239,18 @@ public class PresetManager {
             }
         }
 
+        // Break sound for player
+        String sound = section.getString("player-sound");
+
+        if (!Strings.isNullOrEmpty(sound)) {
+            Optional<XSound> xSound = XSound.of(sound);
+            if (!xSound.isPresent()) {
+                log.warning("Sound '" + sound + "' in preset " + name + " is invalid.");
+            } else {
+                preset.setPlayerSound(xSound.get());
+            }
+        }
+
         preset.setConditionMessage(section.getString("conditions-message", null));
 
         // Particle
