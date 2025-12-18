@@ -293,6 +293,10 @@ public class PresetManager {
 
     @Contract("_,null->null;_,!null->!null")
     private XSound parseSound(@NotNull String preset, String value) {
+        if (value == null) {
+            return null;
+        }
+        
         Optional<XSound> xSound = XSound.of(value);
         if (!xSound.isPresent()) {
             log.warning("Sound '" + value + "' in preset " + preset + " is invalid.");
