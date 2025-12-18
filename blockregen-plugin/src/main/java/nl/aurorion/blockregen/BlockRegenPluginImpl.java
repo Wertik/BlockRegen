@@ -165,7 +165,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         warehouse.initializeStorage();
 
         presetManager.load();
-        regionManager.load();
+        regionManager.loadAll();
         regenerationManager.load();
 
         finishedLoading = true;

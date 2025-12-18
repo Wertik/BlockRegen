@@ -1,12 +1,13 @@
 package nl.aurorion.blockregen.region;
 
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.storage.StorageException;
-import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.LoadException;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.storage.StorageDriver;
+import nl.aurorion.blockregen.storage.exception.StorageException;
+import nl.aurorion.blockregen.util.BlockPosition;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public class RegionManager {
 
     private final BlockRegenPlugin plugin;
 
-    private final List<Region> loadedAreas = new ArrayList<>();
+    private List<Region> loadedRegions = new ArrayList<>();
 
     // Set of regions that failed to load.
     private final Set<RawRegion> failedRegions = new HashSet<>();
@@ -36,7 +37,7 @@ public class RegionManager {
     }
 
     public void sort() {
-        loadedAreas.sort((o1, o2) -> Comparator.comparing(Region::getPriority).reversed().compare(o1, o2));
+        loadedRegions.sort((o1, o2) -> Comparator.comparing(Region::getPriority).reversed().compare(o1, o2));
     }
 
     // ---- Selection
@@ -62,16 +63,11 @@ public class RegionManager {
         return selection;
     }
 
-    @NotNull
-    public CuboidRegion createCuboidRegion(@NotNull String name, @NotNull RegionSelection selection) {
+    public boolean finishSelection(@NotNull String regionName, @NotNull RegionSelection selection) {
         Location first = selection.getFirst();
         Location second = selection.getSecond();
 
-        return CuboidRegion.create(name, BlockPosition.from(first.getBlock()), BlockPosition.from(second.getBlock()));
-    }
-
-    public boolean finishSelection(@NotNull String name, @NotNull RegionSelection selection) {
-        CuboidRegion region = createCuboidRegion(name, selection);
+        Region region = CuboidRegion.create(regionName, BlockPosition.from(first.getBlock()), BlockPosition.from(second.getBlock()));
         addRegion(region);
         return true;
     }
@@ -92,27 +88,25 @@ public class RegionManager {
         log.info("Loaded " + (count - failedRegions.size()) + " of failed regions.");
     }*/
 
-    public void load() {
-        loadedAreas.clear();
-
+    // Load all the regions.
+    // If any of them fail to load.
+    // We provide protection in the regions, if they're not loaded, buildings could be grieved.
+    public void loadAll() throws LoadException {
         StorageDriver driver = plugin.getWarehouse().getSelectedDriver();
 
-        Future<List<Region>> future = null;
+        List<Region> regions;
         try {
-            future = driver.loadRegions();
+            regions = driver.loadRegions();
         } catch (StorageException e) {
-            // todo
-            throw new RuntimeException(e);
+            // This state should be unrecoverable -- regions didn't load properly, we cannot guarantee block protection.
+            throw new LoadException(e);
         }
 
-        try {
-            loadedAreas.addAll(future.get(6000, TimeUnit.MILLISECONDS));
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            // todo
-            throw new RuntimeException(e);
-        }
+        // Presets can be left unchecked?
 
-        log.info("Loaded " + loadedAreas.size() + " region(s)...");
+        this.loadedRegions = regions;
+
+        log.info("Loaded " + loadedRegions.size() + " region(s)...");
     }
 
 
@@ -121,7 +115,7 @@ public class RegionManager {
     // -- Changed to preset names for regions, no need to reload, just print a warning when a preset is not loaded.
     public void reload() {
 
-        for (Region area : this.loadedAreas) {
+        for (Region area : this.loadedRegions) {
             Collection<String> presets = area.getPresets();
 
             // Attach presets
@@ -135,36 +129,27 @@ public class RegionManager {
         }
 
         this.sort();
-        log.info("Reloaded " + this.loadedAreas.size() + " region(s)...");
+        log.info("Reloaded " + this.loadedRegions.size() + " region(s)...");
     }
 
     public void save() {
-        Future<Void> future = null;
         try {
-            future = plugin.getWarehouse().getSelectedDriver().updateRegions(loadedAreas);
+            plugin.getWarehouse().getSelectedDriver().updateRegions(loadedRegions);
         } catch (StorageException e) {
             // todo
-            throw new RuntimeException(e);
-        }
-
-        try {
-            future.get(6000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | TimeoutException | ExecutionException e) {
-            // todo
-            throw new RuntimeException(e);
         }
     }
 
     public boolean exists(String name) {
-        return this.loadedAreas.stream().anyMatch(r -> r.getName().equals(name));
+        return this.loadedRegions.stream().anyMatch(r -> r.getName().equals(name));
     }
 
     public Region getRegion(@NotNull String name) {
-        return this.loadedAreas.stream().filter(r -> r.getName().equals(name)).findAny().orElse(null);
+        return this.loadedRegions.stream().filter(r -> r.getName().equals(name)).findAny().orElse(null);
     }
 
     public void removeRegion(@NotNull String name) {
-        Iterator<Region> it = this.loadedAreas.iterator();
+        Iterator<Region> it = this.loadedRegions.iterator();
         while (it.hasNext()) {
             Region region = it.next();
 
@@ -185,7 +170,7 @@ public class RegionManager {
     @Nullable
     public Region getRegion(@NotNull Block block) {
         BlockPosition position = BlockPosition.from(block);
-        for (Region region : this.loadedAreas) {
+        for (Region region : this.loadedRegions) {
             if (region.contains(position)) {
                 return region;
             }
@@ -194,7 +179,7 @@ public class RegionManager {
     }
 
     public void addRegion(@NotNull Region region) {
-        this.loadedAreas.add(region);
+        this.loadedRegions.add(region);
         try {
             this.plugin.getWarehouse().getSelectedDriver().saveRegion(region);
         } catch (StorageException e) {
@@ -207,6 +192,6 @@ public class RegionManager {
 
     @NotNull
     public List<Region> getLoadedRegions() {
-        return Collections.unmodifiableList(this.loadedAreas);
+        return Collections.unmodifiableList(this.loadedRegions);
     }
 }

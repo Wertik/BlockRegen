@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.storage;
+package nl.aurorion.blockregen.storage.exception;
 
 // As in -- the storage failed and cannot do anything about it anymore.
 // The caller has to figure it out.

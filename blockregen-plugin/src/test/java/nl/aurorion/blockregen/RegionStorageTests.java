@@ -2,9 +2,8 @@ package nl.aurorion.blockregen;
 
 import nl.aurorion.blockregen.region.Region;
 import nl.aurorion.blockregen.region.WorldRegion;
-import nl.aurorion.blockregen.storage.RetryService;
 import nl.aurorion.blockregen.storage.StorageDriver;
-import nl.aurorion.blockregen.storage.StorageException;
+import nl.aurorion.blockregen.storage.exception.StorageException;
 import nl.aurorion.blockregen.storage.sqlite.SQLiteStorageDriver;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

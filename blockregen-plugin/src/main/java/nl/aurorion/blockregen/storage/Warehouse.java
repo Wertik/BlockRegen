@@ -3,6 +3,7 @@ package nl.aurorion.blockregen.storage;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.storage.exception.StorageException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
