@@ -223,7 +223,7 @@ public class RegenerationManager {
 
                             if (!process.convertPreset()) {
                                 this.retry = true;
-                                log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
+                                log.warning("Failed to prepare process '" + process.getId() + "'.");
                                 break;
                             }
                             log.fine(() -> "Prepared regeneration process " + process);
