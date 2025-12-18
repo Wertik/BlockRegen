@@ -48,6 +48,7 @@ public class BlockPreset {
     private PresetRewards rewards;
 
     private Condition condition;
+    private String conditionMessage;
 
     private XSound sound;
 

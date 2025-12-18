@@ -6,7 +6,7 @@ import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
-import nl.aurorion.blockregen.region.RegionSelection;
+import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.entity.Player;
@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 @Log
 public class PlayerListener implements Listener {
@@ -41,13 +42,39 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        XMaterial handMaterial;
+        // Data check
+
+        if (plugin.getRegenerationManager().hasDataCheck(player)) {
+            event.setCancelled(true);
+
+            XMaterial material;
+            try {
+                material = plugin.getVersionManager().getMethods().getType(event.getClickedBlock());
+            } catch (IllegalArgumentException e) {
+                log.fine("Unknown block material " + event.getClickedBlock().getType() + " in data check.");
+                Message.UNKNOWN_MATERIAL.send(player);
+                return;
+            }
+
+            NodeData data = plugin.getVersionManager().createNodeData();
+            data.load(event.getClickedBlock());
+
+            Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", material.name()));
+            if (!data.isEmpty()) {
+                Message.DATA_CHECK_NODE_DATA.mapAndSend(player, str -> str.replace("%data%", String.format("%s%s", material.name(), data.getPrettyString())));
+            }
+            return;
+        }
+
+        ItemStack tool = plugin.getVersionManager().getMethods().getItemInMainHand(player);
+
+        XMaterial toolMaterial;
         try {
-            handMaterial = XMaterial.matchXMaterial(plugin.getVersionManager().getMethods().getItemInMainHand(player));
+            toolMaterial = XMaterial.matchXMaterial(tool);
         } catch (IllegalArgumentException e) {
-            log.fine(() -> "Unknown tool material.");
-            Message.UNKNOWN_TOOL_MATERIAL.send(player);
+            log.fine(() -> String.format("Unknown tool material %s.", tool.getType()));
             if (!BlockRegenPluginImpl.getInstance().getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                log.warning(() -> "Encountered an unsupported material. Hide this error by setting Ignore-Unknown-Materials to true in Settings.yml.");
                 throw e;
             }
             return;
@@ -56,7 +83,7 @@ public class PlayerListener implements Listener {
         // Region selection
 
         // Use our own selection only if WorldEdit is not installed.
-        if (player.hasPermission("blockregen.select") && plugin.getVersionManager().getWorldEditProvider() == null && handMaterial == XMaterial.WOODEN_AXE) {
+        if (player.hasPermission("blockregen.select") && plugin.getVersionManager().getWorldEditProvider() == null && toolMaterial == XMaterial.WOODEN_AXE) {
             RegionSelection selection = plugin.getRegionManager().getOrCreateSelection(player);
 
             // Selecting first.
@@ -85,7 +112,7 @@ public class PlayerListener implements Listener {
 
         RegenerationArea region = plugin.getRegionManager().getArea(event.getClickedBlock());
 
-        if (player.hasPermission("blockregen.region") && handMaterial == XMaterial.WOODEN_SHOVEL && region != null) {
+        if (player.hasPermission("blockregen.region") && toolMaterial == XMaterial.WOODEN_SHOVEL && region != null) {
             event.setCancelled(true);
 
             BlockPreset preset = plugin.getPresetManager().getPreset(event.getClickedBlock());
@@ -130,31 +157,6 @@ public class PlayerListener implements Listener {
                 Message.PRESET_REMOVED.mapAndSend(player, str -> str
                         .replace("%region%", region.getName())
                         .replace("%preset%", presetName));
-            }
-
-            return;
-        }
-
-        // Data check
-
-        if (plugin.getRegenerationManager().hasDataCheck(player)) {
-            event.setCancelled(true);
-
-            XMaterial material;
-            try {
-                material = plugin.getVersionManager().getMethods().getType(event.getClickedBlock());
-            } catch (IllegalArgumentException e) {
-                log.fine("Unknown block material " + event.getClickedBlock().getType() + " in data check.");
-                Message.UNKNOWN_MATERIAL.send(player);
-                return;
-            }
-
-            NodeData data = plugin.getVersionManager().createNodeData();
-            data.load(event.getClickedBlock());
-
-            Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", material.name()));
-            if (!data.isEmpty()) {
-                Message.DATA_CHECK_NODE_DATA.mapAndSend(player, str -> str.replace("%data%", String.format("%s%s", material.name(), data.getPrettyString())));
             }
         }
     }

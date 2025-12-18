@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.preset.condition;
 
 
+import lombok.extern.java.Log;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.conditional.ConditionContext;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Wrap around a condition to provide extra context using a {@link ContextExtender} before calling it.
  */
+@Log
 public class ConditionWrapper extends Condition {
     private final Condition composed;
     private final ContextExtender extender;
@@ -17,24 +19,44 @@ public class ConditionWrapper extends Condition {
         this.extender = extender;
     }
 
-    @Override
-    public boolean match(ConditionContext original) {
+    private ConditionContext extend(ConditionContext original) {
+        if (this.extender == null) {
+            return original;
+        }
+
         ConditionContext result = original;
-        if (this.extender != null) {
+
+        try {
             ConditionContext additional = this.extender.extend(original);
 
             // Just in case somebody returns the original.
             if (additional != result) {
                 result = Conditions.mergeContexts(additional, original);
             }
+            return result;
+        } catch (Exception e) {
+            log.severe(String.format("Failed to run extender for condition: %s", e.getMessage()));
         }
-        return this.composed.matches(result);
+
+        return result;
+    }
+
+    @Override
+    public boolean match(ConditionContext original) {
+        ConditionContext context = this.extend(original);
+        return this.composed.matches(context);
     }
 
     @Override
     @NotNull
     public String alias() {
         return this.composed.alias();
+    }
+
+    @Override
+    @NotNull
+    public String pretty() {
+        return this.composed.pretty();
     }
 
     @Override

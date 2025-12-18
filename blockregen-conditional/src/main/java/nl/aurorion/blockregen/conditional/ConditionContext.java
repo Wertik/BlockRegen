@@ -70,7 +70,7 @@ public class ConditionContext {
     }
 
     public <T> T mustVar(String key, Class<T> as) {
-        return (T) castOrThrow(this.mustVar(key), as);
+        return castOrThrow(this.mustVar(key), as);
     }
 
     @NotNull

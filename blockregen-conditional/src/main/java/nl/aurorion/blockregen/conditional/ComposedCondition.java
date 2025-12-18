@@ -15,12 +15,14 @@ public class ComposedCondition extends Condition {
     private final ConditionRelation relation;
 
     private String defaultAlias;
+    private String defaultPretty;
 
     ComposedCondition(ConditionRelation relation, Condition... conditions) {
         this.relation = relation;
         this.conditions.addAll(Arrays.asList(conditions));
 
         this.defaultAlias = createAlias();
+        this.defaultPretty = createPretty();
     }
 
     ComposedCondition(ConditionRelation relation, List<Condition> conditions) {
@@ -28,11 +30,14 @@ public class ComposedCondition extends Condition {
         this.conditions.addAll(conditions);
 
         this.defaultAlias = createAlias();
+        this.defaultPretty = createPretty();
     }
 
     public void append(Condition condition) {
         conditions.add(condition);
+
         this.defaultAlias = createAlias();
+        this.defaultPretty = createPretty();
     }
 
     @Override
@@ -61,10 +66,22 @@ public class ComposedCondition extends Condition {
         return this.getAlias() == null ? this.defaultAlias : this.getAlias();
     }
 
+    @Override
+    @NotNull
+    public String pretty() {
+        return this.getPretty() == null ? this.defaultPretty : this.getPretty();
+    }
+
     private String createAlias() {
         String c = this.conditions.stream()
                 .map(Condition::alias)
                 .collect(Collectors.joining(" " + relation.toString().toLowerCase() + " "));
         return this.conditions.size() < 2 ? c : "(" + c + ")";
+    }
+
+    private String createPretty() {
+        return this.conditions.stream()
+                .map(Condition::pretty)
+                .collect(Collectors.joining(" " + relation.toString().toLowerCase() + " "));
     }
 }

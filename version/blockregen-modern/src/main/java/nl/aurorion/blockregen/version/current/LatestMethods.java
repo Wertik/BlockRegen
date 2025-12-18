@@ -8,6 +8,7 @@ import lombok.extern.java.Log;
 import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.version.api.Methods;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.boss.BarColor;
@@ -25,11 +26,20 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Log
 public class LatestMethods implements Methods {
+
+    private final EquipmentSlot[] PLAYER_EQUIPMENT_SLOTS = {
+            EquipmentSlot.CHEST,
+            EquipmentSlot.FEET,
+            EquipmentSlot.HAND,
+            EquipmentSlot.HEAD,
+            EquipmentSlot.LEGS,
+            EquipmentSlot.OFF_HAND
+    };
 
     @Override
     public boolean isBarColorValid(@Nullable String string) {
@@ -79,23 +89,20 @@ public class LatestMethods implements Methods {
 
     @Override
     public void handleDropItemEvent(Player player, BlockState blockState, List<Item> items) {
-        BlockDropItemEvent event = new BlockDropItemEvent(blockState.getBlock(), blockState, player, new ArrayList<>(items));
+        BlockDropItemEvent event = new BlockDropItemEvent(blockState.getBlock(), blockState, player, items);
         Bukkit.getPluginManager().callEvent(event);
 
-        // Delete the entities if any other plugins cancel the event or clear the drops.
-        // Otherwise, we get duplicated drops from enchantment plugins.
-        // Note: This means that any changes a plugin applies to the items is not going to be reflected on the drops.
-        // Note: I am not sure how to make that work, nor whether it should be a thing.
-
-        if (event.isCancelled() || event.getItems().isEmpty()) {
-            log.fine(() -> "Drops got cancelled.");
-            items.forEach(Entity::remove);
+        if (event.isCancelled()) {
+            items.stream().filter(Entity::isValid).forEach(Entity::remove);
+            return;
         }
+
+        items.stream().filter(item -> !item.isValid()).forEach((item) -> item.getWorld().addEntity(item));
     }
 
     @Override
     public void setType(@NotNull Block block, @NotNull XMaterial xMaterial) {
-        XBlock.setType(block, xMaterial);
+        XBlock.setType(block, xMaterial, false);
     }
 
     @Override
@@ -117,7 +124,7 @@ public class LatestMethods implements Methods {
             return null;
         }
 
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
+        for (EquipmentSlot slot : PLAYER_EQUIPMENT_SLOTS) {
             ItemStack item = player.getInventory().getItem(slot);
 
             if (item == null) {
@@ -183,5 +190,15 @@ public class LatestMethods implements Methods {
         repairableItem.setItemMeta(meta);
 
         return applyMending(player, experience - experienceUsed);
+    }
+
+    @Override
+    public @NotNull Item createDroppedItem(@NotNull Location location, @NotNull ItemStack item) {
+        Objects.requireNonNull(location);
+        Objects.requireNonNull(location.getWorld(), "Location world not loaded.");
+
+        Item entity = location.getWorld().createEntity(location, Item.class);
+        entity.setItemStack(item);
+        return entity;
     }
 }

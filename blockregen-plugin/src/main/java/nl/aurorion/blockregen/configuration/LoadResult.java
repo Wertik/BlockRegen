@@ -1,8 +1,11 @@
 package nl.aurorion.blockregen.configuration;
 
+import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +15,7 @@ import java.util.function.Function;
 @Log
 public class LoadResult<T, E extends Exception> {
 
-    enum State {
+    public enum State {
         EMPTY, // contains no value or was missing completely
         FULL, // contains a value, could be null
         ERROR, // an error occurred
@@ -21,6 +24,9 @@ public class LoadResult<T, E extends Exception> {
     private State state;
     private T value;
     private final E exception;
+
+    @Getter
+    private boolean throwByDefault = true;
 
     private LoadResult(T value, E e, State state) {
         this.value = value;
@@ -37,8 +43,8 @@ public class LoadResult<T, E extends Exception> {
         try {
             return LoadResult.of(runnable.apply(root.get(path)));
         } catch (Exception e) {
-            log.warning("Failed to load property '" + path + "' (value: '" + root.get(path) + "') of preset '" + root.getName() + "': " + e.getMessage());
-            return LoadResult.error(e);
+            Exception outer = new ParseException("Failed to load property '" + path + "' (value: '" + root.get(path) + "'): " + e.getMessage());
+            return LoadResult.error(outer);
         }
     }
 
@@ -64,7 +70,7 @@ public class LoadResult<T, E extends Exception> {
         try {
             return LoadResult.of(runnable.apply(v));
         } catch (Exception e) {
-            log.warning("Failed to load property '" + path + "' (value: '" + root.get(path) + "') of preset '" + root.getName() + "': " + e.getMessage());
+            log.warning("Failed to load property '" + path + "' (value: '" + root.get(path) + "'): " + e.getMessage());
             return LoadResult.error(e);
         }
     }
@@ -138,13 +144,33 @@ public class LoadResult<T, E extends Exception> {
         return getIfState(State.EMPTY, def);
     }
 
+    @SneakyThrows
+    public LoadResult<T, E> throwIfError() {
+        if (this.state == State.ERROR) {
+            throw this.exception;
+        }
+        return this;
+    }
+
+    @NotNull
+    public LoadResult<T, E> setThrowByDefault(boolean val) {
+        this.throwByDefault = val;
+        return this;
+    }
+
     public void apply(Consumer<T> consumer) {
+        if (this.throwByDefault) {
+            this.throwIfError();
+        }
         if (this.state == State.FULL) {
             consumer.accept(this.value);
         }
     }
 
     public T get() {
+        if (this.throwByDefault) {
+            this.throwIfError();
+        }
         return value;
     }
 

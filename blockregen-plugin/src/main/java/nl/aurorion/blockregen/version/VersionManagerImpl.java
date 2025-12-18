@@ -116,6 +116,14 @@ public class VersionManagerImpl implements VersionManager {
     }
 
     @Override
+    public void registerVersionedListeners() {
+        if (isCurrentAbove("1.16", true)) {
+            plugin.getServer().getPluginManager().registerEvents(new HarvestListener(plugin.getRegenerationEventHandler()), plugin);
+            log.fine("Registered HarvestListener.");
+        }
+    }
+
+    @Override
     public NodeData createNodeData() {
         return this.nodeProvider.provide();
     }

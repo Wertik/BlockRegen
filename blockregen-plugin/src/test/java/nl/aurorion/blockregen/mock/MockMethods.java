@@ -3,6 +3,7 @@ package nl.aurorion.blockregen.mock;
 import com.cryptomorin.xseries.XMaterial;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.version.api.Methods;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -40,5 +41,10 @@ public class MockMethods implements Methods {
     @Override
     public int applyMending(Player player, int experience) {
         return experience;
+    }
+
+    @Override
+    public @NotNull Item createDroppedItem(@NotNull Location location, @NotNull ItemStack item) {
+        return null;
     }
 }

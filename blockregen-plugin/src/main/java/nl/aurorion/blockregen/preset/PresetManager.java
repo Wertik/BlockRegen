@@ -5,9 +5,9 @@ import com.cryptomorin.xseries.XSound;
 import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -81,6 +81,39 @@ public class PresetManager {
         return Collections.unmodifiableMap(presets);
     }
 
+    public void loadSection(ConfigurationSection section) {
+        for (String key : section.getKeys(false)) {
+            log.fine(key);
+            if (Objects.equals(key, "Blocks")) {
+                continue;
+            }
+
+            try {
+                ConfigurationSection blockSection = section.getConfigurationSection(key);
+                if (blockSection == null) {
+                    log.warning(String.format("Key '%s' is not a valid block section.", key));
+                    continue;
+                }
+                load(blockSection);
+            } catch (Exception e) {
+                log.log(Level.WARNING, String.format("Could not load preset '%s': %s", key, e.getMessage()), e);
+
+                if (BlockRegenPlugin.getInstance().getLogLevel().intValue() < Level.FINE.intValue()) {
+                    e.printStackTrace();
+                }
+
+                // only attempt retrying the load of presets if it makes sense
+                // - compatibility plugin hasn't loaded data yet => retry because of external materials
+                if (e instanceof ParseException) {
+                    ParseException parseException = (ParseException) e;
+                    if (parseException.isShouldRetry()) {
+                        this.retry = true;
+                    }
+                }
+            }
+        }
+    }
+
     public void load() {
         this.retry = false;
 
@@ -89,24 +122,17 @@ public class PresetManager {
         // Clear all events before loading.
         plugin.getEventManager().clearEvents();
 
-        ConfigurationSection blocksSection = plugin.getFiles().getBlockList().getFileConfiguration()
-                .getConfigurationSection("Blocks");
+        // Treat the root section as a block section as well.
 
-        if (blocksSection == null) {
-            return;
+        FileConfiguration blocklist = plugin.getFiles().getBlockList().getFileConfiguration();
+
+        ConfigurationSection blocksSection = blocklist.getConfigurationSection("Blocks");
+
+        if (blocksSection != null) {
+            loadSection(blocksSection);
         }
 
-        for (String key : blocksSection.getKeys(false)) {
-            try {
-                load(key);
-            } catch (Exception e) {
-                log.log(Level.WARNING, String.format("Could not load preset '%s': %s", key, e.getMessage()), e);
-                if (BlockRegenPlugin.getInstance().getLogLevel().intValue() < Level.FINE.intValue()) {
-                    e.printStackTrace();
-                }
-                this.retry = true;
-            }
-        }
+        loadSection(blocklist);
 
         if (this.retry) {
             log.info("Some presets were not loaded. Retrying after the server loads...");
@@ -130,14 +156,10 @@ public class PresetManager {
     /**
      * @throws ParseException If parsing fails.
      */
-    public void load(String name) {
-        FileConfiguration file = plugin.getFiles().getBlockList().getFileConfiguration();
+    public void load(@NotNull ConfigurationSection section) {
+        Objects.requireNonNull(section);
 
-        ConfigurationSection section = file.getConfigurationSection("Blocks." + name);
-
-        if (section == null) {
-            return;
-        }
+        String name = section.getName();
 
         BlockPreset preset = new BlockPreset(name);
 
@@ -174,6 +196,7 @@ public class PresetManager {
 
         LoadResult.tryLoad(section, "regen-delay", NumberValue.Parser::load)
                 .ifEmpty(NumberValue.fixed(3))
+                .throwIfError()
                 .apply(preset::setDelay);
 
         // Natural break
@@ -215,6 +238,8 @@ public class PresetManager {
                 preset.setSound(xSound.get());
             }
         }
+
+        preset.setConditionMessage(section.getString("conditions-message", null));
 
         // Particle
         String particleName = section.getString("particles");
@@ -405,7 +430,10 @@ public class PresetManager {
             }
 
             DropItem drop = new ExternalDropItem(provider, id);
+
             drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
+            drop.setApplyFortune(section.getBoolean("apply-fortune", preset.isApplyFortune()));
+
             LoadResult.tryLoad(section, "chance", NumberValue.Parser::load)
                     .ifNotFull(NumberValue.fixed(100))
                     .apply(drop::setChance);
@@ -435,6 +463,7 @@ public class PresetManager {
                 .collect(Collectors.toSet()));
 
         drop.setDropNaturally(section.getBoolean("drop-naturally", preset.isDropNaturally()));
+        drop.setApplyFortune(section.getBoolean("apply-fortune", preset.isApplyFortune()));
 
         drop.setExperienceDrop(ExperienceDrop.load(section.getConfigurationSection("exp"), drop));
 
@@ -442,7 +471,15 @@ public class PresetManager {
                 .ifNotFull(NumberValue.fixed(100))
                 .apply(drop::setChance);
 
-        LoadResult.tryLoad(section, "custom-model-data", String.class, Parsing::parseInt)
+        LoadResult.tryLoad(section, "custom-model-data", (val) -> {
+                    if (val instanceof String) {
+                        return Parsing.parseInt((String) val);
+                    }
+                    if (val instanceof Number) {
+                        return (Integer) val;
+                    }
+                    throw new ParseException(String.format("Invalid type ('%s') of value '%s'",  val.getClass().getSimpleName(), val));
+                })
                 .apply(drop::setCustomModelData);
 
         LoadResult.tryLoad(section, "conditions", (node) -> Conditions.fromNodeMultiple(node, ConditionRelation.AND, this.conditions))

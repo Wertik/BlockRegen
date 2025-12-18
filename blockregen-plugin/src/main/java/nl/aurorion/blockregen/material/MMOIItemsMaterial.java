@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.material;
 
+import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.block.CustomBlock;
@@ -33,6 +34,11 @@ public class MMOIItemsMaterial implements BlockRegenMaterial {
 
         block.setType(customState.getType(), false);
         block.setBlockData(customState.getBlockData(), false);
+    }
+
+    @Override
+    public XMaterial getType() {
+        return XMaterial.matchXMaterial(MMOItems.plugin.getCustomBlocks().getBlock(id).getState().getType());
     }
 
     @Override

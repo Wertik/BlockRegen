@@ -1,10 +1,12 @@
 package nl.aurorion.blockregen.material;
 
+import com.cryptomorin.xseries.XMaterial;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.mechanics.Mechanic;
 import lombok.Getter;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 
 import java.util.Objects;
 
@@ -36,6 +38,15 @@ public class OraxenMaterial implements BlockRegenMaterial {
     @Override
     public void setType(Block block) {
         OraxenBlocks.place(this.oraxenId, block.getLocation());
+    }
+
+    @Override
+    public XMaterial getType() {
+        BlockData blockData = OraxenBlocks.getOraxenBlockData(this.oraxenId);
+        if (blockData == null) {
+            throw new IllegalArgumentException(String.format("Invalid oraxen material: %s", this.oraxenId));
+        }
+        return XMaterial.matchXMaterial(blockData.getMaterial());
     }
 
     @Override

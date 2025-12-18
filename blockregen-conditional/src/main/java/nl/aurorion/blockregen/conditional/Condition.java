@@ -8,6 +8,8 @@ import java.util.List;
 public abstract class Condition {
 
     private String alias = null;
+    private String pretty = null;
+
     private boolean negate = false;
 
     protected Condition() {
@@ -103,12 +105,17 @@ public abstract class Condition {
 
     @Override
     public String toString() {
-        return alias();
+        return "ComposedCondition{alias=" + alias() + ", pretty=" + pretty() + '}';
     }
 
     @Nullable
     public String getAlias() {
         return this.alias;
+    }
+
+    @Nullable
+    public String getPretty() {
+        return this.pretty;
     }
 
     @NotNull
@@ -120,6 +127,18 @@ public abstract class Condition {
     @NotNull
     public Condition alias(String alias) {
         this.alias = alias;
+        return this;
+    }
+
+    @NotNull
+    public String pretty() {
+        String a = this.pretty == null ? this.alias() : this.pretty;
+        return this.negate ? "not " + a : a;
+    }
+
+    @NotNull
+    public Condition pretty(String pretty) {
+        this.pretty = pretty;
         return this;
     }
 }

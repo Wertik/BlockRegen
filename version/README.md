@@ -10,5 +10,7 @@ here's a table stating their supported versions and the reason for them.
 | modern  | 1.13 - 1.19   | material flattening, worldguard, worldedit |
 | pink    | 1.20 - 1.21   | pink petals                                |
 
+`modern` also includes a listener for the `PlayerHarvestEvent` it's registered on 1.16+.
+
 **Why are classes in the "modern" module and package "...current" named "latest"?** Because the full classnames are used for json deserialization.
 Changing them would prevent Data.json from loading.

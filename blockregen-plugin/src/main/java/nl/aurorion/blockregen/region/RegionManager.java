@@ -3,7 +3,9 @@ package nl.aurorion.blockregen.region;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.configuration.ConfigFile;
 import nl.aurorion.blockregen.preset.BlockPreset;
+import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.region.struct.RawRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.region.struct.RegenerationRegion;
@@ -112,7 +114,9 @@ public class RegionManager {
         List<String> presets = section.getStringList("Presets");
         int priority = section.getInt("Priority", 1);
 
-        RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority);
+        Boolean disableOtherBreak = ConfigFile.parseOptionalBoolean(section.get("Disable-Other-Break"));
+
+        RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority, disableOtherBreak);
 
         if (Strings.isNullOrEmpty(minString) || Strings.isNullOrEmpty(maxString)) {
             this.failedRegions.add(rawRegion);
@@ -253,6 +257,7 @@ public class RegionManager {
 
             regionSection.set("All", rawRegion.isAll());
             regionSection.set("Presets", rawRegion.getBlockPresets());
+            regionSection.set("Disable-Other-Break", rawRegion.getDisableOtherBreak());
         }
 
         for (RegenerationArea area : new HashSet<>(this.loadedAreas)) {

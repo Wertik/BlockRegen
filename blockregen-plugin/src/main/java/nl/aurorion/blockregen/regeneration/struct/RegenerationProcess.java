@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
-import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -163,9 +163,8 @@ public class RegenerationProcess {
             XMaterial belowType = plugin.getVersionManager().getMethods().getType(below);
             RegenerationProcess processBelow = plugin.getRegenerationManager().getProcess(below);
 
-            // Sugarcane on sugarcane (aka not solid, still can be placed)
-            // + kelp on kelp
-            if (!below.getType().isSolid() && belowType != XMaterial.SUGAR_CANE && !Blocks.isKelp(belowType) && !Blocks.isSeagrass(belowType)) {
+            // Sugarcane on sugarcane, etc. (aka not solid, still can be stacked on top)
+            if (!below.getType().isSolid() && regenerateInto.getType() != belowType) {
                 if (processBelow != null) {
                     long delay = processBelow.getRegenerationTime() >= this.getRegenerationTime() ? processBelow.getRegenerationTime() - this.getRegenerationTime() + 100 : 1000;
 
@@ -224,7 +223,9 @@ public class RegenerationProcess {
         }
 
         regenerateInto.setType(block);
-        originalData.apply(block); // Apply original data
+        if (regenerateInto.applyOriginalData()) {
+            originalData.apply(block);
+        }
         regenerateInto.applyData(block); // Override with configured data if any
         log.fine(() -> "Regenerated " + this);
     }
@@ -270,7 +271,9 @@ public class RegenerationProcess {
         }
 
         replaceMaterial.setType(block);
-        this.originalData.apply(block); // Apply original data
+        if (replaceMaterial.applyOriginalData()) {
+            this.originalData.apply(block);
+        }
         replaceMaterial.applyData(block); // Apply configured data if any
 
         // Otherwise skull textures wouldn't update.
@@ -313,7 +316,6 @@ public class RegenerationProcess {
 
     // Convert stored Location pointer to the Block at the location.
     public boolean convertLocation() {
-
         if (location == null) {
             log.severe("Could not load location for process " + this);
             return false;
@@ -326,8 +328,7 @@ public class RegenerationProcess {
             return false;
         }
 
-        // Prevent async chunk load.
-        Bukkit.getScheduler().runTask(BlockRegenPluginImpl.getInstance(), () -> this.block = block);
+        this.block = block;
         return true;
     }
 

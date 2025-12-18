@@ -4,12 +4,12 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.command.Commands;
 import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
 import nl.aurorion.blockregen.drop.ItemManager;
 import nl.aurorion.blockregen.event.EventManager;
+import nl.aurorion.blockregen.listener.DebugListener;
 import nl.aurorion.blockregen.listener.PhysicsListener;
 import nl.aurorion.blockregen.listener.PlayerListener;
 import nl.aurorion.blockregen.listener.RegenerationListener;
@@ -22,10 +22,13 @@ import nl.aurorion.blockregen.particle.impl.FlameCrown;
 import nl.aurorion.blockregen.particle.impl.WitchSpell;
 import nl.aurorion.blockregen.preset.PresetManager;
 import nl.aurorion.blockregen.preset.condition.DefaultConditions;
+import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
+import nl.aurorion.blockregen.regeneration.RegenerationEventHandlerImpl;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.version.NodeDataAdapter;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
+import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.version.VersionManagerImpl;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
@@ -33,6 +36,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -96,10 +100,16 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
     private final CompatibilityManager compatibilityManager = new CompatibilityManager(this);
 
     @Getter
+    private final RegenerationEventHandler regenerationEventHandler = new RegenerationEventHandlerImpl(this);
+
+    @Getter
     private final RegenerationListener regenerationListener = new RegenerationListener(this);
 
     @Getter
     private final PhysicsListener physicsListener = new PhysicsListener(this);
+
+    @Getter
+    private final DebugListener debugListener = new DebugListener(this);
 
     @Getter
     private GsonHelper gsonHelper;
@@ -192,9 +202,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     @Override
     public void reload(CommandSender sender) {
-
         if (!(sender instanceof ConsoleCommandSender)) {
-            this.consoleHandler.addListener(sender);
+            consoleHandler.addListener(sender);
         }
 
         eventManager.disableAll();
@@ -209,6 +218,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         configureLogger();
 
+        registerDebugListener();
+
         files.getMessages().load();
         Message.load();
 
@@ -219,11 +230,24 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         regionManager.reload();
 
-        if (getConfig().getBoolean("Auto-Save.Enabled", false))
+        if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
             regenerationManager.reloadAutoSave();
+        }
 
-        this.consoleHandler.removeListener(sender);
+        consoleHandler.removeListener(sender);
         Message.RELOAD.optional().ifPresent(sender::sendMessage);
+    }
+
+    private void registerDebugListener() {
+        boolean debug = files.getSettings().getFileConfiguration().getBoolean("Debug-Enabled", false);
+
+        if (debug && !debugListener.isRegistered()) {
+            log.fine(() -> "Registered debug listener.");
+            this.debugListener.register();
+        }
+        if (!debug && debugListener.isRegistered()) {
+            this.debugListener.unregister();
+        }
     }
 
     @Override
@@ -258,6 +282,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         }
 
         pluginManager.registerEvents(new PlayerListener(this), this);
+        versionManager.registerVersionedListeners();
+
+        registerDebugListener();
     }
 
     private void checkPlaceholderAPI() {
@@ -310,6 +337,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         } catch (IllegalArgumentException e) {
             log.fine(() -> "Unknown material " + block.getType());
             if (!getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                log.warning(() -> "Encountered an unsupported material. Hide this error by setting Ignore-Unknown-Materials to true in Settings.yml.");
                 throw e;
             }
             return null;

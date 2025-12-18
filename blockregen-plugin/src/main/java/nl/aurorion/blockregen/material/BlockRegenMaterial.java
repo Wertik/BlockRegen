@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.material;
 
+import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.block.Block;
 
 // A material either vanilla or from other plugins used to compare and place blocks.
@@ -12,7 +13,7 @@ public interface BlockRegenMaterial {
 
     /**
      * Set the type of the block and apply data.
-     * */
+     */
     default void place(Block block) {
         setType(block);
         applyData(block);
@@ -24,15 +25,20 @@ public interface BlockRegenMaterial {
     void setType(Block block);
 
     /**
-     * Apply any additional data of this material.
+     * Get the base Material.
      * */
+    XMaterial getType();
+
+    /**
+     * Apply any additional data of this material.
+     */
     default void applyData(Block block) {
         //
     }
 
     /**
      * Whether the material requires a block underneath it.
-     * */
+     */
     default boolean requiresSolidGround() {
         return false;
     }
@@ -41,6 +47,13 @@ public interface BlockRegenMaterial {
      * Whether this material requires farmland.
      */
     default boolean requiresFarmland() {
+        return false;
+    }
+
+    /**
+     * Whether to apply original data after calling #setType.
+     */
+    default boolean applyOriginalData() {
         return false;
     }
 }

@@ -9,6 +9,7 @@ import org.bukkit.Axis;
 import org.bukkit.Instrument;
 import org.bukkit.Note;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.type.Stairs;
 
 @NoArgsConstructor
@@ -22,6 +23,7 @@ public class LatestNodeDataParser implements NodeDataParser {
                 .property("rotation", (nodeData, value) -> nodeData.setRotation(NodeDataDeserializer.tryParseEnum(value, BlockFace.class)))
                 .property("axis", (nodeData, value) -> nodeData.setAxis(NodeDataDeserializer.tryParseEnum(value, Axis.class)))
                 .property("stairShape", (nodeData, value) -> nodeData.setStairShape(NodeDataDeserializer.tryParseEnum(value, Stairs.Shape.class)))
+                .property("half", (nodeData, value) -> nodeData.setHalf(NodeDataDeserializer.tryParseEnum(value, Bisected.Half.class)))
                 .property("noteId", (nodeData, value) -> nodeData.setNoteId(Byte.parseByte(value)))
                 .property("instrument", (nodeData, value) -> nodeData.setInstrument(NodeDataDeserializer.tryParseEnum(value, Instrument.class)))
                 .property("octave", (nodeData, value) -> nodeData.setOctave(Integer.parseInt(value)))

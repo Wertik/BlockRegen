@@ -2,6 +2,7 @@ package nl.aurorion.blockregen;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.util.Text;
 import org.bukkit.command.CommandSender;
@@ -18,7 +19,7 @@ import java.util.function.Function;
  *
  * @author Wertik1206
  */
-// TODO: Recode without an enum.
+@Log
 public enum Message {
 
     PREFIX("Prefix", "&6[&3BlockRegen&6] &r"),
@@ -42,6 +43,7 @@ public enum Message {
 
     TOOLS("Tools", "&7Gave you the tools."),
     UNKNOWN_ARGUMENT("Unknown-Argument", "&cUnknown argument."),
+    INVALID_OPTION("Invalid-Option", "&cInvalid option &f'%s'&c."),
 
     /**
      * Bypass
@@ -81,6 +83,7 @@ public enum Message {
     SELECT_FIRST("Select-First", "&7Set first position to &f%x%, %y%, %z%."),
     SELECT_SECOND("Select-Second", "&7Set second position to &f%x%, %y%, %z%."),
     SET_ALL("Set-All", "&7Region set to %s &7presets."),
+    SET_BREAK("Set-Break", "&7Preventing players from breaking other blocks set to %s."),
     INVALID_PRESET("Invalid-Preset", "&cPreset %preset% does not exist."),
 
     HAS_PRESET_ALREADY("Has-Preset-Already", "&7Region &f%region% &7has preset &f%preset% &7already."),
@@ -109,6 +112,8 @@ public enum Message {
     PERMISSION_BLOCK_ERROR("Permission-Error", "&cYou don't have the permission to break this block."),
     PERMISSION_REGION_ERROR("Permission-Region-Error", "&cYou don't have the permission to break in this region."),
 
+    CONDITIONS_NOT_MET("Conditions-Not-Met", "&cIn order to break this block you have to meet these conditions: &f%condition%&c."),
+
     INVENTORY_FULL_DROPPED("Inventory-Full-Dropped", "&cInventory is full! Some drops fell on the ground."),
     INVENTORY_FULL_LOST("Inventory-Full-Lost", "&cInventory is full! Some drops were lost.");
 
@@ -127,7 +132,7 @@ public enum Message {
         this.value = value;
     }
 
-    private String getPrefixed() {
+    public String getRawPrefixed() {
         return insertPrefix ? "%prefix%" + this.value : this.value;
     }
 
@@ -136,7 +141,7 @@ public enum Message {
     }
 
     public @Nullable String get() {
-        return this.isEmpty() ? null : Colors.color(Text.parse(this.getPrefixed()));
+        return this.isEmpty() ? null : Colors.color(Text.parse(this.getRawPrefixed()));
     }
 
     public @NotNull Optional<String> optional() {
@@ -156,19 +161,20 @@ public enum Message {
     }
 
     public @Nullable String get(@NotNull Player player) {
-        return this.isEmpty() ? null : Colors.color(Text.parse(getPrefixed(), player));
+        return this.isEmpty() ? null : Colors.color(Text.parse(getRawPrefixed(), player));
+    }
+
+    public @Nullable String get(@NotNull CommandSender sender) {
+        if (sender instanceof Player) {
+            return get((Player) sender);
+        }
+        return this.isEmpty() ? null : Colors.color(Text.parse(getRawPrefixed()));
     }
 
     public void send(@NotNull CommandSender target) {
-        if (this.get() != null) {
-            target.sendMessage();
-        }
-    }
-
-    public void send(@NotNull Player player) {
-        String message = this.get(player);
+        String message = this.get(target);
         if (message != null) {
-            player.sendMessage(message);
+            target.sendMessage(message);
         }
     }
 

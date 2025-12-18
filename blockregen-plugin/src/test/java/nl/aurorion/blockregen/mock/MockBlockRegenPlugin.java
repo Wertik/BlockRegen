@@ -5,6 +5,7 @@ import lombok.Getter;
 import nl.aurorion.blockregen.ConsoleHandler;
 import nl.aurorion.blockregen.GsonHelper;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
 import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.compatibility.CompatibilityManager;
 import nl.aurorion.blockregen.configuration.Files;
@@ -190,6 +191,11 @@ public class MockBlockRegenPlugin implements BlockRegenPlugin {
     @Override
     public boolean isUsePlaceholderAPI() {
         return false;
+    }
+
+    @Override
+    public @NotNull RegenerationEventHandler getRegenerationEventHandler() {
+        return null;
     }
 
     @Override

@@ -2,204 +2,35 @@
 # 
 # Developer(s): Aurorion & Wertik1206
 # Version: ${project.version}
+
+# For a detailed description on how to configure this plugin please refer to the wiki.
+# https://github.com/Wertik/BlockRegen/wiki
+
+# Breaking a diamond ore requires a netherite pickaxe.
+# If the ore is broken at a y level below 100, diamonds get dropped with the pickaxe's fortune applied (if any).
+# All the items are put straight into the player's inventory.
+# The ore regenerates after 3 to 10 seconds.
 #
-# Material list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
-
-# Note: You can remove a part of the section to ignore it's function.
-# Note no.2: Most Strings (commands, names, lores) allow PlaceholderAPI placeholders.
-# Note no.3: Most Amounts (money, regen-delay, amount) support dynamic amounts (random) with a low and high.
-
-Blocks:
-  # The block that gets broken
-  DIAMOND_ORE:
-
-    # The block to replace it with.
-    replace-block: STONE
-
-    # The delay in which this block regenerates to its original block type in seconds.
-    # Should be kept above 1
-    regen-delay: 7
-
-    # Vault money given to player when he breaks the block.
-    # Requires Vault and an Economy plugin installed.
-    money: 100
-
-    # Command(s) executed by console once the block is broken.
-    console-commands:
-      - 'say The console-command function is working!'
-
-    # Command(s) executed by the player.
-    player-commands:
-      - 'me I, %player%, executed this command'
-
-    # Tools required to break this block.
-    # If they don't have this tool they get an error message (Messages.yml)
-    tool-required: DIAMOND_PICKAXE, IRON_PICKAXE
-
-    # Enchants required to break the block.
-    # You can, but don't have to, specify a minimum level required .
-    # If they don't have this enchant they get an error message (Messages.yml)
-    enchant-required: FORTUNE;2, MENDING
-
-    # Jobs Requirement
-    # You can check what job and what level a player needs to be.
-    # ex.
-    #jobs-check: Farmer;2
-    # Remove the comment to enable ^^
-
-    # On break there can be particles displayed.
-    # Available particles as of ${project.version}: flame_crown, witch_spell, fireworks
-    particles: flame_crown
-
-    # Sound to play on location when the block is broken.
-    # Available sounds as of ${project.version}: https://github.com/CryptoMorin/XSeries/blob/master/src/main/java/com/cryptomorin/xseries/XSound.java
-    sound: ENTITY_EXPERIENCE_ORB_PICKUP
-
-    # Give drops, exp and amount as it would be in vanilla.
-    # Set this to false to use custom drops.
-    natural-break: false
-
-    # Affects all item drops, except for events.
-    # false == places the item in players inventory, if it's full, drops it on the ground.
-    # true == drops it on the ground.
-    drop-naturally: false
-
-    # Only works when natural-break is set to false.
-    drop-item:
-
-      # The material of the dropped item.
-      material: DIAMOND
-
-      # Custom model data added to the item.
-      # Works on 1.14+
-      custom-model-data: 1300
-
-      # The name that is given to the dropped item
-      name: "&3A little diamond"
-
-      # Lore applied to dropped item.
-      lores:
-        - ' '
-        - '&7A little diamond, mined by &f%player%'
-        - ' '
-
-      exp:
-        # false == exp is added directly to players exp bar.
-        # true == drops it on the ground.
-        drop-naturally: true
-
-        # Amount of exp dropped.
-        amount: 100
-
-      # Enchantments and their corresponding levels you want to add to the dropped item.
-      # Note that these enchants are relative to your server version. The plugin will display a warning if any of the are invalid.
-      # Valid options (latest): https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/enchantments/Enchantment.html
-      enchants:
-        - 'FORTUNE:2'
-
-      # ItemFlags that you want added to the item.
-      # Valid options: HIDE_ATTRIBUTES, HIDE_DESTROYS, HIDE_DYE, HIDE_ENCHANTS, HIDE_PLACED_ONE, HIDE_POTION_EFFECTS, HIDE_UNBREAKABLE
-      # Source: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/inventory/ItemFlag.html
-      flags:
-        - 'HIDE_ENCHANTS'
-
-      # How many should the player get?
-      # This generates a random number between, in this case, 0 and 5
-      # Can be used everywhere where a number is needed. for ex. regen-delay, money, amount
-      amount: 0-5
-
-    # Events are added in 2.0 and can do a few things already.
-    # It can double drops on specific ores, give double exp or make ores have a chance of dropping custom equips
-    # Not wish to use this? You can completely remove it without getting null errors
-    # Below is an example. Read more info on the spigot updates page.
-    event:
-
-      # Event display name, the preset (block) name is used in commands.
-      event-name: '&3Double Diamonds'
-
-      # Display a boss bar for all players when the event is active.
-      bossbar:
-
-        # Text to be displayed
-        name: "&bDiamonds, diamonds everywhere!"
-
-        # Color of the boss bar
-        # Options: BLUE, GREEN, PINK, WHITE, YELLOW, RED, PURPLE
-        color: BLUE
-
-        # Style of the boss bar
-        # Options: SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, SEGMENTED_20
-        style: SOLID
-
-      # Should we double the drops or exp?
-      double-drops: true
-      double-exp: false
-
-      # You can also use rewards from the root section (console-commands(aka commands), player-commands, drop-item, etc.)
-      commands:
-        - 'say Hello from the event.'
-
-      custom-item:
-        amount: 1
-        material: LEATHER_BOOTS
-        name: "&6Fancy shoes"
-        lores:
-          - "&fLook at them shoooeees"
-          - "&e&oBling bling bling"
-        drop-naturally: false
-
-        # How rare it is to get the item. In this case a 1 in 50 chance of getting it.
-        # Can't use a random (low & high) number here.
-        rarity: 50
-
-  ##### Blocks chaining example #####
-
-  # Coal regenerates into Iron, Iron into Gold, Gold back to Coal.
-  COAL_ORE:
-    replace-block: STONE
-    regenerate-into: IRON_ORE
-    regen-delay: 3
-    drop-naturally: true
-  IRON_ORE:
-    replace-block: STONE
-    regenerate-into: GOLD_ORE
-    regen-delay: 5
-    drop-naturally: true
-  GOLD_ORE:
-    replace-block: STONE
-    regenerate-into: COAL_ORE
-    regen-delay: 10
-    drop-naturally: true
-
-  ##### Block chance example with simple block chaining #####
-
-  # When you mine a stone, there's a 20% chance it will regenerate back into emeralds, but 80% that it will turn to stone.
-  # There's also a 50-50 chance it will turn into cobblestone, or bedrock.
-  STONE:
-    replace-block: COBBLESTONE:50;BEDROCK
-    regenerate-into: EMERALD_ORE:20;STONE
-    regen-delay: 3
-    natural-break: false
-  # Then if you mine the emerald ore, it gives you your reward, has a 50% chance to replace with STONE of COBBLE when regenerating.
-  # Then it turns into emerald, or stone again.
-  EMERALD_ORE:
-    replace-block: STONE:50;COBBLESTONE
-    regen-delay: 2-10
-    regenerate-into: EMERALD_ORE:10;STONE
-    natural-break: false
-    regeneration-particles: block_frame
-    drop-item:
-      material: emerald
+# Create a region with /blockregen region world random world
+# (creates a region 'random' that contains the whole world)
+#
+# Break a diamond ore.
+diamonds:
+  target-material: diamond_ore
+  regen-delay: 3-10
+  natural-break: false
+  drop-naturally: false
+  conditions:
+    tool:
+      material: NETHERITE_PICKAXE
+  drop-item:
+    diamond:
+      material: diamond
+      amount: 1-3
+      apply-fortune: true
+      conditions:
+        placeholder: "%player_y% < 100"
+    rubbish:
+      material: cobblestone
       amount: 1
-      name: '&aA cute emerald'
-      lores:
-        - '&7Mined with &d<3 &7by &f%player%'
-
-  #### Oraxen example
-
-  caveblock:
-    # oraxen:<oraxen item id>
-    target-material: oraxen:caveblock
-    replace-block: STONE
-    regen-delay: 1
-    natural-break: false
+      apply-fortune: false

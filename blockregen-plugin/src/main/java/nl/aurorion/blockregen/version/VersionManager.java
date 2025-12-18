@@ -27,6 +27,8 @@ public interface VersionManager {
 
     NodeDataParser getNodeDataParser();
 
+    void registerVersionedListeners();
+
     interface NodeDataProvider {
         NodeData provide();
     }

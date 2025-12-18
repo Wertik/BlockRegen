@@ -21,6 +21,9 @@ public abstract class DropItem {
     protected boolean dropNaturally = false;
 
     @Setter
+    protected boolean applyFortune = true;
+
+    @Setter
     protected NumberValue chance;
 
     @Setter

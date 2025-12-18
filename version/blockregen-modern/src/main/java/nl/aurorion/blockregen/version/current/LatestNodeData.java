@@ -19,6 +19,7 @@ import org.bukkit.block.data.*;
 import org.bukkit.block.data.type.NoteBlock;
 import org.bukkit.block.data.type.Stairs;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,6 +34,8 @@ public class LatestNodeData implements NodeData {
     private BlockFace facing;
 
     private Stairs.Shape stairShape;
+
+    private Bisected.Half half;
 
     private Axis axis;
 
@@ -98,6 +101,13 @@ public class LatestNodeData implements NodeData {
         if (data instanceof Stairs && this.stairShape != null) {
             Stairs stairs = (Stairs) data;
             if (stairs.getShape() != this.stairShape) {
+                return false;
+            }
+        }
+
+        if (data instanceof Bisected && this.half != null) {
+            Bisected bisected = (Bisected) data;
+            if (bisected.getHalf() != this.half) {
                 return false;
             }
         }
@@ -189,6 +199,11 @@ public class LatestNodeData implements NodeData {
             this.stairShape = stairs.getShape();
         }
 
+        if (data instanceof  Bisected) {
+            Bisected bisected = (Bisected) data;
+            this.half = bisected.getHalf();
+        }
+
         if (data instanceof Orientable) {
             Orientable orientable = (Orientable) data;
             this.axis = orientable.getAxis();
@@ -242,6 +257,10 @@ public class LatestNodeData implements NodeData {
 
         if (blockData instanceof Stairs && this.stairShape != null) {
             ((Stairs) blockData).setShape(this.stairShape);
+        }
+
+        if (blockData instanceof Bisected && this.half != null) {
+            ((Bisected) blockData).setHalf(this.half);
         }
 
         if (blockData instanceof Orientable && this.axis != null) {

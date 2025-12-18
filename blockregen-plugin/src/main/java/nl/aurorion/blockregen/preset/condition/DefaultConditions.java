@@ -3,20 +3,23 @@ package nl.aurorion.blockregen.preset.condition;
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.collect.Lists;
-import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.conditional.ConditionContext;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.conditional.Condition;
+import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.preset.FixedNumberValue;
 import nl.aurorion.blockregen.preset.NumberValue;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
 import nl.aurorion.blockregen.preset.condition.expression.Operand;
 import nl.aurorion.blockregen.util.Parsing;
+import nl.aurorion.blockregen.util.Text;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -37,8 +40,9 @@ public class DefaultConditions {
                                         (key, node) -> {
                                             XMaterial xMaterial = Parsing.parseMaterial((String) node);
 
-                                            return Condition.of((ctx) -> ctx.mustVar("material") == xMaterial)
-                                                    .alias("material == " + xMaterial);
+                                            return Condition.of((ctx) -> ctx.get("material") == xMaterial)
+                                                    .alias("material == " + xMaterial)
+                                                    .pretty(xMaterial.toString());
                                         }, String.class))
                                 .addProvider("enchants", GenericConditionProvider.ProviderEntry.of(
                                         (key, node) -> {
@@ -47,13 +51,28 @@ public class DefaultConditions {
                                             Expression expression = Expression.withCustomOperands((str) -> getEnchantmentLevel(Parsing.parseEnchantment(str)), v);
 
                                             log.fine(() -> "Loaded enchants expression " + expression);
-                                            return Condition.of(expression::evaluate).alias(v);
+                                            return Condition.of(expression::evaluate)
+                                                    .alias(v)
+                                                    .pretty(Text.capitalize(v));
                                         }, ConditionRelation.AND))
                                 .extender((ctx) -> {
-                                    ItemStack item = (ItemStack) ctx.mustVar("tool");
+                                    ItemStack item = ctx.get("tool", ItemStack.class);
+
+                                    XMaterial material = null;
+                                    if (item != null) {
+                                        try {
+                                            material = XMaterial.matchXMaterial(item);
+                                        } catch (IllegalArgumentException e) {
+                                            if (!BlockRegenPluginImpl.getInstance().getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                                                log.warning(() -> "Encountered an unsupported material. Hide this error by setting Ignore-Unknown-Materials to true in Settings.yml.");
+                                                throw e;
+                                            }
+                                        }
+                                    }
+
                                     return ConditionContext.empty()
-                                            .with("material", XMaterial.matchXMaterial(item))
-                                            .with("enchants", item.getEnchantments());
+                                            .with("material", material)
+                                            .with("enchants", item == null ? new HashMap<>() : item.getEnchantments());
                                 }), ConditionRelation.AND)
         );
     }
@@ -90,7 +109,8 @@ public class DefaultConditions {
                             String input = (String) node;
 
                             Expression expression = Expression.from(input);
-                            return Condition.of(expression::evaluate).alias(expression.pretty());
+                            return Condition.of(expression::evaluate)
+                                    .alias(expression.pretty());
                         },
                         String.class
                 )
@@ -111,7 +131,8 @@ public class DefaultConditions {
                                 throw new ParseException(e.getMessage());
                             }
                             final Random random = new Random();
-                            return Condition.of((ctx) -> random.nextDouble() < numberValue.getDouble() / 100).alias("chance (" + numberValue + "%)");
+                            return Condition.of((ctx) -> random.nextDouble() < numberValue.getDouble() / 100)
+                                    .alias("chance (" + numberValue + "%)");
                         },
                         Double.class, Integer.class, String.class
                 )
