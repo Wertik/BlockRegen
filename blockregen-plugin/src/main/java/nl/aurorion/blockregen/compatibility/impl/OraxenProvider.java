@@ -13,6 +13,7 @@ import nl.aurorion.blockregen.material.OraxenMaterial;
 import nl.aurorion.blockregen.material.parser.MaterialParser;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class OraxenProvider extends CompatibilityProvider implements MaterialPar
     }
 
     @Override
-    public ItemStack createItem(String id, Function<String, String> parser, int amount) {
+    public ItemStack createItem(@NonNull String id, @NonNull Function<String, String> parser, int amount) {
         ItemBuilder builder = OraxenItems.getItemById(id);
         builder.setDisplayName(parser.apply(builder.getDisplayName()));
         builder.setLore(builder.getLore().stream()
@@ -65,7 +66,7 @@ public class OraxenProvider extends CompatibilityProvider implements MaterialPar
     }
 
     @Override
-    public boolean exists(String id) {
+    public boolean exists(@NonNull String id) {
         return OraxenItems.exists(id);
     }
 }

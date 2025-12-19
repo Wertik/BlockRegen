@@ -2,6 +2,8 @@ package nl.aurorion.blockregen.preset.drop;
 
 import nl.aurorion.blockregen.drop.ItemProvider;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -16,7 +18,8 @@ public class ExternalDropItem extends DropItem {
     }
 
     @Override
-    public ItemStack toItemStack(Function<String, String> parser) {
+    @Nullable
+    public ItemStack toItemStack(@NotNull Function<String, String> parser) {
         int amount = this.amount.getInt();
         if (amount <= 0) {
             return null;

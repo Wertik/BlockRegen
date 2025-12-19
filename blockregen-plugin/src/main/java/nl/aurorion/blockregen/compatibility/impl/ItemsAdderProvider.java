@@ -14,6 +14,7 @@ import nl.aurorion.blockregen.material.parser.MaterialParser;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class ItemsAdderProvider extends CompatibilityProvider implements Materia
     }
 
     @Override
-    public ItemStack createItem(String id, Function<String, String> parser, int amount) {
+    public ItemStack createItem(@NonNull String id, @NonNull Function<String, String> parser, int amount) {
         CustomStack builder = CustomStack.getInstance(id);
         builder.setDisplayName(parser.apply(builder.getDisplayName()));
         ItemStack item = builder.getItemStack();
@@ -70,7 +71,7 @@ public class ItemsAdderProvider extends CompatibilityProvider implements Materia
     }
 
     @Override
-    public boolean exists(String id) {
+    public boolean exists(@NonNull String id) {
         return CustomStack.isInRegistry(id);
     }
 
