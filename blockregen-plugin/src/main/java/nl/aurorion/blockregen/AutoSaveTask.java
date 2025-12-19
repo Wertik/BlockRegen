@@ -57,9 +57,9 @@ public class AutoSaveTask implements Runnable {
     public void run() {
         this.plugin.getRegenerationManager().save();
         try {
-            this.plugin.getRegionManager().save();
+            this.plugin.getRegionManager().saveAll();
         } catch (StorageException e) {
-            log.log(Level.SEVERE, "Failed to save regions. This doesn't have to cause any problems but please investigate.", e);
+            log.log(Level.SEVERE, "Failed to save regions. This doesn't have to be drastic, but please investigate, your changes to regions probably didn't save.", e);
         }
     }
 }

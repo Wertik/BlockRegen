@@ -10,13 +10,22 @@ public enum RegionType {
     WORLD;
 
     @NotNull
-    public static RegionType of(@NotNull Region region) {
+    public static RegionType of(@NotNull Region region) throws IllegalArgumentException {
         if (region instanceof CuboidRegion) {
             return RegionType.CUBOID;
         } else if (region instanceof WorldRegion) {
             return RegionType.WORLD;
         } else {
             throw new IllegalArgumentException("Region type " + region.getClass().getSimpleName() + " not supported by SQLiteStorageDriver.");
+        }
+    }
+
+    @NotNull
+    public static RegionType of(int x) throws IllegalArgumentException {
+        try {
+            return RegionType.values()[x];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Invalid region type index " + x + ".");
         }
     }
 }

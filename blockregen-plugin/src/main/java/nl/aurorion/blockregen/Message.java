@@ -34,6 +34,9 @@ public enum Message {
     NO_PERM("Insufficient-Permission", "&cYou don't have the permissions to do this!"),
     ONLY_PLAYERS("Console-Sender-Error", "&cI'm sorry but the console can not perform this command!"),
     INVALID_COMMAND("Invalid-Command", "&cThis is not a valid command!"),
+    ERROR_WHILE_RUNNING_COMMAND("Error-While-Running-Command", "&cSomething went wrong, sorry.\n" +
+            "%error%\n" +
+            "&7There's a detailed log in the console."),
 
     TOO_MANY_ARGS("Too-Many-Arguments", "&cToo many arguments.\n&7Use: &f%help%"),
     NOT_ENOUGH_ARGS("Not-Enough-Arguments", "&cNot enough arguments.\n&7Use: &f%help%"),

@@ -2,6 +2,7 @@ package nl.aurorion.blockregen.util;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.aurorion.blockregen.ParseException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -39,13 +40,16 @@ public class BlockPosition {
         return new BlockPosition(worldName, x, y, z);
     }
 
-    public static @NotNull BlockPosition from(@NotNull String worldName, @NotNull String serialized) {
+    public static @NotNull BlockPosition from(@NotNull String worldName, @NotNull String serialized) throws ParseException {
         String[] parts = serialized.split(";");
 
-        // todo: check, throw exception if needed
-        int x = Integer.parseInt(parts[0]);
-        int y = Integer.parseInt(parts[1]);
-        int z = Integer.parseInt(parts[2]);
+        if (parts.length != 3) {
+            throw new ParseException("Bad serialization format for a block position " + serialized + ".");
+        }
+
+        int x = Parsing.parseInt(parts[0]);
+        int y = Parsing.parseInt(parts[1]);
+        int z = Parsing.parseInt(parts[2]);
 
         return new BlockPosition(worldName, x, y, z);
     }

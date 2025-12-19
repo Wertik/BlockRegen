@@ -9,55 +9,61 @@ import java.util.Objects;
 public class CuboidRegion extends RegionBase {
 
     @Getter
-    private final BlockPosition bottomLeft;
+    private final BlockPosition min;
     @Getter
-    private final BlockPosition topRight;
+    private final BlockPosition max;
 
-    private CuboidRegion(@NotNull String name, @NotNull BlockPosition bottomLeft, @NotNull BlockPosition topRight) {
+    private CuboidRegion(@NotNull String name, @NotNull BlockPosition min, @NotNull BlockPosition max) {
         super(name);
-        this.bottomLeft = bottomLeft;
-        this.topRight = topRight;
+
+        this.min = min;
+        this.max = max;
     }
 
+    /**
+     * Create a new cuboid region. Ensures that the region has correctly set boundaries.
+     *
+     * @throws IllegalArgumentException If the positions are not in the same world.
+     */
     @NotNull
-    public static CuboidRegion create(@NotNull String name, @NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
+    public static CuboidRegion create(@NotNull String name, @NotNull BlockPosition pos1, @NotNull BlockPosition pos2) throws IllegalArgumentException {
         if (!Objects.equals(pos1.getWorldName(), pos2.getWorldName())) {
             throw new IllegalArgumentException("CuboidRegion positions are not in the same world.");
         }
 
-        BlockPosition bottomLeft = BlockPosition.from(
+        BlockPosition min = BlockPosition.from(
                 pos1.getWorldName(),
                 Integer.min(pos1.getX(), pos2.getX()),
                 Integer.min(pos1.getY(), pos2.getY()),
                 Integer.min(pos1.getZ(), pos2.getZ())
         );
 
-        BlockPosition topRight = BlockPosition.from(
+        BlockPosition max = BlockPosition.from(
                 pos1.getWorldName(),
                 Integer.max(pos1.getX(), pos2.getX()),
                 Integer.max(pos1.getY(), pos2.getY()),
                 Integer.max(pos1.getZ(), pos2.getZ())
         );
 
-        return new CuboidRegion(name, bottomLeft, topRight);
+        return new CuboidRegion(name, min, max);
     }
 
     @Override
     public boolean contains(@NotNull BlockPosition position) {
-        if (!topRight.getWorldName().equals(position.getWorldName())) {
+        if (!max.getWorldName().equals(position.getWorldName())) {
             return false;
         }
 
-        return position.getX() <= topRight.getX() && position.getX() >= bottomLeft.getX()
-                && position.getZ() <= topRight.getZ() && position.getZ() >= bottomLeft.getZ()
-                && position.getY() <= topRight.getY() && position.getY() >= bottomLeft.getY();
+        return position.getX() <= max.getX() && position.getX() >= min.getX()
+                && position.getZ() <= max.getZ() && position.getZ() >= min.getZ()
+                && position.getY() <= max.getY() && position.getY() >= min.getY();
     }
 
     @Override
     public String toString() {
         return "RegenerationRegion{" +
-                "min=" + bottomLeft +
-                ", max=" + topRight +
+                "min=" + min +
+                ", max=" + max +
                 ", name='" + name + '\'' +
                 ", presets=" + presets +
                 ", all=" + all +

@@ -226,7 +226,6 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
             presetManager.reattemptLoad();
             regenerationManager.reattemptLoad();
-            /*regionManager.reattemptLoad();*/
 
             if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
                 regenerationManager.startAutoSave();
@@ -294,9 +293,9 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         }
 
         try {
-            this.regionManager.save();
+            this.regionManager.saveAll();
         } catch (StorageException e) {
-            log.log(Level.SEVERE, "Failed to save regions. This doesn't have to cause any problems but please investigate.", e);
+            log.log(Level.SEVERE, "Failed to save regions. This doesn't have to be drastic, but please investigate, your changes to regions probably didn't save.", e);
         }
 
         teardownLogger();

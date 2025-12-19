@@ -3,7 +3,6 @@ package nl.aurorion.blockregen.region;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
-import nl.aurorion.blockregen.storage.StorageDriver;
 import nl.aurorion.blockregen.storage.exception.StorageException;
 import nl.aurorion.blockregen.util.BlockPosition;
 import org.bukkit.Location;
@@ -54,7 +53,7 @@ public class RegionManager {
         return selection;
     }
 
-    public boolean finishSelection(@NotNull String regionName, @NotNull RegionSelection selection) {
+    public boolean finishSelection(@NotNull String regionName, @NotNull RegionSelection selection) throws StorageException {
         Location first = selection.getFirst();
         Location second = selection.getSecond();
 
@@ -63,22 +62,20 @@ public class RegionManager {
         return true;
     }
 
-    @NotNull
-    public WorldRegion createWorldRegion(@NotNull String name, @NotNull String worldName) {
-        return WorldRegion.create(name, worldName);
-    }
-
     // Load all the regions.
     // If any of them fail to load.
     // We provide protection in the regions, if they're not loaded, buildings could be griefed.
     public void loadAll() throws StorageException {
-        StorageDriver driver = plugin.getWarehouse().getSelectedDriver();
-        this.loadedRegions = driver.loadRegions();
+        this.loadedRegions = plugin.getWarehouse().ensureSelectedDriver().loadRegions();
         log.info("Loaded " + loadedRegions.size() + " region(s)...");
     }
 
-    public void save() throws StorageException {
-        plugin.getWarehouse().getSelectedDriver().updateRegions(loadedRegions);
+    public void saveAll() throws StorageException {
+        if (!plugin.getWarehouse().isInitialized()) {
+            return;
+        }
+
+        plugin.getWarehouse().ensureSelectedDriver().updateRegions(loadedRegions);
     }
 
     public boolean exists(String name) {
@@ -89,18 +86,17 @@ public class RegionManager {
         return this.loadedRegions.stream().filter(r -> r.getName().equals(name)).findAny().orElse(null);
     }
 
-    public void removeRegion(@NotNull String name) {
+    public void deleteRegion(@NotNull String name) throws StorageException {
+        if (!plugin.getWarehouse().isInitialized()) {
+            throw new StorageException("Storage not initialized properly.");
+        }
+
         Iterator<Region> it = this.loadedRegions.iterator();
         while (it.hasNext()) {
             Region region = it.next();
 
             if (Objects.equals(region.getName(), name)) {
-                try {
-                    this.plugin.getWarehouse().getSelectedDriver().deleteRegion(region);
-                } catch (StorageException e) {
-                    // todo
-                    throw new RuntimeException(e);
-                }
+                this.plugin.getWarehouse().ensureSelectedDriver().deleteRegion(region);
                 it.remove();
                 break;
             }
@@ -119,16 +115,13 @@ public class RegionManager {
         return null;
     }
 
-    public void addRegion(@NotNull Region region) {
+    public void addRegion(@NotNull Region region) throws StorageException {
         this.loadedRegions.add(region);
-        try {
-            this.plugin.getWarehouse().getSelectedDriver().saveRegion(region);
-        } catch (StorageException e) {
-            // todo
-            throw new RuntimeException(e);
-        }
+
+        this.plugin.getWarehouse().ensureSelectedDriver().saveRegion(region);
+
         this.sort();
-        log.fine(() -> "Added area " + region);
+        log.fine(() -> "Added region " + region);
     }
 
     @NotNull

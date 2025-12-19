@@ -152,25 +152,34 @@ public class SQLiteStorageDriver implements StorageDriver {
 
     @NotNull
     public static Region fromResultSet(@NotNull ResultSet resultSet) throws SQLException, InvalidDataException {
-        String name = resultSet.getString("name");
+        String name = InvalidDataException.throwIfNull(resultSet.getString("name"), "'name' cannot be null.");
         int priority = resultSet.getInt("priority");
         boolean all = resultSet.getBoolean("all");
         Boolean disableOtherBreak = objToOptionalBoolean(resultSet.getObject("disable_other_break"));
 
-        String worldName = resultSet.getString("world_name");
+        String worldName = InvalidDataException.throwIfNull(resultSet.getString("world_name"), "'world_name' cannot be null.");
 
-        RegionType type = RegionType.values()[resultSet.getInt("type")];
+        RegionType type;
+        try {
+            type = RegionType.of(resultSet.getInt("type"));
+        } catch (IllegalArgumentException e) {
+            throw new InvalidDataException(e);
+        }
 
         Region region;
         switch (type) {
             case CUBOID:
-                String topLeft = resultSet.getString("cuboid_top_left");
-                String bottomRight = resultSet.getString("cuboid_bottom_right");
+                String minString = InvalidDataException.throwIfNull(
+                        resultSet.getString("cuboid_min"),
+                        "'cuboid_min' cannot be null.");
+                String maxString = InvalidDataException.throwIfNull(
+                        resultSet.getString("cuboid_max"),
+                        "'cuboid_max' cannot be null.'");
 
-                BlockPosition pos1 = BlockPosition.from(worldName, topLeft);
-                BlockPosition pos2 = BlockPosition.from(worldName, bottomRight);
+                BlockPosition min = BlockPosition.from(worldName, minString);
+                BlockPosition max = BlockPosition.from(worldName, maxString);
 
-                region = CuboidRegion.create(name, pos1, pos2);
+                region = CuboidRegion.create(name, min, max);
                 break;
             case WORLD:
                 region = WorldRegion.create(name, worldName);
@@ -401,10 +410,10 @@ public class SQLiteStorageDriver implements StorageDriver {
         switch (type) {
             case CUBOID:
                 CuboidRegion cuboidRegion = (CuboidRegion) region;
-                statement.setString(5, cuboidRegion.getBottomLeft().serialize());
-                statement.setString(6, cuboidRegion.getTopRight().serialize());
+                statement.setString(5, cuboidRegion.getMin().serialize());
+                statement.setString(6, cuboidRegion.getMax().serialize());
 
-                statement.setString(7, cuboidRegion.getBottomLeft().getWorldName());
+                statement.setString(7, cuboidRegion.getMin().getWorldName());
                 break;
             case WORLD:
                 statement.setString(5, null);

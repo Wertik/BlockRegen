@@ -6,6 +6,7 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.storage.exception.StorageException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,10 +19,22 @@ public class Warehouse {
     private final Map<String, DriverProvider> options = new HashMap<>();
 
     @Getter
+    @Nullable
     private StorageDriver selectedDriver;
+
+    @Getter
+    private boolean initialized = false;
 
     public Warehouse(BlockRegenPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    @NotNull
+    public StorageDriver ensureSelectedDriver() throws StorageException {
+        if (!this.initialized || this.selectedDriver == null) {
+            throw new StorageException("Storage is not initialized.");
+        }
+        return this.selectedDriver;
     }
 
     public void registerStorageProvider(@NotNull String key, @NotNull DriverProvider storageDriver) {
@@ -57,10 +70,14 @@ public class Warehouse {
             throw new StorageException("No driver registered under the key '" + driverKey + "'.");
         }
 
-        this.selectedDriver = provider.create(driverSection);
+        StorageDriver driver = provider.create(driverSection);
 
         log.fine("Initializing driver '" + driverKey + "'...");
 
-        this.selectedDriver.initialize();
+        driver.initialize();
+
+        this.selectedDriver = driver;
+
+        this.initialized = true;
     }
 }
