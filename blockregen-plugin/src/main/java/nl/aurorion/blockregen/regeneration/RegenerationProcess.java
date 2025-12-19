@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
@@ -13,8 +12,8 @@ import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.preset.FixedNumberValue;
+import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.util.Blocks;
-import nl.aurorion.blockregen.util.Locations;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -390,7 +389,7 @@ public class RegenerationProcess {
                 presetName,
                 worldName,
                 regionName,
-                block == null ? "null" : Locations.locationToString(block.getLocation()),
+                block == null ? "null" : Blocks.format(block),
                 originalData,
                 originalMaterial,
                 this.regenerateInto,

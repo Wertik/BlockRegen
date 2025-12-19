@@ -4,12 +4,14 @@ import com.cryptomorin.xseries.XMaterial;
 import lombok.experimental.UtilityClass;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.NotNull;
 
 @UtilityClass
 public class Blocks {
 
-    public String blockToString(Block block) {
-        return "Block{" + Locations.locationToString(block.getLocation()) + ",type=" + block.getType() + "}";
+    @NotNull
+    public String format(@NotNull Block block) {
+        return "Block{x=" + block.getX() + "; y=" + block.getY() + "; z=" + block.getZ() + "; type=" + block.getType() + "}";
     }
 
     public static boolean isMultiblockCrop(BlockRegenPlugin plugin, Block block) {

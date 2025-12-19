@@ -791,7 +791,7 @@ public class Commands implements CommandExecutor {
 
             if (area instanceof CuboidRegion) {
                 CuboidRegion region = (CuboidRegion) area;
-                message.append(String.format("  &7Area: &f%s &8- &f%s", region.getMin().serialize(), region.getMax().serialize())).append('\n');
+                message.append(String.format("  &7Area: &f%s &8- &f%s", region.getMin().serializeCoords(), region.getMax().serializeCoords())).append('\n');
             } else if (area instanceof WorldRegion) {
                 WorldRegion world = (WorldRegion) area;
                 message.append("  &7World: &f").append(world.getWorldName()).append('\n');

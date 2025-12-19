@@ -15,7 +15,6 @@ import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.preset.drop.DropItem;
 import nl.aurorion.blockregen.preset.drop.ExperienceDrop;
 import nl.aurorion.blockregen.region.Region;
-import nl.aurorion.blockregen.region.Region;
 import nl.aurorion.blockregen.util.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -115,7 +114,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             return;
         }
 
-        log.fine(() -> String.format("Handling %s.", Locations.locationToString(block.getLocation())));
+        log.fine(() -> String.format("Handling %s.", Locations.format(block.getLocation())));
 
         BlockPreset preset = plugin.getPresetManager().getPreset(block, region);
 
@@ -302,7 +301,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             return;
         }
 
-        log.fine(() -> "Base " + Blocks.blockToString(base));
+        log.fine(() -> "Base " + Blocks.format(base));
 
         // Only start regeneration when the most bottom block is broken.
         RegenerationProcess process = null;

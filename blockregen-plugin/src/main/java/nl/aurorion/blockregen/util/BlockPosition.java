@@ -40,11 +40,11 @@ public class BlockPosition {
         return new BlockPosition(worldName, x, y, z);
     }
 
-    public static @NotNull BlockPosition from(@NotNull String worldName, @NotNull String serialized) throws ParseException {
-        String[] parts = serialized.split(";");
+    public static @NotNull BlockPosition from(@NotNull String worldName, @NotNull String serializedCoords) throws ParseException {
+        String[] parts = serializedCoords.split(";");
 
         if (parts.length != 3) {
-            throw new ParseException("Bad serialization format for a block position " + serialized + ".");
+            throw new ParseException("Bad serialization format for block position: " + serializedCoords + ".");
         }
 
         int x = Parsing.parseInt(parts[0]);
@@ -55,7 +55,7 @@ public class BlockPosition {
     }
 
     @NotNull
-    public String serialize() {
+    public String serializeCoords() {
         return this.x + ";" + this.y + ";" + this.z;
     }
 

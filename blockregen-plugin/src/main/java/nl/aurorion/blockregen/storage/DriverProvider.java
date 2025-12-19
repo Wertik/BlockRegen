@@ -1,13 +1,18 @@
 package nl.aurorion.blockregen.storage;
 
+import nl.aurorion.blockregen.storage.exception.StorageException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Create a StorageDriver from supplied configuration.
+ */
 public interface DriverProvider {
-    // Create a storage driver with its configuration section.
-    // It could be null if there's no config. Assume defaults or fail.
-    // todo: custom exception when no config / bad values
+
+    /**
+     * @throws StorageException When options required in order for the driver to work properly are missing or invalid.
+     */
     @NotNull
-    StorageDriver create(@Nullable ConfigurationSection section);
+    StorageDriver create(@Nullable ConfigurationSection section) throws StorageException;
 }

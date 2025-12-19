@@ -59,7 +59,7 @@ public class SQLiteStorageDriver implements StorageDriver {
         }
 
         @Override
-        public @NotNull StorageDriver create(@Nullable ConfigurationSection section) {
+        public @NotNull StorageDriver create(@Nullable ConfigurationSection section) throws StorageException {
             Options options = Options.empty()
                     .file(this.defaultFile);
 
@@ -410,8 +410,8 @@ public class SQLiteStorageDriver implements StorageDriver {
         switch (type) {
             case CUBOID:
                 CuboidRegion cuboidRegion = (CuboidRegion) region;
-                statement.setString(5, cuboidRegion.getMin().serialize());
-                statement.setString(6, cuboidRegion.getMax().serialize());
+                statement.setString(5, cuboidRegion.getMin().serializeCoords());
+                statement.setString(6, cuboidRegion.getMax().serializeCoords());
 
                 statement.setString(7, cuboidRegion.getMin().getWorldName());
                 break;

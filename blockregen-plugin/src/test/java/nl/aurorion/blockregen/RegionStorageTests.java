@@ -24,7 +24,7 @@ public class RegionStorageTests {
     }
 
     @Test
-    public void startsStorage() {
+    public void startsStorage() throws StorageException {
         String input = "Path: \"blockregen-test.db\"";
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
 
@@ -32,18 +32,14 @@ public class RegionStorageTests {
                         new File("./"))
                 .create(conf));
 
-        try {
-            driver.initialize();
+        driver.initialize();
 
-            Region region = WorldRegion.create("random", "world");
+        Region region = WorldRegion.create("random", "world");
 
-            driver.saveRegion(region);
+        driver.saveRegion(region);
 
-            List<Region> regions = driver.loadRegions();
+        List<Region> regions = driver.loadRegions();
 
-            assertEquals(1, regions.size());
-        } catch (StorageException e) {
-            throw new RuntimeException(e);
-        }
+        assertEquals(1, regions.size());
     }
 }

@@ -60,6 +60,6 @@ public class PhysicsListener implements Listener {
             return;
         }
         event.setCancelled(true);
-        log.fine(() -> event.getChangedType() + " " + Blocks.blockToString(event.getBlock()));
+        log.fine(() -> event.getChangedType() + " " + Blocks.format(event.getBlock()));
     }
 }

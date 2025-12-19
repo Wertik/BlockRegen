@@ -23,7 +23,7 @@ public class ParticleManager {
         }
 
         particles.get(particleName).display(location);
-        log.fine(() -> "Displayed particle " + particleName + " at location " + Locations.locationToString(location));
+        log.fine(() -> "Displayed particle " + particleName + " at " + Locations.format(location));
     }
 
     public void addParticle(String name, Particle particle) {
