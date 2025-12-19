@@ -1,6 +1,5 @@
 package nl.aurorion.blockregen.storage.sqlite;
 
-import com.google.common.base.Charsets;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.configuration.Files;
@@ -8,17 +7,21 @@ import nl.aurorion.blockregen.region.CuboidRegion;
 import nl.aurorion.blockregen.region.Region;
 import nl.aurorion.blockregen.region.WorldRegion;
 import nl.aurorion.blockregen.storage.DriverProvider;
+import nl.aurorion.blockregen.storage.RegionType;
 import nl.aurorion.blockregen.storage.StorageDriver;
 import nl.aurorion.blockregen.storage.exception.ConnectionException;
 import nl.aurorion.blockregen.storage.exception.InvalidDataException;
 import nl.aurorion.blockregen.storage.exception.StorageException;
+import nl.aurorion.blockregen.util.BlockPosition;
 import nl.aurorion.blockregen.util.Closer;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -116,7 +119,7 @@ public class SQLiteStorageDriver implements StorageDriver {
 
             List<String> lines;
             try {
-                lines = java.nio.file.Files.readAllLines(path, Charsets.UTF_8);
+                lines = java.nio.file.Files.readAllLines(path, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -127,6 +130,60 @@ public class SQLiteStorageDriver implements StorageDriver {
         });
 
         return migrations;
+    }
+
+    @Contract("null->null;!null->_")
+    public static Boolean objToOptionalBoolean(@Nullable Object o) throws InvalidDataException {
+        if (o == null) {
+            return null;
+        }
+
+        if (o instanceof Integer) {
+            return (int) o == 1;
+        }
+
+        throw new InvalidDataException("Invalid type for optional boolean " + o.getClass().getSimpleName());
+    }
+
+    @Contract("null->null;!null->_")
+    public static Integer optionalBooleanToInt(Boolean bool) {
+        return bool == null ? null : (bool ? 1 : 0);
+    }
+
+    @NotNull
+    public static Region fromResultSet(@NotNull ResultSet resultSet) throws SQLException, InvalidDataException {
+        String name = resultSet.getString("name");
+        int priority = resultSet.getInt("priority");
+        boolean all = resultSet.getBoolean("all");
+        Boolean disableOtherBreak = objToOptionalBoolean(resultSet.getObject("disable_other_break"));
+
+        String worldName = resultSet.getString("world_name");
+
+        RegionType type = RegionType.values()[resultSet.getInt("type")];
+
+        Region region;
+        switch (type) {
+            case CUBOID:
+                String topLeft = resultSet.getString("cuboid_top_left");
+                String bottomRight = resultSet.getString("cuboid_bottom_right");
+
+                BlockPosition pos1 = BlockPosition.from(worldName, topLeft);
+                BlockPosition pos2 = BlockPosition.from(worldName, bottomRight);
+
+                region = CuboidRegion.create(name, pos1, pos2);
+                break;
+            case WORLD:
+                region = WorldRegion.create(name, worldName);
+                break;
+            default:
+                throw new InvalidDataException("Unsupported region type " + type.name());
+        }
+
+        region.setPriority(priority);
+        region.setAll(all);
+        region.setDisableOtherBreak(disableOtherBreak);
+
+        return region;
     }
 
     @Override
@@ -141,8 +198,8 @@ public class SQLiteStorageDriver implements StorageDriver {
 
             try {
                 appliedMigrations = loadAppliedMigrations();
-            } catch (SQLException | IOException e) {
-                throw new StorageException(e);
+            } catch (ConnectionException | SQLException | IOException e) {
+                throw new StorageException("Failed to load previously applied migrations.", e);
             }
             log.fine(() -> appliedMigrations.size() + " migration(s) already applied.");
         }
@@ -174,8 +231,8 @@ public class SQLiteStorageDriver implements StorageDriver {
 
                 insertStatement.setString(1, name);
                 insertStatement.execute();
-            } catch (IOException | SQLException e) {
-                throw new StorageException(e);
+            } catch (ConnectionException | IOException | SQLException e) {
+                throw new StorageException("Failed to run migrations.", e);
             }
         }
     }
@@ -195,10 +252,10 @@ public class SQLiteStorageDriver implements StorageDriver {
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                Region region = Regions.fromResultSet(resultSet);
+                Region region = fromResultSet(resultSet);
                 regions.add(region);
             }
-        } catch (SQLException | IOException | InvalidDataException e) {
+        } catch (ConnectionException | SQLException | IOException | InvalidDataException e) {
             throw new StorageException(e);
         }
         return regions;
@@ -231,7 +288,7 @@ public class SQLiteStorageDriver implements StorageDriver {
             statement.executeUpdate();
 
             connection.commit();
-        } catch (SQLException | IOException e) {
+        } catch (ConnectionException | SQLException | IOException e) {
             throw new StorageException("Failed to insert/update region.", e);
         }
     }
@@ -256,7 +313,7 @@ public class SQLiteStorageDriver implements StorageDriver {
 
             log.fine(() -> "Bulk updated all the regions.");
             connection.commit();
-        } catch (SQLException | IOException e) {
+        } catch (ConnectionException | SQLException | IOException e) {
             throw new StorageException(e);
         }
     }
@@ -275,13 +332,13 @@ public class SQLiteStorageDriver implements StorageDriver {
             statement.execute();
 
             connection.commit();
-        } catch (SQLException | IOException e) {
+        } catch (ConnectionException | SQLException | IOException e) {
             throw new StorageException(e);
         }
     }
 
     @NotNull
-    private List<String> loadAppliedMigrations() throws SQLException, IOException {
+    private List<String> loadAppliedMigrations() throws SQLException, IOException, ConnectionException {
         List<String> migrations = new ArrayList<>();
 
         try (Closer closer = Closer.empty()) {
@@ -321,7 +378,7 @@ public class SQLiteStorageDriver implements StorageDriver {
         return "jdbc:sqlite:" + file;
     }
 
-    private boolean checkRegionExists() throws SQLException, IOException {
+    private boolean checkRegionExists() throws SQLException, IOException, ConnectionException {
         try (Closer closer = Closer.empty()) {
             Connection connection = closer.register(openConnection());
 
@@ -336,9 +393,9 @@ public class SQLiteStorageDriver implements StorageDriver {
     private void populateUpsert(PreparedStatement statement, Region region) throws SQLException, IllegalArgumentException {
         statement.setInt(1, region.getPriority());
         statement.setBoolean(2, region.isAll());
-        statement.setObject(3, Regions.optionalBooleanToInt(region.getDisableOtherBreak()), Types.INTEGER);
+        statement.setObject(3, optionalBooleanToInt(region.getDisableOtherBreak()), Types.INTEGER);
 
-        RegionType type = Regions.getRegionType(region);
+        RegionType type = RegionType.of(region);
         statement.setInt(4, type.ordinal());
 
         switch (type) {

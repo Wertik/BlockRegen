@@ -9,6 +9,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Handler;
@@ -48,6 +50,16 @@ public class ConsoleHandler extends Handler {
         String message = String.format(NORMAL_PATTERN, prefix, levelName, record.getMessage());
 
         sendRaw(record, message);
+        // from SimpleFormatter
+        if (record.getThrown() != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            pw.println();
+            record.getThrown().printStackTrace(pw);
+            pw.close();
+
+            Bukkit.getLogger().log(Level.SEVERE, sw.toString());
+        }
     }
 
     private void sendRaw(LogRecord record, String msg) {

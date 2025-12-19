@@ -24,12 +24,16 @@ public class Warehouse {
         this.plugin = plugin;
     }
 
-    public void registerStorageProvider(@NotNull String key, DriverProvider storageDriver) {
+    public void registerStorageProvider(@NotNull String key, @NotNull DriverProvider storageDriver) {
         options.put(key, storageDriver);
         log.fine(() -> "Registered storage driver " + key);
     }
 
-    public void initializeStorage() {
+    /**
+     * @throws StorageException If there's no driver registered under the driver key provided in
+     *                          the configuration or if the driver fails to initialize.
+     */
+    public void initializeStorage() throws StorageException {
         ConfigurationSection storageSection = plugin.getFiles().getSettings().getFileConfiguration().getConfigurationSection("Storage");
 
         String driverKey = "sqlite";
@@ -49,17 +53,14 @@ public class Warehouse {
 
         DriverProvider provider = options.get(driverKey);
 
-        this.selectedDriver = provider.create(driverSection);
-        log.fine("Selected driver " + driverKey);
-
-        log.fine(() -> "Initializing...");
-
-        try {
-            this.selectedDriver.initialize();
-        } catch (StorageException exception) {
-            // todo: stop the server? this could be hazardous
-            log.severe(() -> "Failed to initialize storage: " + exception.getMessage());
-            exception.printStackTrace();
+        if (provider == null) {
+            throw new StorageException("No driver registered under the key '" + driverKey + "'.");
         }
+
+        this.selectedDriver = provider.create(driverSection);
+
+        log.fine("Initializing driver '" + driverKey + "'...");
+
+        this.selectedDriver.initialize();
     }
 }

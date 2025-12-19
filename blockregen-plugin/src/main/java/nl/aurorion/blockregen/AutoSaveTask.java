@@ -2,8 +2,11 @@ package nl.aurorion.blockregen;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.storage.exception.StorageException;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.logging.Level;
 
 @Log
 public class AutoSaveTask implements Runnable {
@@ -52,7 +55,11 @@ public class AutoSaveTask implements Runnable {
 
     @Override
     public void run() {
-        plugin.getRegenerationManager().save();
-        plugin.getRegionManager().save();
+        this.plugin.getRegenerationManager().save();
+        try {
+            this.plugin.getRegionManager().save();
+        } catch (StorageException e) {
+            log.log(Level.SEVERE, "Failed to save regions. This doesn't have to cause any problems but please investigate.", e);
+        }
     }
 }

@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.storage.exception;
 
-public class ConnectionException extends RuntimeException {
+public class ConnectionException extends Exception {
     public ConnectionException(String message) {
         super(message);
     }

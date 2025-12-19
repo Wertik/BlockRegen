@@ -27,6 +27,7 @@ import nl.aurorion.blockregen.regeneration.RegenerationEventHandlerImpl;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.storage.Warehouse;
+import nl.aurorion.blockregen.storage.exception.StorageException;
 import nl.aurorion.blockregen.storage.json.GsonHelper;
 import nl.aurorion.blockregen.storage.sqlite.SQLiteStorageDriver;
 import nl.aurorion.blockregen.version.NodeDataAdapter;
@@ -39,7 +40,6 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -162,10 +162,34 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         warehouse.registerStorageProvider("sqlite", SQLiteStorageDriver.Provider.in(getDataFolder()));
 
-        warehouse.initializeStorage();
+        try {
+            warehouse.initializeStorage();
+        } catch (Throwable e) {
+            // Panic! at the disco.
+            log.log(Level.SEVERE, "\n\n==== !!!! ====\n\n" +
+                    "Regions failed to load.\n" +
+                    "They could guarantee protection in important areas of your worlds.\n" +
+                    "Stopping the server to prevent griefing.\n\n" +
+                    "==== !!!! ====\n", e);
+            getServer().shutdown();
+            return;
+        }
 
         presetManager.load();
-        regionManager.loadAll();
+
+        try {
+            regionManager.loadAll();
+        } catch (Throwable e) {
+            // Panic! at the disco.
+            log.log(Level.SEVERE, "\n\n==== !!!! ====\n\n" +
+                    "Regions failed to load.\n" +
+                    "They could guarantee protection in important areas of your worlds.\n" +
+                    "Stopping the server to prevent griefing.\n\n" +
+                    "==== !!!! ====\n", e);
+            getServer().shutdown();
+            return;
+        }
+
         regenerationManager.load();
 
         finishedLoading = true;
@@ -176,7 +200,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         String ver = getDescription().getVersion();
 
-        log.info("&bYou are using" + (ver.contains("-SNAPSHOT") || ver.contains("-b") ? " &cDEVELOPMENT&b" : "")
+        log.info("&bYou are using" + (ver.contains("-SNAPSHOT") || ver.contains("-b") ? " a &cDEVELOPMENT&b" : "")
                 + " version &f" + getDescription().getVersion());
         log.info("&bReport bugs or suggestions to discord only please. &f( /blockregen discord )");
         log.info("&bAlways backup if you are not sure about things.");
@@ -238,8 +262,6 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         physicsListener.load();
 
-        regionManager.reload();
-
         if (getConfig().getBoolean("Auto-Save.Enabled", false)) {
             regenerationManager.reloadAutoSave();
         }
@@ -262,18 +284,22 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     @Override
     public void onDisable() {
-        if (regenerationManager.getAutoSaveTask() != null) {
-            regenerationManager.getAutoSaveTask().stop();
+        if (this.regenerationManager.getAutoSaveTask() != null) {
+            this.regenerationManager.getAutoSaveTask().stop();
         }
 
-        if (finishedLoading) {
-            regenerationManager.revertAll();
-            regenerationManager.save(true);
-
-            regionManager.save();
+        if (this.finishedLoading) {
+            this.regenerationManager.revertAll();
+            this.regenerationManager.save(true);
         }
 
-        this.teardownLogger();
+        try {
+            this.regionManager.save();
+        } catch (StorageException e) {
+            log.log(Level.SEVERE, "Failed to save regions. This doesn't have to cause any problems but please investigate.", e);
+        }
+
+        teardownLogger();
     }
 
     private void registerListeners() {
@@ -306,7 +332,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
     public void enableMetrics() {
         new MetricsLite(this);
-        log.info("&8MetricsLite enabled");
+        log.info("MetricsLite enabled");
     }
 
     private static Logger getParentLogger() {

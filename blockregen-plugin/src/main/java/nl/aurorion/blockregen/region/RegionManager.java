@@ -2,9 +2,6 @@ package nl.aurorion.blockregen.region;
 
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.LoadException;
-import nl.aurorion.blockregen.configuration.ConfigFile;
-import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.storage.StorageDriver;
 import nl.aurorion.blockregen.storage.exception.StorageException;
@@ -16,10 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Log
 public class RegionManager {
@@ -27,9 +20,6 @@ public class RegionManager {
     private final BlockRegenPlugin plugin;
 
     private List<Region> loadedRegions = new ArrayList<>();
-
-    // Set of regions that failed to load.
-    private final Set<RawRegion> failedRegions = new HashSet<>();
 
     private final Map<UUID, RegionSelection> selections = new HashMap<>();
 
@@ -78,67 +68,17 @@ public class RegionManager {
         return WorldRegion.create(name, worldName);
     }
 
-    /*public void reattemptLoad() {
-        if (failedRegions.isEmpty()) {
-            return;
-        }
-
-        log.info("Reattempting to load regions...");
-        int count = failedRegions.size();
-        failedRegions.removeIf(rawRegion -> rawRegion.isReattempt() && loadRegion(rawRegion));
-        log.info("Loaded " + (count - failedRegions.size()) + " of failed regions.");
-    }*/
-
     // Load all the regions.
     // If any of them fail to load.
-    // We provide protection in the regions, if they're not loaded, buildings could be grieved.
-    public void loadAll() throws LoadException {
+    // We provide protection in the regions, if they're not loaded, buildings could be griefed.
+    public void loadAll() throws StorageException {
         StorageDriver driver = plugin.getWarehouse().getSelectedDriver();
-
-        List<Region> regions;
-        try {
-            regions = driver.loadRegions();
-        } catch (StorageException e) {
-            // This state should be unrecoverable -- regions didn't load properly, we cannot guarantee block protection.
-            throw new LoadException(e);
-        }
-
-        // Presets can be left unchecked?
-
-        this.loadedRegions = regions;
-
+        this.loadedRegions = driver.loadRegions();
         log.info("Loaded " + loadedRegions.size() + " region(s)...");
     }
 
-
-    // Only attempt to reload the presets configured as they could've changed.
-    // Reloading whole regions could lead to the regeneration disabling. Could hurt the builds etc.
-    // -- Changed to preset names for regions, no need to reload, just print a warning when a preset is not loaded.
-    public void reload() {
-
-        for (Region area : this.loadedRegions) {
-            Collection<String> presets = area.getPresets();
-
-            // Attach presets
-            for (String presetName : presets) {
-                BlockPreset preset = plugin.getPresetManager().getPreset(presetName);
-
-                if (preset == null) {
-                    log.warning(String.format("Preset %s isn't loaded, but is included in area %s.", presetName, area.getName()));
-                }
-            }
-        }
-
-        this.sort();
-        log.info("Reloaded " + this.loadedRegions.size() + " region(s)...");
-    }
-
-    public void save() {
-        try {
-            plugin.getWarehouse().getSelectedDriver().updateRegions(loadedRegions);
-        } catch (StorageException e) {
-            // todo
-        }
+    public void save() throws StorageException {
+        plugin.getWarehouse().getSelectedDriver().updateRegions(loadedRegions);
     }
 
     public boolean exists(String name) {
