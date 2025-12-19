@@ -252,10 +252,11 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         boolean debug = files.getSettings().getFileConfiguration().getBoolean("Debug-Enabled", false);
 
         if (debug && !debugListener.isRegistered()) {
-            getServer().getPluginManager().registerEvents(debugListener, this);
+            log.fine(() -> "Registered debug listener.");
+            this.debugListener.register();
         }
         if (!debug && debugListener.isRegistered()) {
-            HandlerList.unregisterAll(debugListener);
+            this.debugListener.unregister();
         }
     }
 
@@ -346,6 +347,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         } catch (IllegalArgumentException e) {
             log.fine(() -> "Unknown material " + block.getType());
             if (!getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                log.warning(() -> "Encountered an unsupported material. Hide this error by setting Ignore-Unknown-Materials to true in Settings.yml.");
                 throw e;
             }
             return null;

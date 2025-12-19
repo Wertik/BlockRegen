@@ -317,7 +317,6 @@ public class RegenerationProcess {
 
     // Convert stored Location pointer to the Block at the location.
     public boolean convertLocation() {
-
         if (location == null) {
             log.severe("Could not load location for process " + this);
             return false;
@@ -330,8 +329,7 @@ public class RegenerationProcess {
             return false;
         }
 
-        // Prevent async chunk load.
-        Bukkit.getScheduler().runTask(BlockRegenPluginImpl.getInstance(), () -> this.block = block);
+        this.block = block;
         return true;
     }
 

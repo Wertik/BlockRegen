@@ -201,41 +201,41 @@ public class RegenerationManager {
     public void load() {
         plugin.getGsonHelper().loadListAsync(plugin.getDataFolder().getPath() + "/Data.json", RegenerationProcess.class)
                 .thenAcceptAsync(loadedProcesses -> {
-                    cache.clear();
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        cache.clear();
 
-                    if (loadedProcesses == null) {
-                        return;
-                    }
-
-                    for (RegenerationProcess process : loadedProcesses) {
-                        if (process == null) {
-                            log.warning("Failed to load a process from storage. Report this to the maintainer of the plugin.");
-                            continue;
+                        if (loadedProcesses == null) {
+                            return;
                         }
 
-                        if (!process.convertLocation()) {
-                            this.retry = true;
-                            log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
-                            break;
+                        for (RegenerationProcess process : loadedProcesses) {
+                            if (process == null) {
+                                log.warning("Failed to load a process from storage. Report this to the maintainer of the plugin.");
+                                continue;
+                            }
+
+                            if (!process.convertLocation()) {
+                                this.retry = true;
+                                log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
+                                break;
+                            }
+
+                            if (!process.convertPreset()) {
+                                this.retry = true;
+                                log.warning("Failed to prepare process '" + process.getId() + "'.");
+                                break;
+                            }
+                            log.fine(() -> "Prepared regeneration process " + process);
                         }
 
-                        if (!process.convertPreset()) {
-                            this.retry = true;
-                            log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
-                            break;
-                        }
-                        log.fine(() -> "Prepared regeneration process " + process);
-                    }
-
-                    if (!this.retry) {
-                        // Start em
-                        Bukkit.getScheduler().runTask(plugin, () -> {
+                        if (!this.retry) {
+                            // Start em
                             loadedProcesses.forEach(RegenerationProcess::start);
                             log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
-                        });
-                    } else {
-                        log.info("Some processes couldn't load, trying again after a complete server load.");
-                    }
+                        } else {
+                            log.info("Some processes couldn't load, trying again after a complete server load.");
+                        }
+                    });
                 }).exceptionally(e -> {
                     log.severe("Could not load processes: " + e.getMessage());
                     e.printStackTrace();

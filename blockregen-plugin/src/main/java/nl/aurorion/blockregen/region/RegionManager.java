@@ -3,6 +3,7 @@ package nl.aurorion.blockregen.region;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.LoadException;
+import nl.aurorion.blockregen.configuration.ConfigFile;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.storage.StorageDriver;

@@ -51,6 +51,7 @@ public class BlockPreset {
     private String conditionMessage;
 
     private XSound sound;
+    private XSound playerSound;
 
     public BlockPreset(String name) {
         this.name = name;

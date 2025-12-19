@@ -64,6 +64,7 @@ public class DefaultConditions {
                                             material = XMaterial.matchXMaterial(item);
                                         } catch (IllegalArgumentException e) {
                                             if (!BlockRegenPluginImpl.getInstance().getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
+                                                log.warning(() -> "Encountered an unsupported material. Hide this error by setting Ignore-Unknown-Materials to true in Settings.yml.");
                                                 throw e;
                                             }
                                         }

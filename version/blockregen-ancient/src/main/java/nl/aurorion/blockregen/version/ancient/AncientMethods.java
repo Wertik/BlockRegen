@@ -5,6 +5,7 @@ import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.version.api.Methods;
 import org.bukkit.DyeColor;
+import org.bukkit.Location;
 import org.bukkit.TreeSpecies;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -18,6 +19,7 @@ import org.bukkit.material.Tree;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 @Log
 @SuppressWarnings("deprecation")
@@ -71,5 +73,18 @@ public class AncientMethods implements Methods {
     public int applyMending(Player player, int experience) {
         // Mending not added until 1.9.
         return experience;
+    }
+
+    @Override
+    public @NotNull Item createDroppedItem(@NotNull Location location, @NotNull ItemStack item) {
+        Objects.requireNonNull(location);
+        Objects.requireNonNull(location.getWorld(), "Location world not loaded.");
+
+        // We should actually avoid triggering EntitySpawnEvent
+        // But there's no API exposed, we should avoid NMS, and it's not worth the effort.
+        // It might not even be called for this.
+        Item entity = location.getWorld().dropItem(location, item);
+        entity.setItemStack(item);
+        return entity;
     }
 }
