@@ -32,22 +32,23 @@ public class FireCube implements Particle {
 
         Location start = location.clone();
         Location end = location.clone().add(1.2, 1.2, 1.2);
-        double spacing = 0.2;
+
+        double rate = 0.2;
 
         if (isLegacy) {
-            for (double x = start.getX(); x <= end.getX(); x += spacing) {
-                for (double y = start.getY(); y <= end.getY(); y += spacing) {
-                    for (double z = start.getZ(); z <= end.getZ(); z += spacing) {
+            for (double x = start.getX(); x <= end.getX(); x += rate) {
+                for (double y = start.getY(); y <= end.getY(); y += rate) {
+                    for (double z = start.getZ(); z <= end.getZ(); z += rate) {
                         int components = 0;
-                        if (x == start.getX() || x + spacing > end.getX()) {
+                        if (x == start.getX() || x + rate > end.getX()) {
                             ++components;
                         }
 
-                        if (y == start.getY() || y + spacing > end.getY()) {
+                        if (y == start.getY() || y + rate > end.getY()) {
                             ++components;
                         }
 
-                        if (z == start.getZ() || z + spacing > end.getZ()) {
+                        if (z == start.getZ() || z + rate > end.getZ()) {
                             ++components;
                         }
 
@@ -59,7 +60,7 @@ public class FireCube implements Particle {
             }
         } else {
             ParticleDisplay display = ParticleDisplay.of(XParticle.FLAME);
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> Particles.structuredCube(location, end, spacing, display));
+            Particles.structuredCube(location, end, rate, display);
         }
     }
 }

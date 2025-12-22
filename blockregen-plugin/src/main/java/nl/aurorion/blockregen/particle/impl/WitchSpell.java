@@ -49,7 +49,7 @@ public class WitchSpell implements Particle {
             }
         } else {
             ParticleDisplay display = ParticleDisplay.of(XParticle.WITCH).withLocation(center);
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> Particles.circle(radius, rate, display));
+            Particles.circle(radius, rate, display);
         }
     }
 }
