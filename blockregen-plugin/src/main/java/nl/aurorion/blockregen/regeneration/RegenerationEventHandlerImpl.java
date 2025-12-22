@@ -491,7 +491,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
                 preset.getPlayerSound().play(player);
             }
 
-            if (preset.getParticle() != null && Versions.isCurrentAbove("1.8", false)) {
+            if (preset.getParticle() != null) {
                 Bukkit.getScheduler().runTask(plugin,
                         () -> plugin.getParticleManager().displayParticle(preset.getParticle(), block));
             }
