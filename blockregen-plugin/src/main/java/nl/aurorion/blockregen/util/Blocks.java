@@ -25,6 +25,17 @@ public class Blocks {
         return material == XMaterial.SEAGRASS || material == XMaterial.TALL_SEAGRASS;
     }
 
+    public static boolean shouldForceRegenerateWhole(BlockRegenPlugin plugin, Block block) {
+        XMaterial type = plugin.getVersionManager().getMethods().getType(block);
+        switch (type) {
+            case TALL_GRASS:
+            case LARGE_FERN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static boolean isMultiblockCrop(XMaterial type) {
         switch (type) {
             case TALL_GRASS:
@@ -33,6 +44,7 @@ public class Blocks {
             case KELP_PLANT:
             case KELP:
             case TALL_SEAGRASS:
+            case LARGE_FERN:
             case SUGAR_CANE:
                 return true;
             default:

@@ -278,7 +278,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
     }
 
     private void handleMultiblockCrop(Block block, Player player, BlockPreset preset, @Nullable RegenerationArea area, int vanillaExp) {
-        boolean regenerateWhole = preset.isRegenerateWhole();
+        boolean regenerateWhole = Blocks.shouldForceRegenerateWhole(plugin, block) || preset.isRegenerateWhole();
 
         handleMultiblockAbove(block, player, above -> Blocks.isMultiblockCrop(plugin, above), (b, abovePreset) -> {
             if (regenerateWhole && abovePreset != null && abovePreset.isHandleCrops()) {
