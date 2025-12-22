@@ -20,6 +20,7 @@ import nl.aurorion.blockregen.preset.drop.*;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.util.Parsing;
+import nl.aurorion.blockregen.util.Versions;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -206,7 +207,7 @@ public class PresetManager {
         preset.setDisablePhysics(section.getBoolean("disable-physics", false));
 
         // BlockPhysics#getSourceBlock is missing
-        if (preset.isDisablePhysics() && plugin.getVersionManager().isCurrentBelow("1.13.2", false)) {
+        if (preset.isDisablePhysics() && Versions.isCurrentBelow("1.13.2", false)) {
             log.warning("Option `disable-physics` has not effect on versions below 1.13.2");
         }
 
@@ -338,7 +339,7 @@ public class PresetManager {
         event.setDoubleDrops(section.getBoolean("double-drops", false));
         event.setDoubleExperience(section.getBoolean("double-exp", false));
 
-        if (BlockRegenPluginImpl.getInstance().getVersionManager().isCurrentAbove("1.8", false)) {
+        if (Versions.isCurrentAbove("1.8", false)) {
             event.setBossBar(EventBossBar.load(section.getConfigurationSection("bossbar"), "&eEvent &6" + displayName + " &eis active!"));
         }
 

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.util.Versions;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventPriority;
@@ -75,7 +76,7 @@ public class DebugListener implements Listener {
         }, this.plugin);
 
         // BlockDropItemEvent added in 1.13
-        if (plugin.getVersionManager().isCurrentAbove("1.13", true)) {
+        if (Versions.isCurrentAbove("1.13", true)) {
             this.plugin.getServer().getPluginManager().registerEvent(BlockDropItemEvent.class, this, EventPriority.MONITOR, (listener, event) -> {
                 suppressThrows(() -> {
                     if (!(event instanceof BlockDropItemEvent)) {

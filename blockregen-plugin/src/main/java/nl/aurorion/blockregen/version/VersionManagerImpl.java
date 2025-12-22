@@ -12,16 +12,12 @@ import nl.aurorion.blockregen.version.ancient.AncientNodeDataParser;
 import nl.aurorion.blockregen.version.api.*;
 import nl.aurorion.blockregen.version.current.*;
 import nl.aurorion.blockregen.version.legacy.*;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 @Log
 public class VersionManagerImpl implements VersionManager {
 
     private final BlockRegenPlugin plugin;
-
-    @Getter
-    private final String version = loadNMSVersion();
 
     // Main plugin classes are the same across versions
     private WorldEditPlugin worldEdit;
@@ -31,6 +27,7 @@ public class VersionManagerImpl implements VersionManager {
     private WorldEditProvider worldEditProvider;
     @Getter
     private WorldGuardProvider worldGuardProvider;
+
     @Getter
     private Methods methods;
 
@@ -58,7 +55,7 @@ public class VersionManagerImpl implements VersionManager {
          * Legacy - 1.12 - 1.9
          * Ancient - 1.8 - 1.7
          */
-        switch (version) {
+        switch (Versions.CURRENT_VERSION) {
             // Try to catch 1.7 into ancient. Might work on some occasions.
             case "1.7":
             case "1.8":
@@ -117,7 +114,7 @@ public class VersionManagerImpl implements VersionManager {
 
     @Override
     public void registerVersionedListeners() {
-        if (isCurrentAbove("1.16", true)) {
+        if (Versions.isCurrentAbove("1.16", true)) {
             plugin.getServer().getPluginManager().registerEvents(new HarvestListener(plugin.getRegenerationEventHandler()), plugin);
             log.fine("Registered HarvestListener.");
         }
@@ -138,35 +135,6 @@ public class VersionManagerImpl implements VersionManager {
         if (worldEditProvider == null) {
             this.worldEditProvider = provider;
         }
-    }
-
-    @Override
-    public String loadNMSVersion() {
-        // ex.: 1.20.1-R0.1-SNAPSHOT
-        String version = Bukkit.getServer().getBukkitVersion();
-
-        // remove snapshot part
-        version = version.substring(0, version.indexOf("-"));
-
-        // remove patch version
-        int lastDot = version.lastIndexOf(".");
-        if (lastDot > 2) {
-            version = version.substring(0, lastDot);
-        }
-
-        return version;
-    }
-
-    @Override
-    public boolean isCurrentAbove(String versionString, boolean include) {
-        int res = Versions.compareVersions(this.version, versionString, 2);
-        return include ? res >= 0 : res > 0;
-    }
-
-    @Override
-    public boolean isCurrentBelow(String versionString, boolean include) {
-        int res = Versions.compareVersions(this.version, versionString, 2);
-        return include ? res <= 0 : res < 0;
     }
 
     private void setupWorldEdit() {

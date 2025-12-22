@@ -7,15 +7,7 @@ public interface VersionManager {
 
     NodeData createNodeData();
 
-    String loadNMSVersion();
-
-    boolean isCurrentAbove(String versionString, boolean include);
-
-    boolean isCurrentBelow(String versionString, boolean include);
-
     boolean useCustomModelData();
-
-    String getVersion();
 
     WorldEditProvider getWorldEditProvider();
 

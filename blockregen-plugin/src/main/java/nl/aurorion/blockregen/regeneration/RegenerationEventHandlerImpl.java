@@ -363,7 +363,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         List<ItemStack> vanillaDrops = new ArrayList<>(block.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
         // Cancels item drops below 1.8.
-        if (plugin.getVersionManager().isCurrentBelow("1.8", true)) {
+        if (Versions.isCurrentBelow("1.8", true)) {
             block.setType(Material.AIR);
         }
 
@@ -491,7 +491,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
                 preset.getPlayerSound().play(player);
             }
 
-            if (preset.getParticle() != null && plugin.getVersionManager().isCurrentAbove("1.8", false)) {
+            if (preset.getParticle() != null && Versions.isCurrentAbove("1.8", false)) {
                 Bukkit.getScheduler().runTask(plugin,
                         () -> plugin.getParticleManager().displayParticle(preset.getParticle(), block));
             }

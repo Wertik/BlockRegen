@@ -8,6 +8,7 @@ import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
+import nl.aurorion.blockregen.util.Versions;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,7 +34,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
 
         // Ignore offhand events at 1.9+
-        if (plugin.getVersionManager().isCurrentAbove("1.9", true) && event.getHand() == EquipmentSlot.OFF_HAND) {
+        if (Versions.isCurrentAbove("1.9", true) && event.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 

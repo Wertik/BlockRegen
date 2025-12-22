@@ -3,6 +3,7 @@ package nl.aurorion.blockregen.event;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
+import nl.aurorion.blockregen.util.Versions;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -37,7 +38,7 @@ public class EventManager {
      * Remove Player from all active bars.
      */
     public void removeBars(Player player) {
-        if (plugin.getVersionManager().isCurrentBelow("1.8", true))
+        if (Versions.isCurrentBelow("1.8", true))
             return;
 
         for (PresetEvent event : getEvents(e -> e.isEnabled() && e.getActiveBossBar() != null)) {
@@ -49,7 +50,7 @@ public class EventManager {
      * Add player to all active bars.
      */
     public void addBars(Player player) {
-        if (plugin.getVersionManager().isCurrentBelow("1.8", true))
+        if (Versions.isCurrentBelow("1.8", true))
             return;
 
         for (PresetEvent event : getEvents(e -> e.isEnabled() && e.getActiveBossBar() != null)) {
@@ -64,7 +65,7 @@ public class EventManager {
         event.setEnabled(false);
         log.fine(() -> "Disabled event " + event.getName());
 
-        if (plugin.getVersionManager().isCurrentBelow("1.8", true))
+        if (Versions.isCurrentBelow("1.8", true))
             return;
 
         // Boss bar
@@ -95,7 +96,7 @@ public class EventManager {
         event.setEnabled(true);
         log.fine(() -> "Enabled event " + event.getName());
 
-        if (plugin.getVersionManager().isCurrentBelow("1.8", true) || event.getBossBar() == null)
+        if (Versions.isCurrentBelow("1.8", true) || event.getBossBar() == null)
             return;
 
         // Boss bar

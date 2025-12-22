@@ -15,28 +15,8 @@ public class MockVersionManager implements VersionManager {
     }
 
     @Override
-    public String loadNMSVersion() {
-        return "";
-    }
-
-    @Override
-    public boolean isCurrentAbove(String versionString, boolean include) {
-        return false;
-    }
-
-    @Override
-    public boolean isCurrentBelow(String versionString, boolean include) {
-        return false;
-    }
-
-    @Override
     public boolean useCustomModelData() {
         return false;
-    }
-
-    @Override
-    public String getVersion() {
-        return "";
     }
 
     @Override

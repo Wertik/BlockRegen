@@ -20,11 +20,18 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>nl.aurorion.blockregen</groupId>
+            <artifactId>blockregen-modern</artifactId>
+            <version>3.30.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Spigot API -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.10-R0.1-SNAPSHOT</version>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -41,12 +48,6 @@
             <artifactId>worldguard-bukkit</artifactId>
             <version>7.0.8</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.aurorion.blockregen</groupId>
-            <artifactId>blockregen-modern</artifactId>
-            <version>3.30.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

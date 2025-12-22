@@ -5,6 +5,7 @@ import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.regeneration.EventControl;
 import nl.aurorion.blockregen.regeneration.RegenerationEventType;
+import nl.aurorion.blockregen.util.Versions;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -14,10 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import java.util.stream.Collectors;
 
 @Log
 public class RegenerationListener implements Listener {
@@ -79,7 +77,7 @@ public class RegenerationListener implements Listener {
             @Override
             public void cancelDrops() {
                 // We're dropping the items ourselves.
-                if (plugin.getVersionManager().isCurrentAbove("1.8", false)) {
+                if (Versions.isCurrentAbove("1.8", false)) {
                     event.setDropItems(false);
                     log.fine(() -> "Cancelled BlockDropItemEvent");
                 }

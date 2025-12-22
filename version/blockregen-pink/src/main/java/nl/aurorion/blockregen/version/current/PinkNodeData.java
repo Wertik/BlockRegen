@@ -3,14 +3,18 @@ package nl.aurorion.blockregen.version.current;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.util.Versions;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.FlowerBed;
 import org.bukkit.block.data.type.PinkPetals;
 
 @Log
 @NoArgsConstructor
 @Setter
 public class PinkNodeData extends LatestNodeData {
+
+    private final static boolean FLOWER_BED = Versions.isCurrentAbove("1.21.5", true);
 
     private Integer flowerAmount;
 
@@ -24,11 +28,20 @@ public class PinkNodeData extends LatestNodeData {
 
         BlockData data = block.getBlockData();
 
-        if (data instanceof PinkPetals && this.flowerAmount != null) {
-            PinkPetals petals = (PinkPetals) data;
+        if (FLOWER_BED) {
+            if (data instanceof FlowerBed && this.flowerAmount != null) {
+                FlowerBed bed = (FlowerBed) data;
+                if (bed.getFlowerAmount() != this.flowerAmount) {
+                    return false;
+                }
+            }
+        } else {
+            if (data instanceof PinkPetals && this.flowerAmount != null) {
+                PinkPetals petals = (PinkPetals) data;
 
-            if (petals.getFlowerAmount() != this.flowerAmount) {
-                return false;
+                if (petals.getFlowerAmount() != this.flowerAmount) {
+                    return false;
+                }
             }
         }
 
@@ -41,9 +54,16 @@ public class PinkNodeData extends LatestNodeData {
 
         BlockData data = block.getBlockData();
 
-        if (data instanceof PinkPetals) {
-            PinkPetals petals = (PinkPetals) data;
-            this.flowerAmount = petals.getFlowerAmount();
+        if (FLOWER_BED) {
+            if (data instanceof FlowerBed) {
+                FlowerBed flowerBed = (FlowerBed) data;
+                this.flowerAmount = flowerBed.getFlowerAmount();
+            }
+        } else {
+            if (data instanceof PinkPetals) {
+                PinkPetals petals = (PinkPetals) data;
+                this.flowerAmount = petals.getFlowerAmount();
+            }
         }
     }
 
@@ -53,9 +73,16 @@ public class PinkNodeData extends LatestNodeData {
 
         BlockData data = block.getBlockData();
 
-        if (data instanceof PinkPetals && this.flowerAmount != null) {
-            PinkPetals petals = (PinkPetals) data;
-            petals.setFlowerAmount(this.flowerAmount);
+        if (FLOWER_BED) {
+            if (data instanceof FlowerBed && this.flowerAmount != null) {
+                FlowerBed flowerBed = (FlowerBed) data;
+                flowerBed.setFlowerAmount(this.flowerAmount);
+            }
+        } else {
+            if (data instanceof PinkPetals && this.flowerAmount != null) {
+                PinkPetals petals = (PinkPetals) data;
+                petals.setFlowerAmount(this.flowerAmount);
+            }
         }
 
         block.setBlockData(data);
