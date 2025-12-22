@@ -3,7 +3,6 @@ package nl.aurorion.blockregen.particle.impl;
 import com.cryptomorin.xseries.XEntityType;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.particle.Particle;
 import nl.aurorion.blockregen.util.Colors;
 import org.bukkit.*;
@@ -53,6 +52,6 @@ public class FireWorks implements Particle {
                 .build());
         fw.setFireworkMeta(fwm);
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(BlockRegenPluginImpl.getInstance(), fw::detonate, 2L);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, fw::detonate, 2L);
     }
 }
