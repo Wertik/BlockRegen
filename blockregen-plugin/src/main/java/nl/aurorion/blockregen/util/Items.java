@@ -4,20 +4,15 @@ import com.cryptomorin.xseries.XEnchantment;
 import lombok.experimental.UtilityClass;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Log
 @UtilityClass
 public class Items {
-
-
 
     /**
      * Returns the quantity of items to drop on block destruction.
