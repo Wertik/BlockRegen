@@ -24,7 +24,7 @@ public class MinecraftMaterialParser implements MaterialParser {
      */
     @Override
     public @NotNull BlockRegenMaterial parseMaterial(String input) {
-        log.fine(() -> String.format("Parsing MC material from %s", input));
+        log.fine(() -> String.format("Parsing MC material from '%s'", input));
 
         boolean loadData = false;
 

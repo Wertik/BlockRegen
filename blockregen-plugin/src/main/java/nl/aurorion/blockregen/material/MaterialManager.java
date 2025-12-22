@@ -9,6 +9,7 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.parser.MaterialParser;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
+import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -151,12 +152,13 @@ public class MaterialManager {
 
             // Wildcard support for vanilla materials, e.g. '*_ORE' or '*_TERRACOTTA'
             // Only apply when there is no explicit prefix.
-            if (trimmed.startsWith("*") && trimmed.indexOf('*', 1) == -1 && !trimmed.substring(1).isEmpty() && !trimmed.contains(":")) {
+            if (trimmed.startsWith("*") && trimmed.indexOf('*', 1) == -1 && !trimmed.contains(":")) {
                 String suffix = trimmed.substring(1).toUpperCase(Locale.ROOT);
                 List<BlockRegenMaterial> expanded = new ArrayList<>();
 
                 for (XMaterial xMaterial : XMaterial.values()) {
-                    if (xMaterial.name().endsWith(suffix)) {
+                    Material nativeMaterial = xMaterial.get();
+                    if (nativeMaterial != null && xMaterial.name().endsWith(suffix) && nativeMaterial.isBlock()) {
                         // Delegate to the normal parsing logic to keep behaviour consistent.
                         BlockRegenMaterial material = parseMaterial(xMaterial.name());
                         expanded.add(material);
@@ -164,7 +166,7 @@ public class MaterialManager {
                 }
 
                 if (expanded.isEmpty()) {
-                    throw new ParseException("Target material wildcard " + trimmed + " did not match any materials.");
+                    throw new ParseException("Target material wildcard '" + trimmed + "' did not match any materials.");
                 }
 
                 targetMaterials.addAll(expanded);
