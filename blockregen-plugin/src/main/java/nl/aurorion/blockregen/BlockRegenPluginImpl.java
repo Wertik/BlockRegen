@@ -136,10 +136,10 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         gsonHelper = new GsonHelper(gsonBuilder);
 
         // Add default particles
-        particleManager.addParticle("fireworks", new FireWorks());
-        particleManager.addParticle("flame_crown", new FlameCrown());
-        particleManager.addParticle("witch_spell", new WitchSpell());
-        particleManager.addParticle("fire_cube", new FireCube());
+        particleManager.addParticle("fireworks", new FireWorks(this));
+        particleManager.addParticle("flame_crown", new FlameCrown(this));
+        particleManager.addParticle("witch_spell", new WitchSpell(this));
+        particleManager.addParticle("fire_cube", new FireCube(this));
 
         Message.load();
 

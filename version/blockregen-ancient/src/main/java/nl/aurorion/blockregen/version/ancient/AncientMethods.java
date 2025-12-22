@@ -3,10 +3,9 @@ package nl.aurorion.blockregen.version.ancient;
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.version.VersionedEffect;
 import nl.aurorion.blockregen.version.api.Methods;
-import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.TreeSpecies;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Item;
@@ -57,6 +56,21 @@ public class AncientMethods implements Methods {
         log.fine(() -> String.format("Parsed material %s:%d into %s", state.getType(), dataValue, xMaterial));
 
         return xMaterial;
+    }
+
+    @Override
+    public void playEffect(@NotNull Location location, @NotNull VersionedEffect effect) {
+        World world = location.getWorld();
+        switch (effect) {
+            case FLAME:
+                world.spigot().playEffect(location, Effect.FLAME, 0, 0, 0, 0, 0, 0, 1, 20);
+                break;
+            case WITCH_SPELL:
+                world.spigot().playEffect(location, Effect.WITCH_MAGIC, 0, 0, 0, 0, 0, 0, 1, 20);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
