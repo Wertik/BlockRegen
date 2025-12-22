@@ -5,6 +5,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.util.Colors;
+import nl.aurorion.blockregen.version.VersionedEffect;
 import nl.aurorion.blockregen.version.api.Methods;
 import org.bukkit.*;
 import org.bukkit.block.Block;

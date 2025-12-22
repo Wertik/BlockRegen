@@ -17,16 +17,7 @@ import java.util.Objects;
 @UtilityClass
 public class Items {
 
-    public final List<Color> FIREWORK_COLORS = new ArrayList<Color>() {{
-        add(Color.AQUA);
-        add(Color.BLUE);
-        add(Color.FUCHSIA);
-        add(Color.GREEN);
-        add(Color.LIME);
-        add(Color.ORANGE);
-        add(Color.WHITE);
-        add(Color.YELLOW);
-    }};
+
 
     /**
      * Returns the quantity of items to drop on block destruction.

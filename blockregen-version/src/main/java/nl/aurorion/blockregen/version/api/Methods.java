@@ -1,6 +1,9 @@
 package nl.aurorion.blockregen.version.api;
 
 import com.cryptomorin.xseries.XMaterial;
+import com.cryptomorin.xseries.particles.ParticleDisplay;
+import com.cryptomorin.xseries.particles.XParticle;
+import nl.aurorion.blockregen.version.VersionedEffect;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -35,6 +38,21 @@ public interface Methods {
      */
     @NotNull
     XMaterial getType(@NotNull Block block);
+
+    default void playEffect(@NotNull Location location, @NotNull VersionedEffect effect) {
+        XParticle xParticle;
+        switch (effect) {
+            case FLAME:
+                xParticle = XParticle.FLAME;
+                break;
+            case WITCH_SPELL:
+                xParticle = XParticle.WITCH;
+                break;
+            default:
+                return;
+        }
+        ParticleDisplay.of(xParticle).spawn(location);
+    }
 
     default boolean compareType(@NotNull Block block, @NotNull XMaterial xMaterial) {
         return getType(block) == xMaterial;
