@@ -16,10 +16,7 @@ import nl.aurorion.blockregen.listener.RegenerationListener;
 import nl.aurorion.blockregen.material.MaterialManager;
 import nl.aurorion.blockregen.material.parser.MinecraftMaterialParser;
 import nl.aurorion.blockregen.particle.ParticleManager;
-import nl.aurorion.blockregen.particle.impl.FireCube;
-import nl.aurorion.blockregen.particle.impl.FireWorks;
-import nl.aurorion.blockregen.particle.impl.FlameCrown;
-import nl.aurorion.blockregen.particle.impl.WitchSpell;
+import nl.aurorion.blockregen.particle.impl.*;
 import nl.aurorion.blockregen.preset.PresetManager;
 import nl.aurorion.blockregen.preset.condition.DefaultConditions;
 import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
@@ -140,6 +137,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         particleManager.addParticle("flame_crown", new FlameCrown(this));
         particleManager.addParticle("witch_spell", new WitchSpell(this));
         particleManager.addParticle("fire_cube", new FireCube(this));
+        particleManager.addParticle("sparkle_burst", new SparkleBurst(this));
+        particleManager.addParticle("mystic_glare", new MysticGlare(this));
 
         Message.load();
 

@@ -48,6 +48,12 @@ public interface Methods {
             case WITCH_SPELL:
                 xParticle = XParticle.WITCH;
                 break;
+            case FIREWORK:
+                xParticle = XParticle.FIREWORK;
+                break;
+            case EFFECT:
+                xParticle = XParticle.EFFECT;
+                break;
             default:
                 return;
         }

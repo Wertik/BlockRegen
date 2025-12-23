@@ -5,9 +5,9 @@ import com.cryptomorin.xseries.particles.Particles;
 import com.cryptomorin.xseries.particles.XParticle;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.particle.Particle;
+import nl.aurorion.blockregen.particle.ParticleShapes;
 import nl.aurorion.blockregen.util.Versions;
 import nl.aurorion.blockregen.version.VersionedEffect;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -35,16 +35,9 @@ public class FlameCrown implements Particle {
         double rate = 10;
 
         if (isLegacy) {
-            double theta = 2 * Math.PI / rate;
-            double angle = 0.0;
-            while (angle < (2 * Math.PI)) {
-                double x = Math.cos(angle) * radius;
-                double z = Math.sin(angle) * radius;
-
-                plugin.getVersionManager().getMethods().playEffect(center.clone().add(x, 0, z), VersionedEffect.FLAME);
-
-                angle += theta;
-            }
+            ParticleShapes.circle(center, radius, rate, (loc) -> {
+                plugin.getVersionManager().getMethods().playEffect(loc, VersionedEffect.FLAME);
+            });
         } else {
             ParticleDisplay display = ParticleDisplay.of(XParticle.FLAME).withLocation(center);
             Particles.circle(radius, rate, display);

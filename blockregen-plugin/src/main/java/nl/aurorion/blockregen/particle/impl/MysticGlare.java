@@ -8,39 +8,32 @@ import nl.aurorion.blockregen.particle.Particle;
 import nl.aurorion.blockregen.particle.ParticleShapes;
 import nl.aurorion.blockregen.util.Versions;
 import nl.aurorion.blockregen.version.VersionedEffect;
+import org.bukkit.Effect;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
-public class WitchSpell implements Particle {
+public class MysticGlare implements Particle {
 
     private final BlockRegenPlugin plugin;
 
-    public WitchSpell(BlockRegenPlugin plugin) {
+    public MysticGlare(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public void display(@NotNull Location location) {
-        World world = location.getWorld();
-        if (world == null) {
-            return;
-        }
+    public void display(@NonNull Location location) {
+        double rate = 10;
+        double radius = 0.5;
 
         Location center = location.clone().add(0.5, 0.5, 0.5);
 
-        boolean isLegacy = Versions.isCurrentBelow("1.8", true);
-
-        double radius = 0.5;
-        double rate = 10;
-
-        if (isLegacy) {
+        if (Versions.isCurrentBelow("1.8", true)) {
             ParticleShapes.circle(center, radius, rate, (loc) -> {
-                plugin.getVersionManager().getMethods().playEffect(loc, VersionedEffect.WITCH_SPELL);
+                plugin.getVersionManager().getMethods().playEffect(loc, VersionedEffect.EFFECT);
             });
         } else {
-            ParticleDisplay display = ParticleDisplay.of(XParticle.WITCH).withLocation(center);
-            Particles.circle(radius, rate, display);
+            ParticleDisplay display = ParticleDisplay.of(XParticle.EFFECT).withLocation(center);
+            Particles.circle(0.5, 10, display);
         }
     }
 }

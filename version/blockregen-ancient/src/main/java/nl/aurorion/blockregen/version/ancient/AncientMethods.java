@@ -61,16 +61,26 @@ public class AncientMethods implements Methods {
     @Override
     public void playEffect(@NotNull Location location, @NotNull VersionedEffect effect) {
         World world = location.getWorld();
+        Effect nativeEffect;
         switch (effect) {
             case FLAME:
-                world.spigot().playEffect(location, Effect.FLAME, 0, 0, 0, 0, 0, 0, 1, 20);
+                nativeEffect = Effect.FLAME;
                 break;
             case WITCH_SPELL:
-                world.spigot().playEffect(location, Effect.WITCH_MAGIC, 0, 0, 0, 0, 0, 0, 1, 20);
+                nativeEffect = Effect.WITCH_MAGIC;
+                break;
+            case FIREWORK:
+                nativeEffect = Effect.FIREWORKS_SPARK;
+                break;
+            case EFFECT:
+                nativeEffect = Effect.SPELL;
                 break;
             default:
-                break;
+                log.warning("Versioned effect '" + effect + "' not supported on this version.");
+                return;
         }
+
+        world.spigot().playEffect(location, nativeEffect, 0, 0, 0, 0, 0, 0, 1, 20);
     }
 
     @Override
