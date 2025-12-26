@@ -30,6 +30,11 @@ public interface BlockRegenMaterial {
     XMaterial getType();
 
     /**
+     * Get the string to use in config to match this material.
+     * */
+    String getConfigurationString();
+
+    /**
      * Apply any additional data of this material.
      */
     default void applyData(Block block) {

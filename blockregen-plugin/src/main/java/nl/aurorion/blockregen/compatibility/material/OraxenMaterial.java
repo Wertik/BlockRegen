@@ -51,6 +51,11 @@ public class OraxenMaterial implements BlockRegenMaterial {
     }
 
     @Override
+    public String getConfigurationString() {
+        return this.oraxenId;
+    }
+
+    @Override
     public String toString() {
         return "OraxenMaterial{" +
                 "oraxenId='" + oraxenId + '\'' +

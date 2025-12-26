@@ -52,6 +52,11 @@ public class MaterialParsingTests {
         public XMaterial getType() {
             return null;
         }
+
+        @Override
+        public String getConfigurationString() {
+            return this.id;
+        }
     }
 
     static class MockMaterialParser implements MaterialProvider {

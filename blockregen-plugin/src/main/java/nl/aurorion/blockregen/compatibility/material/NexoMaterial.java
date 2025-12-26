@@ -72,6 +72,11 @@ public class NexoMaterial implements BlockRegenMaterial {
     }
 
     @Override
+    public String getConfigurationString() {
+        return this.itemId;
+    }
+
+    @Override
     public String toString() {
         return "NexoMaterial{" +
                 "itemId='" + itemId + '\'' +

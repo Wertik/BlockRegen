@@ -43,6 +43,11 @@ public class MMOItemsMaterial implements BlockRegenMaterial {
     }
 
     @Override
+    public String getConfigurationString() {
+        return String.valueOf(this.id);
+    }
+
+    @Override
     public String toString() {
         return "MMOItemsMaterial{" +
                 "id=" + id +

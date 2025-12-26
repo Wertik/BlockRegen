@@ -64,6 +64,15 @@ public class MinecraftMaterial implements BlockRegenMaterial {
     }
 
     @Override
+    public String getConfigurationString() {
+        if (this.nodeData != null && !this.nodeData.isEmpty()) {
+            return String.format("%s%s", this.material.name(), this.nodeData.getPrettyString());
+        } else {
+            return this.material.name();
+        }
+    }
+
+    @Override
     public boolean applyOriginalData() {
         return true;
     }

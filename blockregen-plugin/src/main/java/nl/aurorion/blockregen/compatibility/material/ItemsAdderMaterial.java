@@ -39,6 +39,11 @@ public class ItemsAdderMaterial implements BlockRegenMaterial {
     }
 
     @Override
+    public String getConfigurationString() {
+        return id;
+    }
+
+    @Override
     public String toString() {
         return "ItemsAdderMaterial{" +
                 "id='" + id + '\'' +

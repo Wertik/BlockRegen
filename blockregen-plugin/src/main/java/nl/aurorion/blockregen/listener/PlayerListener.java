@@ -4,12 +4,13 @@ import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
+import nl.aurorion.blockregen.material.builtin.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.region.selection.RegionSelection;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
 import nl.aurorion.blockregen.util.Versions;
-import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -48,21 +49,23 @@ public class PlayerListener implements Listener {
         if (plugin.getRegenerationManager().hasDataCheck(player)) {
             event.setCancelled(true);
 
-            XMaterial material;
-            try {
-                material = plugin.getVersionManager().getMethods().getType(event.getClickedBlock());
-            } catch (IllegalArgumentException e) {
-                log.fine("Unknown block material " + event.getClickedBlock().getType() + " in data check.");
+            BlockRegenMaterial material = plugin.getMaterialManager().getMaterial(event.getClickedBlock());
+
+            if (material == null) {
                 Message.UNKNOWN_MATERIAL.send(player);
                 return;
             }
 
-            NodeData data = plugin.getVersionManager().createNodeData();
-            data.load(event.getClickedBlock());
-
-            Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", material.name()));
-            if (!data.isEmpty()) {
-                Message.DATA_CHECK_NODE_DATA.mapAndSend(player, str -> str.replace("%data%", String.format("%s%s", material.name(), data.getPrettyString())));
+            if (material instanceof MinecraftMaterial) {
+                MinecraftMaterial minecraftMaterial = (MinecraftMaterial) material;
+                Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", minecraftMaterial.getMaterial().name()));
+                if (minecraftMaterial.getNodeData() != null && !minecraftMaterial.getNodeData().isEmpty()) {
+                    Message.DATA_CHECK_NODE_DATA.mapAndSend(player,
+                            str -> str.replace("%data%", String.format("%s%s", minecraftMaterial.getMaterial().name(), minecraftMaterial.getNodeData().getPrettyString()))
+                    );
+                }
+            } else {
+                Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", material.getConfigurationString()));
             }
             return;
         }
