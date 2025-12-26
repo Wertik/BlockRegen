@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -41,17 +42,14 @@ public class ProviderContainer<T extends CompatibilityProvider> {
         }
     }
 
+    public Optional<T> get() {
+        return Optional.of(this.instance);
+    }
+
     public void ifLoaded(Consumer<T> consumer) {
         if (this.isLoaded()) {
             consumer.accept(this.instance);
         }
-    }
-
-    public T get() {
-        if (this.instance == null) {
-            load();
-        }
-        return this.instance;
     }
 
     public boolean isLoaded() {

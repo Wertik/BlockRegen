@@ -21,6 +21,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 @Log
 public class RegenerationManager {
@@ -75,6 +76,11 @@ public class RegenerationManager {
             dataCheck.add(player.getUniqueId());
             return true;
         }
+    }
+
+    @NotNull
+    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockRegenMaterial originalMaterial, @NotNull BlockPreset preset) {
+        return new RegenerationProcess(block, preset, originalMaterial);
     }
 
     /**
@@ -204,8 +210,7 @@ public class RegenerationManager {
 
         CompletableFuture<Void> future = plugin.getGsonHelper().save(finalCache, dataFile.toPath())
                 .exceptionally(e -> {
-                    log.severe("Could not save processes: " + e.getMessage());
-                    e.printStackTrace();
+                    log.log(Level.SEVERE, "Could not save processes: " + e.getMessage(), e);
                     return null;
                 });
 
@@ -218,45 +223,43 @@ public class RegenerationManager {
 
     public void load() {
         plugin.getGsonHelper().loadListAsync(plugin.getDataFolder().getPath() + "/Data.json", RegenerationProcess.class)
-                .thenAcceptAsync(loadedProcesses -> {
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        cache.clear();
+                .thenAcceptAsync(loadedProcesses ->
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            cache.clear();
 
-                        if (loadedProcesses == null) {
-                            return;
-                        }
-
-                        for (RegenerationProcess process : loadedProcesses) {
-                            if (process == null) {
-                                log.warning("Failed to load a process from storage. Report this to the maintainer of the plugin.");
-                                continue;
+                            if (loadedProcesses == null) {
+                                return;
                             }
 
-                            if (!process.convertLocation()) {
-                                this.retry = true;
-                                log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
-                                break;
+                            for (RegenerationProcess process : loadedProcesses) {
+                                if (process == null) {
+                                    log.warning("Failed to load a process from storage. Report this to the maintainer of the plugin.");
+                                    continue;
+                                }
+
+                                if (!process.convertLocation()) {
+                                    this.retry = true;
+                                    log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
+                                    break;
+                                }
+
+                                if (!process.convertPreset()) {
+                                    this.retry = true;
+                                    log.warning("Failed to prepare process '" + process.getId() + "'.");
+                                    break;
+                                }
+                                log.fine(() -> "Prepared regeneration process " + process);
                             }
 
-                            if (!process.convertPreset()) {
-                                this.retry = true;
-                                log.warning("Failed to prepare process '" + process.getId() + "'.");
-                                break;
+                            if (!this.retry) {
+                                // Start em
+                                loadedProcesses.forEach(RegenerationProcess::start);
+                                log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
+                            } else {
+                                log.info("Some processes couldn't load, trying again after a complete server load.");
                             }
-                            log.fine(() -> "Prepared regeneration process " + process);
-                        }
-
-                        if (!this.retry) {
-                            // Start em
-                            loadedProcesses.forEach(RegenerationProcess::start);
-                            log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
-                        } else {
-                            log.info("Some processes couldn't load, trying again after a complete server load.");
-                        }
-                    });
-                }).exceptionally(e -> {
-                    log.severe("Could not load processes: " + e.getMessage());
-                    e.printStackTrace();
+                        })).exceptionally(e -> {
+                    log.log(Level.SEVERE, "Could not load processes: " + e.getMessage(), e);
                     return null;
                 });
     }

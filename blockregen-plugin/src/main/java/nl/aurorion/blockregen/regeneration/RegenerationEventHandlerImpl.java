@@ -2,13 +2,14 @@ package nl.aurorion.blockregen.regeneration;
 
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
-import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.object.TownBlock;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
+import nl.aurorion.blockregen.compatibility.provider.GriefPreventionProvider;
+import nl.aurorion.blockregen.compatibility.provider.ResidenceProvider;
+import nl.aurorion.blockregen.compatibility.provider.TownyProvider;
 import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -29,10 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -230,21 +228,23 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
     // If any of them are protecting this block, allow them to handle this and do nothing.
     // We do this just in case some protection plugins fire after us and the event wouldn't be canceled.
     private boolean checkProtection(Player player, Block block, RegenerationEventType type) {
+
+        Optional<TownyProvider> townyProvider = plugin.getCompatibilityManager().getTowny().get();
+
         // Towny
-        if (plugin.getConfig().getBoolean("Towny-Support", true) &&
-                plugin.getServer().getPluginManager().getPlugin("Towny") != null) {
-
-            TownBlock townBlock = TownyAPI.getInstance().getTownBlock(block.getLocation());
-
-            if (townBlock != null && townBlock.hasTown()) {
-                log.fine(() -> "Let Towny handle this.");
+        if (plugin.getConfig().getBoolean("Towny-Support", true) && townyProvider.isPresent()) {
+            if (!townyProvider.map((provider) -> provider.canBreak(block, player)).get()) {
                 return true;
             }
         }
 
+        Optional<GriefPreventionProvider> griefPreventionProvider = plugin.getCompatibilityManager().getGriefPrevention().get();
+
         // Grief Prevention
-        if (plugin.getConfig().getBoolean("GriefPrevention-Support", true) && plugin.getCompatibilityManager().getGriefPrevention().isLoaded()) {
-            return !plugin.getCompatibilityManager().getGriefPrevention().get().canBreak(block, player);
+        if (plugin.getConfig().getBoolean("GriefPrevention-Support", true) && griefPreventionProvider.isPresent()) {
+            if (!griefPreventionProvider.map(provider -> provider.canBreak(block, player)).get()) {
+                return true;
+            }
         }
 
         // WorldGuard
@@ -264,10 +264,15 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             }
         }
 
+        Optional<ResidenceProvider> residenceProvider = plugin.getCompatibilityManager().getResidence().get();
+
         // Residence
-        if (plugin.getConfig().getBoolean("Residence-Support", true) && plugin.getCompatibilityManager().getResidence().isLoaded()) {
-            return !plugin.getCompatibilityManager().getResidence().get().canBreak(block, player, type);
+        if (plugin.getConfig().getBoolean("Residence-Support", true) && residenceProvider.isPresent()) {
+            if (!residenceProvider.map((provider) -> provider.canBreak(block, player, type)).get()) {
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -477,7 +482,10 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
             // Trigger Jobs Break if enabled
             if (plugin.getConfig().getBoolean("Jobs-Rewards", false) && plugin.getCompatibilityManager().getJobs().isLoaded()) {
-                Bukkit.getScheduler().runTask(plugin, () -> plugin.getCompatibilityManager().getJobs().get().triggerBlockBreakAction(player, block));
+                Bukkit.getScheduler().runTask(plugin,
+                        () -> plugin.getCompatibilityManager().getJobs().get()
+                                .ifPresent((jobs) -> jobs.triggerBlockBreakAction(player, block))
+                );
             }
 
             // Other rewards - commands, money etc.

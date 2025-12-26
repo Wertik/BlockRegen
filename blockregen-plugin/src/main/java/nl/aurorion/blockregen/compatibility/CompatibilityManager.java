@@ -6,16 +6,13 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.provider.*;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.material.MaterialProvider;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-// todo: what if a providing plugin is unloaded?
 @Log
 public class CompatibilityManager {
     private final BlockRegenPlugin plugin;
@@ -41,6 +38,9 @@ public class CompatibilityManager {
     @Getter
     private final ProviderContainer<ResidenceProvider> residence;
     @Getter
+    private final ProviderContainer<TownyProvider> towny;
+
+    @Getter
     private final ProviderContainer<EconomyProvider> economy;
 
     public CompatibilityManager(BlockRegenPlugin plugin) {
@@ -57,6 +57,7 @@ public class CompatibilityManager {
 
         this.griefPrevention = createProvider("GriefPrevention", () -> new GriefPreventionProvider(plugin));
         this.residence = createProvider("Residence", () -> new ResidenceProvider(plugin));
+        this.towny = createProvider("Towny", () -> new TownyProvider(plugin));
 
         this.economy = createProvider("Vault", () -> new EconomyProvider(plugin));
     }
@@ -93,28 +94,30 @@ public class CompatibilityManager {
                 reloadPresets = true;
             }
 
-            CompatibilityProvider provider = container.get();
+            Optional<? extends CompatibilityProvider> provider = container.get();
 
-            if (provider instanceof MaterialProvider && provider.getPrefix() != null) {
-                plugin.getMaterialManager().register(provider.getPrefix(), (MaterialProvider) provider);
+            if (!provider.isPresent()) {
+                log.log(Level.WARNING, "Failed to load provider for " + container.getPluginName());
+                continue;
+            }
+
+            CompatibilityProvider compatibilityProvider = provider.get();
+
+            if (compatibilityProvider instanceof MaterialProvider && compatibilityProvider.getPrefix() != null) {
+                plugin.getMaterialManager().register(compatibilityProvider.getPrefix(), (MaterialProvider) compatibilityProvider);
                 reloadPresets = true;
             }
 
-            if (provider instanceof ItemProvider && provider.getPrefix() != null) {
-                plugin.getItemManager().registerProvider(provider.getPrefix(), (ItemProvider) provider);
+            if (compatibilityProvider instanceof ItemProvider && compatibilityProvider.getPrefix() != null) {
+                plugin.getItemManager().registerProvider(compatibilityProvider.getPrefix(), (ItemProvider) compatibilityProvider);
                 reloadPresets = true;
             }
-            log.info("Loaded support for " + container.getPluginName() + "!" + (provider.getFeatures() == null ? "" : " Features: &a" + String.join("&7, &a", provider.getFeatures()) + "&7."));
+            log.info("Loaded support for " + container.getPluginName() + "!" + (compatibilityProvider.getFeatures() == null ? "" : " Features: &a" + String.join("&7, &a", compatibilityProvider.getFeatures()) + "&7."));
         }
 
         if (reloadPresets && shouldReloadPresets) {
             log.info("Reloading presets due to newly discovered supported plugins...");
             plugin.getPresetManager().load();
         }
-    }
-
-    @NotNull
-    public Collection<ProviderContainer<?>> getContainers() {
-        return Collections.unmodifiableCollection(containers);
     }
 }

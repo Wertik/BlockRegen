@@ -106,7 +106,7 @@ public class MaterialParsingTests {
         BlockRegenMaterial material = materialManager.parseMaterial("random");
 
         assertInstanceOf(MockMaterial.class, material);
-        assertEquals(((MockMaterial) material).id, "random");
+        assertEquals("random", ((MockMaterial) material).id);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class MaterialParsingTests {
         BlockRegenMaterial material = materialManager.parseMaterial("mock:random");
 
         assertInstanceOf(MockMaterial.class, material);
-        assertEquals(((MockMaterial) material).id, "random");
+        assertEquals("random", ((MockMaterial) material).id);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class MaterialParsingTests {
         BlockRegenMaterial material = materialManager.parseMaterial("mock:42");
 
         assertInstanceOf(MockMaterial.class, material);
-        assertEquals(((MockMaterial) material).id, "42");
+        assertEquals("42", ((MockMaterial) material).id);
     }
 
     @Test
@@ -192,15 +192,13 @@ public class MaterialParsingTests {
                 0.9);
     }
 
-    @NotNull
-    private static Map.Entry<BlockRegenMaterial, Double> assertPlacementMaterial(PlacementMaterial placementMaterial, Predicate<BlockRegenMaterial> which, double chance) {
+    private static void assertPlacementMaterial(PlacementMaterial placementMaterial, Predicate<BlockRegenMaterial> which, double chance) {
         Map.Entry<BlockRegenMaterial, Double> material = placementMaterial.getValuedMaterials().entrySet().stream()
                 .filter(e -> which.test(e.getKey()))
                 .findAny()
                 .orElse(null);
         assertNotNull(material);
         assertEquals(chance, material.getValue(), 0.01);
-        return material;
     }
 
     @Test

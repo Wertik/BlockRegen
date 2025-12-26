@@ -102,10 +102,6 @@ public class PresetRewards {
         return commands;
     }
 
-    public void setDrops(List<DropItem> drops) {
-        this.drops = drops == null ? new ArrayList<>() : drops;
-    }
-
     @Override
     public String toString() {
         return "PresetRewards{" +
