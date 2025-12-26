@@ -228,7 +228,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
     // Check for supported protection plugins' regions and settings.
     // If any of them are protecting this block, allow them to handle this and do nothing.
-    // We do this just in case some protection plugins fire after us and the event wouldn't be cancelled.
+    // We do this just in case some protection plugins fire after us and the event wouldn't be canceled.
     private boolean checkProtection(Player player, Block block, RegenerationEventType type) {
         // Towny
         if (plugin.getConfig().getBoolean("Towny-Support", true) &&
@@ -244,7 +244,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
         // Grief Prevention
         if (plugin.getConfig().getBoolean("GriefPrevention-Support", true) && plugin.getCompatibilityManager().getGriefPrevention().isLoaded()) {
-            plugin.getCompatibilityManager().getGriefPrevention().get().canBreak(block, player);
+            return !plugin.getCompatibilityManager().getGriefPrevention().get().canBreak(block, player);
         }
 
         // WorldGuard
@@ -266,7 +266,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
         // Residence
         if (plugin.getConfig().getBoolean("Residence-Support", true) && plugin.getCompatibilityManager().getResidence().isLoaded()) {
-            plugin.getCompatibilityManager().getResidence().get().canBreak(block, player, type);
+            return !plugin.getCompatibilityManager().getResidence().get().canBreak(block, player, type);
         }
         return false;
     }

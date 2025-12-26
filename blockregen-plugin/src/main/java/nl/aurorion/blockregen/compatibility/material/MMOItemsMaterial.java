@@ -12,13 +12,13 @@ import org.bukkit.block.Block;
 import java.util.Optional;
 
 @Log
-public class MMOIItemsMaterial implements BlockRegenMaterial {
+public class MMOItemsMaterial implements BlockRegenMaterial {
 
     private final transient BlockRegenPlugin plugin;
 
     private final int id;
 
-    public MMOIItemsMaterial(BlockRegenPlugin plugin, int id) {
+    public MMOItemsMaterial(BlockRegenPlugin plugin, int id) {
         this.plugin = plugin;
         this.id = id;
     }

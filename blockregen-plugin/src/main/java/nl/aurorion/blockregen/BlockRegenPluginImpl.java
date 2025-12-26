@@ -155,7 +155,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         // Has to be after compatible plugins so they can register material parsers and loaders.
 
         GsonBuilder innerGsonBuilder = new GsonBuilder()
-                .registerTypeHierarchyAdapter(NodeData.class, new SubclassAdapter<>(this, new GsonBuilder().setPrettyPrinting().create()))
+                .registerTypeHierarchyAdapter(NodeData.class, new SubclassAdapter<>(new GsonBuilder().setPrettyPrinting().create()))
                 .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()));
 
         innerGsonBuilder.registerTypeAdapter(MinecraftMaterial.class, minecraftMaterialProvider);
@@ -167,8 +167,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         }
 
         GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeHierarchyAdapter(NodeData.class, new SubclassAdapter<>(this, new GsonBuilder().setPrettyPrinting().create()))
-                .registerTypeHierarchyAdapter(BlockRegenMaterial.class, new SubclassAdapter<>(this, innerGsonBuilder.setPrettyPrinting().create()))
+                .registerTypeHierarchyAdapter(NodeData.class, new SubclassAdapter<>(new GsonBuilder().setPrettyPrinting().create()))
+                .registerTypeHierarchyAdapter(BlockRegenMaterial.class, new SubclassAdapter<>(innerGsonBuilder.setPrettyPrinting().create()))
                 .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()))
                 .setPrettyPrinting();
 

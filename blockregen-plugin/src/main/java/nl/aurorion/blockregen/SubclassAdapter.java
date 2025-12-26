@@ -2,8 +2,6 @@ package nl.aurorion.blockregen;
 
 import com.google.gson.*;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
-import nl.aurorion.blockregen.version.api.NodeData;
 
 import java.lang.reflect.Type;
 
@@ -12,10 +10,7 @@ public class SubclassAdapter<T> implements JsonDeserializer<T>, JsonSerializer<T
 
     private final Gson simpleGson;
 
-    private final BlockRegenPlugin plugin;
-
-    public SubclassAdapter(BlockRegenPlugin plugin, Gson gson) {
-        this.plugin = plugin;
+    public SubclassAdapter(Gson gson) {
         simpleGson = gson;
     }
 

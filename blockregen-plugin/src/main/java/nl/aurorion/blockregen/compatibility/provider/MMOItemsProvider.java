@@ -8,7 +8,7 @@ import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
-import nl.aurorion.blockregen.compatibility.material.MMOIItemsMaterial;
+import nl.aurorion.blockregen.compatibility.material.MMOItemsMaterial;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MaterialProvider;
@@ -105,23 +105,23 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
             throw new ParseException("Invalid MMOItems block '" + input + "'");
         }
 
-        return new MMOIItemsMaterial(plugin, id);
+        return new MMOItemsMaterial(plugin, id);
     }
 
     @Override
     public @Nullable BlockRegenMaterial load(@NonNull Block block) {
         Optional<CustomBlock> fromBlock = MMOItems.plugin.getCustomBlocks().getFromBlock(block.getBlockData());
-        return fromBlock.map(customBlock -> new MMOIItemsMaterial(plugin, customBlock.getId())).orElse(null);
+        return fromBlock.map(customBlock -> new MMOItemsMaterial(plugin, customBlock.getId())).orElse(null);
 
     }
 
     @Override
     public @NonNull Class<?> getClazz() {
-        return MMOIItemsMaterial.class;
+        return MMOItemsMaterial.class;
     }
 
     @Override
     public BlockRegenMaterial createInstance(java.lang.reflect.Type type) {
-        return new MMOIItemsMaterial(plugin, -1);
+        return new MMOItemsMaterial(plugin, -1);
     }
 }
