@@ -91,7 +91,7 @@ public class RegenerationManager {
         Objects.requireNonNull(block);
         Objects.requireNonNull(preset);
 
-        BlockRegenMaterial material = plugin.getMaterialManager().loadMaterial(block);
+        BlockRegenMaterial material = plugin.getMaterialManager().getMaterial(block);
 
         if (material == null) {
             // todo: well what now, the preset probably already matched?

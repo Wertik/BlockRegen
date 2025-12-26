@@ -43,7 +43,7 @@ public class ProviderContainer<T extends CompatibilityProvider> {
     }
 
     public Optional<T> get() {
-        return Optional.of(this.instance);
+        return this.instance == null ? Optional.empty() : Optional.of(this.instance);
     }
 
     public void ifLoaded(Consumer<T> consumer) {
