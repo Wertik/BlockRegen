@@ -105,13 +105,13 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
             throw new ParseException("Invalid MMOItems block '" + input + "'");
         }
 
-        return new MMOItemsMaterial(plugin, id);
+        return new MMOItemsMaterial(id);
     }
 
     @Override
     public @Nullable BlockRegenMaterial load(@NonNull Block block) {
         Optional<CustomBlock> fromBlock = MMOItems.plugin.getCustomBlocks().getFromBlock(block.getBlockData());
-        return fromBlock.map(customBlock -> new MMOItemsMaterial(plugin, customBlock.getId())).orElse(null);
+        return fromBlock.map(customBlock -> new MMOItemsMaterial(customBlock.getId())).orElse(null);
 
     }
 
@@ -122,6 +122,6 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
 
     @Override
     public BlockRegenMaterial createInstance(java.lang.reflect.Type type) {
-        return new MMOItemsMaterial(plugin, -1);
+        return new MMOItemsMaterial(-1);
     }
 }

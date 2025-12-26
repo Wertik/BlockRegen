@@ -14,13 +14,10 @@ import java.util.Objects;
 // Check using the Oraxen API whether the destroyed block matches.
 public class OraxenMaterial implements BlockRegenMaterial {
 
-    private final transient BlockRegenPlugin plugin;
-
     @Getter
     private final String oraxenId;
 
-    public OraxenMaterial(BlockRegenPlugin plugin, String oraxenId) {
-        this.plugin = plugin;
+    public OraxenMaterial(String oraxenId) {
         this.oraxenId = oraxenId;
     }
 

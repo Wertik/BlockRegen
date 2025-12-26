@@ -5,7 +5,6 @@ import lombok.extern.java.Log;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.block.CustomBlock;
 import net.Indyuce.mmoitems.api.util.MushroomState;
-import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
 
@@ -14,12 +13,9 @@ import java.util.Optional;
 @Log
 public class MMOItemsMaterial implements BlockRegenMaterial {
 
-    private final transient BlockRegenPlugin plugin;
-
     private final int id;
 
-    public MMOItemsMaterial(BlockRegenPlugin plugin, int id) {
-        this.plugin = plugin;
+    public MMOItemsMaterial(int id) {
         this.id = id;
     }
 

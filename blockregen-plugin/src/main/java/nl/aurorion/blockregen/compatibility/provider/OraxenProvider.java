@@ -55,7 +55,7 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
         if (!OraxenBlocks.isOraxenBlock(input)) {
             throw new ParseException(String.format("'%s' is not an Oraxen block.", input));
         }
-        return new OraxenMaterial(this.plugin, input);
+        return new OraxenMaterial(input);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
         if (blockMechanic == null) {
             return null;
         }
-        return new OraxenMaterial(plugin, blockMechanic.getItemID());
+        return new OraxenMaterial(blockMechanic.getItemID());
     }
 
     @Override
@@ -90,6 +90,6 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
 
     @Override
     public BlockRegenMaterial createInstance(Type type) {
-        return new OraxenMaterial(plugin, null);
+        return new OraxenMaterial(null);
     }
 }

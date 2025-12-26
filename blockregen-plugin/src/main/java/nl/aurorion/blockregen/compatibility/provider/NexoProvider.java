@@ -51,7 +51,7 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
         if (!NexoBlocks.isCustomBlock(input)) {
             throw new ParseException(String.format("'%s' is not a Nexo block.", input));
         }
-        return new NexoMaterial(this.plugin, input);
+        return new NexoMaterial(input);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
         if (customBlockMechanic == null) {
             return null;
         }
-        return new NexoMaterial(plugin, customBlockMechanic.getItemID());
+        return new NexoMaterial(customBlockMechanic.getItemID());
     }
 
     @Override
@@ -74,6 +74,6 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
 
     @Override
     public BlockRegenMaterial createInstance(Type type) {
-        return new NexoMaterial(plugin, null);
+        return new NexoMaterial(null);
     }
 }

@@ -5,7 +5,6 @@ import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.mechanics.Mechanic;
 import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
 import lombok.Getter;
-import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -15,13 +14,10 @@ import java.util.Objects;
 
 public class NexoMaterial implements BlockRegenMaterial {
 
-    private final transient BlockRegenPlugin plugin;
-
     @Getter
     private final String itemId;
 
-    public NexoMaterial(BlockRegenPlugin plugin, String itemId) {
-        this.plugin = plugin;
+    public NexoMaterial(String itemId) {
         this.itemId = itemId;
     }
 
@@ -65,7 +61,7 @@ public class NexoMaterial implements BlockRegenMaterial {
     @Override
     public XMaterial getType() {
         CustomBlockMechanic mechanic = NexoBlocks.customBlockMechanic(this.itemId);
-        if (mechanic == null) {
+        if (mechanic == null || mechanic.getBlockData() == null) {
             throw new IllegalArgumentException(String.format("Invalid next block: %s", this.itemId));
         }
         return XMaterial.matchXMaterial(mechanic.getBlockData().getMaterial());
