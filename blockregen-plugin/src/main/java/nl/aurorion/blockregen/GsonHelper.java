@@ -22,6 +22,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.logging.Level;
 
 /**
  * Gson (json) save and load helper class.
@@ -61,8 +62,7 @@ public class GsonHelper {
             channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ);
             size = channel.size();
         } catch (IOException e) {
-            log.severe("Could not open an asynchronous file channel.");
-            e.printStackTrace();
+            log.log(Level.SEVERE, "Could not open an asynchronous file channel.", e);
             return CompletableFuture.supplyAsync(() -> {
                 throw new CompletionException(e);
             });
@@ -108,7 +108,7 @@ public class GsonHelper {
         try {
             input = String.join("", Files.readAllLines(path));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "Could not read JSON file: " + e.getMessage(), e);
             return null;
         }
 
