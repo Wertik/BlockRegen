@@ -31,13 +31,17 @@ public class MaterialManager {
     private final LinkedHashMap<String, MaterialProvider> registeredProviders = new LinkedHashMap<>();
 
     private final Set<BlockRegenMaterial> cachedMaterials = new HashSet<>();
+    private final Map<String, BlockRegenMaterial> cachedMaterialInputs = new HashMap<>();
 
     public MaterialManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 
-    private <T extends BlockRegenMaterial> T cacheEntry(T value) {
+    private <T extends BlockRegenMaterial> T cacheEntry(T value, @Nullable String input) {
         cachedMaterials.add(value);
+        if (input != null) {
+            cachedMaterialInputs.put(input, value);
+        }
         log.fine(() -> "Cached " + value);
         return value;
     }
@@ -109,8 +113,6 @@ public class MaterialManager {
         while (it.hasNext()) {
             Map.Entry<String, MaterialProvider> entry = it.next();
 
-            log.fine(() -> "Iterating over " + entry.getKey());
-
             BlockRegenMaterial material = entry.getValue().load(block);
 
             if (material == null) {
@@ -118,7 +120,7 @@ public class MaterialManager {
             }
 
             log.fine(() -> "Loaded material '" + material + "' with loader '" + entry.getKey() + "'");
-            return cacheEntry(material);
+            return cacheEntry(material, null);
         }
 
         return null;
@@ -163,7 +165,7 @@ public class MaterialManager {
 
             BlockRegenMaterial material;
             try {
-                material = cacheEntry(provider.parseMaterial(rawMaterialInput));
+                material = parseMaterial(provider, rawMaterialInput);
             } catch (Exception e) {
                 throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", rawMaterialInput, provider.getClass().getSimpleName()), e, true);
             }
@@ -183,7 +185,7 @@ public class MaterialManager {
         } else {
             log.fine(() -> "Single material input for parseMaterialAndChance: '" + input + "'");
             try {
-                BlockRegenMaterial material = cacheEntry(provider.parseMaterial(input));
+                BlockRegenMaterial material = parseMaterial(provider, input);
                 return new Pair<>(material, null);
             } catch (Exception e) {
                 throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", input, provider.getClass().getSimpleName()), e, true);
@@ -372,7 +374,19 @@ public class MaterialManager {
             throw new ParseException(String.format("No valid provider found for prefix '%s'", prefix));
         }
 
-        return cacheEntry(provider.parseMaterial(sanitized));
+        return parseMaterial(provider, sanitized);
+    }
+
+    @NotNull
+    private BlockRegenMaterial parseMaterial(@NotNull MaterialProvider provider, @NotNull String input) {
+        BlockRegenMaterial cached = this.cachedMaterialInputs.get(input);
+
+        if (cached != null) {
+            log.fine(() -> "Material input cache hit " + input + " -> " + cached);
+            return cached;
+        }
+
+        return cacheEntry(provider.parseMaterial(input), input);
     }
 
     @NotNull

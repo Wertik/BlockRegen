@@ -12,6 +12,7 @@ import nl.aurorion.blockregen.compatibility.provider.ResidenceProvider;
 import nl.aurorion.blockregen.compatibility.provider.TownyProvider;
 import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.preset.drop.DropItem;
 import nl.aurorion.blockregen.preset.drop.ExperienceDrop;
@@ -115,7 +116,8 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
         log.fine(() -> String.format("Handling %s.", Locations.locationToString(block.getLocation())));
 
-        BlockPreset preset = plugin.getPresetManager().getPreset(block, area);
+        BlockRegenMaterial material = plugin.getMaterialManager().getMaterial(block);
+        BlockPreset preset = material == null ? null : plugin.getPresetManager().getPreset(material, area);
 
         boolean isConfigured = preset != null;
 
@@ -193,11 +195,13 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             return;
         }
 
-        Block above = block.getRelative(BlockFace.UP);
-        log.fine(() -> "Above: " + above.getType());
-
         // Crop possibly above this block.
-        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, area);
+        Block above = block.getRelative(BlockFace.UP);
+
+        BlockRegenMaterial aboveMaterial = plugin.getMaterialManager().getMaterial(above);
+        log.fine(() -> "Above: " + aboveMaterial);
+
+        BlockPreset abovePreset = aboveMaterial == null ? null : plugin.getPresetManager().getPreset(aboveMaterial, area);
         if (abovePreset != null && abovePreset.isHandleCrops()) {
             XMaterial aboveType = plugin.getBlockType(above);
 
@@ -211,7 +215,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
                     List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
-                    RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, abovePreset, area);
+                    RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, aboveMaterial, abovePreset, area);
                     process.start();
 
                     // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
@@ -220,7 +224,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             }
         }
 
-        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, area);
+        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, material, preset, area);
         handleBreak(process, preset, block, player, vanillaExperience);
     }
 

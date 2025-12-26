@@ -79,8 +79,14 @@ public class RegenerationManager {
     }
 
     @NotNull
-    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockRegenMaterial originalMaterial, @NotNull BlockPreset preset) {
-        return new RegenerationProcess(block, preset, originalMaterial);
+    public RegenerationProcess createProcess(@NotNull Block block, @NotNull BlockRegenMaterial originalMaterial, @NotNull BlockPreset preset, @Nullable RegenerationArea area) {
+        RegenerationProcess process = new RegenerationProcess(block, preset, originalMaterial);
+
+        process.setWorldName(block.getWorld().getName());
+        if (area != null) {
+            process.setRegionName(area.getName());
+        }
+        return process;
     }
 
     /**

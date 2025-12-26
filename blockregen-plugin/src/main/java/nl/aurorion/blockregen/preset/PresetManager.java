@@ -12,6 +12,7 @@ import nl.aurorion.blockregen.configuration.LoadResult;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import nl.aurorion.blockregen.event.struct.EventBossBar;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.preset.condition.ConditionRelation;
 import nl.aurorion.blockregen.preset.condition.Conditions;
 import nl.aurorion.blockregen.preset.condition.GenericConditionProvider;
@@ -58,6 +59,30 @@ public class PresetManager {
     public BlockPreset getPreset(@NotNull Block block) {
         for (BlockPreset preset : this.presets.values()) {
             if (preset.getTargetMaterial().matches(block)) {
+                return preset;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public BlockPreset getPreset(@NotNull BlockRegenMaterial material) {
+        for (BlockPreset preset : this.presets.values()) {
+            if (preset.getTargetMaterial().getMaterials().contains(material)) {
+                return preset;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public BlockPreset getPreset(@NotNull BlockRegenMaterial material, @Nullable RegenerationArea area) {
+        if (area == null) {
+            return getPreset(material);
+        }
+
+        for (BlockPreset preset : this.presets.values()) {
+            if (preset.getTargetMaterial().getMaterials().contains(material) && area.hasPreset(preset.getName())) {
                 return preset;
             }
         }
