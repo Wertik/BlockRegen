@@ -1,10 +1,12 @@
-package nl.aurorion.blockregen.material.parser;
+package nl.aurorion.blockregen.material;
 
+import com.google.gson.InstanceCreator;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.material.BlockRegenMaterial;
+import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public interface MaterialParser {
+public interface MaterialProvider extends InstanceCreator<BlockRegenMaterial> {
 
     /**
      * Parse a BlockRegenMaterial from an input string.
@@ -17,10 +19,17 @@ public interface MaterialParser {
     @NotNull
     BlockRegenMaterial parseMaterial(String input);
 
+    // Return null if the block isn't recognized by this loader.
+    @Nullable
+    BlockRegenMaterial load(@NotNull Block block);
+
     /**
      * @return True if the material syntax contains colons.
      */
     default boolean containsColon() {
         return false;
     }
+
+    @NotNull
+    Class<?> getClazz();
 }

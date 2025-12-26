@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.compatibility.impl;
+package nl.aurorion.blockregen.compatibility.provider;
 
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.adapters.BukkitItemStack;
@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MythicMobsProvider extends CompatibilityProvider implements ItemProvider {
+
     public MythicMobsProvider(BlockRegenPlugin plugin) {
         super(plugin, "mythic");
 

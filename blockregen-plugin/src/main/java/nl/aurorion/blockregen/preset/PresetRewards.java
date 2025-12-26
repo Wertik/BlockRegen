@@ -35,13 +35,14 @@ public class PresetRewards {
 
     public void give(Player player, Function<String, String> parser) {
         AtomicDouble money = new AtomicDouble(0.0);
-        if (BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().isLoaded()) {
+
+        BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().ifLoaded((economy) -> {
             money.set(this.money.getDouble());
             double m = money.get();
             if (m > 0) {
-                BlockRegenPluginImpl.getInstance().getCompatibilityManager().getEconomy().get().depositPlayer(player, m);
+                economy.depositPlayer(player, m);
             }
-        }
+        });
 
         final Function<String, String> finalParser = (string) -> Text.replace(parser.apply(string), "earned_money", money.get());
 

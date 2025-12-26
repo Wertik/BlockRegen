@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import lombok.Getter;
 import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,22 +33,11 @@ import java.util.concurrent.CompletionException;
 @Log
 public class GsonHelper {
 
+    @Getter
     private final Gson gson;
 
     public GsonHelper(GsonBuilder gsonBuilder) {
         this.gson = gsonBuilder.create();
-    }
-
-    public GsonHelper(boolean prettyPrinting) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        if (prettyPrinting) {
-            gsonBuilder.setPrettyPrinting();
-        }
-        this.gson = gsonBuilder.create();
-    }
-
-    public GsonHelper() {
-        this(false);
     }
 
     public static <T> Type mapList(@NotNull Class<T> innerType) {
@@ -158,17 +148,14 @@ public class GsonHelper {
      * @return CompletableFuture with the number of bytes written
      */
     @NotNull
-    public <T> CompletableFuture<Void> save(@NotNull final T input, @NotNull final String dataPath) {
-
-        Path path = Paths.get(dataPath);
-
+    public <T> CompletableFuture<Void> save(@NotNull final T input, @NotNull final Path dataPath) {
         final Type type = map(input.getClass());
 
         return CompletableFuture.runAsync(() -> {
             String jsonString = gson.toJson(input, type).trim();
 
             try {
-                Files.write(path, jsonString.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+                Files.write(dataPath, jsonString.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

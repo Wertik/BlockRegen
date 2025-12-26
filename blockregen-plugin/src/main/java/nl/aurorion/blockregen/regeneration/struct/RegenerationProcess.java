@@ -9,10 +9,9 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.api.BlockRegenBlockRegenerationEvent;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
-import nl.aurorion.blockregen.material.MinecraftMaterial;
+import nl.aurorion.blockregen.material.builtin.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.preset.FixedNumberValue;
-import nl.aurorion.blockregen.util.Blocks;
 import nl.aurorion.blockregen.util.Locations;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
@@ -20,6 +19,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -28,15 +28,20 @@ import java.util.UUID;
 @Data
 public class RegenerationProcess {
 
-    private final UUID id = UUID.randomUUID();
+    private UUID id;
 
     private SimpleLocation location;
 
     private transient Block block;
 
+    @Nullable
     private XMaterial originalMaterial;
-    @Getter
+    @Nullable
     private NodeData originalData;
+
+    @Getter
+    @Nullable
+    private BlockRegenMaterial originalCustomMaterial;
 
     @Getter
     private String regionName;
@@ -65,7 +70,9 @@ public class RegenerationProcess {
 
     private transient BukkitTask task;
 
-    public RegenerationProcess(Block block, NodeData originalData, BlockPreset preset) {
+    public RegenerationProcess(Block block, BlockPreset preset, @NotNull BlockRegenMaterial originalMaterial) {
+        this.id = UUID.randomUUID();
+
         this.block = block;
         this.location = new SimpleLocation(block);
 
@@ -74,8 +81,7 @@ public class RegenerationProcess {
 
         this.worldName = block.getWorld().getName();
 
-        this.originalData = originalData;
-        this.originalMaterial = BlockRegenPlugin.getInstance().getVersionManager().getMethods().getType(block);
+        this.originalCustomMaterial = originalMaterial;
     }
 
     // Return true if the process started, false otherwise.
@@ -224,7 +230,7 @@ public class RegenerationProcess {
 
         regenerateInto.setType(block);
         if (regenerateInto.applyOriginalData()) {
-            originalData.apply(block);
+            getOriginalMaterial().applyData(block);
         }
         regenerateInto.applyData(block); // Override with configured data if any
         log.fine(() -> "Regenerated " + this);
@@ -245,7 +251,7 @@ public class RegenerationProcess {
         BlockRegenMaterial original = getOriginalMaterial();
 
         // -- Place farmland under crops
-        if (Blocks.requiresFarmland(originalMaterial)) {
+        if (original.requiresFarmland()) {
             Block under = block.getRelative(BlockFace.DOWN);
             XMaterial underType = BlockRegenPluginImpl.getInstance().getVersionManager().getMethods().getType(under);
             if (underType != XMaterial.FARMLAND) {
@@ -272,7 +278,7 @@ public class RegenerationProcess {
 
         replaceMaterial.setType(block);
         if (replaceMaterial.applyOriginalData()) {
-            this.originalData.apply(block);
+            getOriginalMaterial().applyData(block);
         }
         replaceMaterial.applyData(block); // Apply configured data if any
 
@@ -286,13 +292,12 @@ public class RegenerationProcess {
         // Make sure we always get something.
         if (regenerateInto == null) {
             if (preset.getRegenMaterial() == null) {
-                // todo: this breaks custom blocks... they regenerate into a minecraft material instead of the custom one.
-                // todo: instead, save the block regen material and place it here.
-                this.regenerateInto = new MinecraftMaterial(BlockRegenPlugin.getInstance(), originalMaterial, originalData);
+                return getOriginalMaterial();
             } else {
-                this.regenerateInto = preset.getRegenMaterial().get();
+                return preset.getRegenMaterial().get();
             }
         }
+
         return regenerateInto;
     }
 
@@ -311,6 +316,10 @@ public class RegenerationProcess {
 
     @NotNull
     public BlockRegenMaterial getOriginalMaterial() {
+        if (this.originalCustomMaterial != null) {
+            return this.originalCustomMaterial;
+        }
+
         return new MinecraftMaterial(BlockRegenPluginImpl.getInstance(), this.originalMaterial, this.originalData);
     }
 
@@ -383,7 +392,7 @@ public class RegenerationProcess {
 
     @Override
     public String toString() {
-        return String.format("{id=%s; task=%s; presetName=%s; worldName=%s; regionName=%s; block=%s; originalData=%s; originalMaterial=%s; regenerateInto=%s; replaceMaterial=%s; timeLeft=%d; regenerationTime=%d}",
+        return String.format("{id=%s; task=%s; presetName=%s; worldName=%s; regionName=%s; block=%s; originalData=%s; originalMaterial=%s; originalCustomMaterial=%s; regenerateInto=%s; replaceMaterial=%s; timeLeft=%d; regenerationTime=%d}",
                 id,
                 task == null ? "null" : task.getTaskId(),
                 presetName,
@@ -392,8 +401,9 @@ public class RegenerationProcess {
                 block == null ? "null" : Locations.locationToString(block.getLocation()),
                 originalData,
                 originalMaterial,
-                this.regenerateInto,
-                this.replaceMaterial,
+                originalCustomMaterial,
+                regenerateInto,
+                replaceMaterial,
                 timeLeft,
                 regenerationTime);
     }

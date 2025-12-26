@@ -3,13 +3,14 @@ package nl.aurorion.blockregen.material;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
-import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.material.parser.MaterialParser;
+import nl.aurorion.blockregen.material.builtin.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +26,7 @@ public class MaterialManager {
     private static final Pattern COLON_PATTERN = Pattern.compile("(?<!http(?s)):(?!//)");
     private static final Pattern PREFIX_PATTERN = Pattern.compile("^(\\w+):(.*)");
 
-    private final Map<String, MaterialParser> registeredParsers = new HashMap<>();
+    private final LinkedHashMap<String, MaterialProvider> registeredProviders = new LinkedHashMap<>();
 
     private final BlockRegenPlugin plugin;
 
@@ -41,28 +42,75 @@ public class MaterialManager {
      * A prefix cannot match a material name, otherwise the parsing screws up. We could use a different separator, but
      * screw it, a colon looks cool.
      */
-    public void registerParser(@Nullable String prefix, @NotNull MaterialParser parser) {
+    public void register(@Nullable String prefix, @NotNull MaterialProvider provider) {
         prefix = (prefix == null ? null : prefix.toLowerCase());
 
-        MaterialParser registeredParser = registeredParsers.get(prefix);
-        if (registeredParser != null && registeredParser.getClass() == parser.getClass()) {
+        MaterialProvider registeredProvider = registeredProviders.get(prefix);
+        if (registeredProvider != null && registeredProvider.getClass() == provider.getClass()) {
             return;
         }
 
-        registeredParsers.put(prefix, parser);
-        log.fine(String.format("Registered material parser with prefix %s", prefix));
+        registeredProviders.put(prefix, provider);
+        log.fine(String.format("Registered material provider with prefix %s", prefix));
     }
 
     @Nullable
-    public MaterialParser getParser(@Nullable String prefix) {
-        return this.registeredParsers.get((prefix == null ? null : prefix.toLowerCase()));
+    public MaterialProvider getProvider(@Nullable String prefix) {
+        return this.registeredProviders.get((prefix == null ? null : prefix.toLowerCase()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Iterator<Map.Entry<String, MaterialProvider>> reversedEntryIterator() {
+        Map.Entry<String, MaterialProvider>[] array = (Map.Entry<String, MaterialProvider>[]) this.registeredProviders.entrySet().toArray(new Map.Entry[0]);
+
+        class ReversedEntryIterator implements Iterator<Map.Entry<String, MaterialProvider>> {
+
+            private int currentIndex = array.length - 1;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex >= 0;
+            }
+
+            @Override
+            public Map.Entry<String, MaterialProvider> next() {
+                if (currentIndex < 0) {
+                    throw new NoSuchElementException();
+                }
+
+                return array[this.currentIndex--];
+            }
+        }
+
+        return new ReversedEntryIterator();
+    }
+
+    @Nullable
+    public BlockRegenMaterial loadMaterial(@NotNull Block block) {
+        Iterator<Map.Entry<String, MaterialProvider>> it = reversedEntryIterator();
+        while (it.hasNext()) {
+            Map.Entry<String, MaterialProvider> entry = it.next();
+
+            log.fine(() -> "Iterating over " + entry.getKey());
+
+            BlockRegenMaterial material = entry.getValue().load(block);
+
+            if (material == null) {
+                continue;
+            }
+
+            log.fine(() -> "Loaded material '" + material + "' with loader '" + entry.getKey() + "'");
+            return material;
+        }
+
+        return null;
     }
 
     /**
      * @throws ParseException If the parsing fails.
      */
     @NotNull
-    private Pair<BlockRegenMaterial, Double> parseMaterialAndChance(@NotNull MaterialParser parser, @NotNull String input) {
+    private Pair<BlockRegenMaterial, Double> parseMaterialAndChance(@NotNull MaterialProvider provider, @NotNull String input) {
         // The part until the last colon that's not part of 'https://'
         Matcher matcher = COLON_PATTERN.matcher(input);
 
@@ -90,16 +138,16 @@ public class MaterialManager {
             boolean withChance = true;
 
             String rawMaterialInput = input.substring(0, lastColon - 1);
-            if (parser.containsColon() && count == 1) {
+            if (provider.containsColon() && count == 1) {
                 rawMaterialInput = input;
                 withChance = false;
             }
 
             BlockRegenMaterial material;
             try {
-                material = parser.parseMaterial(rawMaterialInput);
+                material = provider.parseMaterial(rawMaterialInput);
             } catch (Exception e) {
-                throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", rawMaterialInput, parser.getClass().getSimpleName()), e, true);
+                throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", rawMaterialInput, provider.getClass().getSimpleName()), e, true);
             }
 
             if (withChance) {
@@ -117,10 +165,10 @@ public class MaterialManager {
         } else {
             log.fine(() -> "Single material input for parseMaterialAndChance: '" + input + "'");
             try {
-                BlockRegenMaterial material = parser.parseMaterial(input);
+                BlockRegenMaterial material = provider.parseMaterial(input);
                 return new Pair<>(material, null);
             } catch (Exception e) {
-                throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", input, parser.getClass().getSimpleName()), e, true);
+                throw new ParseException(String.format("Failed to parse material '%s' with parser '%s'", input, provider.getClass().getSimpleName()), e, true);
             }
         }
     }
@@ -213,19 +261,19 @@ public class MaterialManager {
             // Try first part as prefix...
 
             String prefix = firstColon == -1 ? null : materialInput.substring(0, firstColon);
-            MaterialParser parser = getParser(prefix);
+            MaterialProvider provider = getProvider(prefix);
 
-            if (parser == null) {
-                parser = getParser(null);
+            if (provider == null) {
+                provider = getProvider(null);
 
-                if (parser == null) {
+                if (provider == null) {
                     throw new ParseException(String.format("Material '%s' is invalid. No valid material parser found.", input));
                 }
 
                 log.fine(() -> "No prefix");
 
                 // Not a prefix.
-                Pair<BlockRegenMaterial, Double> result = parseMaterialAndChance(parser, materialInput);
+                Pair<BlockRegenMaterial, Double> result = parseMaterialAndChance(provider, materialInput);
 
                 if (result.getSecond() == null) {
                     restMaterials.add(result.getFirst());
@@ -237,7 +285,7 @@ public class MaterialManager {
                 String rest = materialInput.substring(firstColon + 1);
                 log.fine(() -> "Prefix: '" + prefix + "'");
                 log.fine(() -> "Rest: '" + rest + "'");
-                Pair<BlockRegenMaterial, Double> result = parseMaterialAndChance(parser, rest);
+                Pair<BlockRegenMaterial, Double> result = parseMaterialAndChance(provider, rest);
 
                 if (result.getSecond() == null) {
                     restMaterials.add(result.getFirst());
@@ -299,13 +347,18 @@ public class MaterialManager {
             sanitized = matcher.group(2);
         }
 
-        MaterialParser parser = getParser(prefix);
+        MaterialProvider provider = getProvider(prefix);
 
-        if (parser == null) {
+        if (provider == null) {
             // Prefix not registered
-            throw new ParseException(String.format("No valid parser found for prefix '%s'", prefix));
+            throw new ParseException(String.format("No valid provider found for prefix '%s'", prefix));
         }
 
-        return parser.parseMaterial(sanitized);
+        return provider.parseMaterial(sanitized);
+    }
+
+    @NotNull
+    public Map<String, MaterialProvider> getProviders() {
+        return Collections.unmodifiableMap(this.registeredProviders);
     }
 }

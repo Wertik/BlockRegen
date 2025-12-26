@@ -1,22 +1,28 @@
-package nl.aurorion.blockregen.material.parser;
+package nl.aurorion.blockregen.material.builtin;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
-import nl.aurorion.blockregen.material.MinecraftMaterial;
+import nl.aurorion.blockregen.material.MaterialProvider;
+import nl.aurorion.blockregen.util.Locations;
 import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.util.Versions;
 import nl.aurorion.blockregen.version.api.NodeData;
+import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.lang.reflect.Type;
 
 @Log
-public class MinecraftMaterialParser implements MaterialParser {
+public class MinecraftMaterialProvider implements MaterialProvider {
 
     private final BlockRegenPlugin plugin;
 
-    public MinecraftMaterialParser(BlockRegenPlugin plugin) {
+    public MinecraftMaterialProvider(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -44,5 +50,28 @@ public class MinecraftMaterialParser implements MaterialParser {
         } else {
             return new MinecraftMaterial(plugin, xMaterial);
         }
+    }
+
+    @Override
+    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+        log.fine(() -> "Loading MC material from block " + Locations.locationToString(block.getLocation()));
+
+        XMaterial material = plugin.getVersionManager().getMethods().getType(block);
+
+        NodeData nodeData = plugin.getVersionManager().createNodeData();
+        nodeData.load(block);
+
+        return new MinecraftMaterial(plugin, material, nodeData);
+    }
+
+    @Override
+    public BlockRegenMaterial createInstance(Type type) {
+        log.fine(() -> "Created empty MinecraftMaterial.");
+        return new MinecraftMaterial(plugin, null, null);
+    }
+
+    @Override
+    public @NonNull Class<?> getClazz() {
+        return MinecraftMaterial.class;
     }
 }

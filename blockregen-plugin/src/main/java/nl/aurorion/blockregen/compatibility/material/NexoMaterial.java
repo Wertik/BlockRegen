@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.material;
+package nl.aurorion.blockregen.compatibility.material;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.nexomc.nexo.api.NexoBlocks;
@@ -6,6 +6,7 @@ import com.nexomc.nexo.mechanics.Mechanic;
 import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
 import lombok.Getter;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +15,7 @@ import java.util.Objects;
 
 public class NexoMaterial implements BlockRegenMaterial {
 
-    private final BlockRegenPlugin plugin;
+    private final transient BlockRegenPlugin plugin;
 
     @Getter
     private final String itemId;

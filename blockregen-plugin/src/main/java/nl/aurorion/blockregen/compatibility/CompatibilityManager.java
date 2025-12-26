@@ -3,13 +3,17 @@ package nl.aurorion.blockregen.compatibility;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.compatibility.impl.*;
+import nl.aurorion.blockregen.compatibility.provider.*;
 import nl.aurorion.blockregen.drop.ItemProvider;
-import nl.aurorion.blockregen.material.parser.MaterialParser;
+import nl.aurorion.blockregen.material.MaterialProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 // todo: what if a providing plugin is unloaded?
 @Log
@@ -80,8 +84,8 @@ public class CompatibilityManager {
             container.setFound(true);
             try {
                 container.load();
-            } catch (IllegalStateException e) {
-                log.warning("Failed to load support for " + container.getPluginName() + ": " + e.getMessage());
+            } catch (ProviderLoadException e) {
+                log.log(Level.WARNING, "Failed to load provider for " + container.getPluginName() + ": " + e.getMessage(), e);
                 continue;
             }
 
@@ -91,13 +95,11 @@ public class CompatibilityManager {
 
             CompatibilityProvider provider = container.get();
 
-            // Register parsers
-            if (provider instanceof MaterialParser && provider.getPrefix() != null) {
-                plugin.getMaterialManager().registerParser(provider.getPrefix(), (MaterialParser) provider);
+            if (provider instanceof MaterialProvider && provider.getPrefix() != null) {
+                plugin.getMaterialManager().register(provider.getPrefix(), (MaterialProvider) provider);
                 reloadPresets = true;
             }
 
-            // Register ItemProviders
             if (provider instanceof ItemProvider && provider.getPrefix() != null) {
                 plugin.getItemManager().registerProvider(provider.getPrefix(), (ItemProvider) provider);
                 reloadPresets = true;
@@ -109,5 +111,10 @@ public class CompatibilityManager {
             log.info("Reloading presets due to newly discovered supported plugins...");
             plugin.getPresetManager().load();
         }
+    }
+
+    @NotNull
+    public Collection<ProviderContainer<?>> getContainers() {
+        return Collections.unmodifiableCollection(containers);
     }
 }

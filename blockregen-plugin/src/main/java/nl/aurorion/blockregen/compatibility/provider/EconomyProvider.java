@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.compatibility.impl;
+package nl.aurorion.blockregen.compatibility.provider;
 
 import lombok.Getter;
 import lombok.extern.java.Log;

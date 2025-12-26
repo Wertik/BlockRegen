@@ -1,8 +1,9 @@
-package nl.aurorion.blockregen.material;
+package nl.aurorion.blockregen.compatibility.material;
 
 import com.cryptomorin.xseries.XMaterial;
 import dev.lone.itemsadder.api.CustomBlock;
 import lombok.extern.java.Log;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
 
 @Log

@@ -13,8 +13,11 @@ import nl.aurorion.blockregen.listener.DebugListener;
 import nl.aurorion.blockregen.listener.PhysicsListener;
 import nl.aurorion.blockregen.listener.PlayerListener;
 import nl.aurorion.blockregen.listener.RegenerationListener;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MaterialManager;
-import nl.aurorion.blockregen.material.parser.MinecraftMaterialParser;
+import nl.aurorion.blockregen.material.MaterialProvider;
+import nl.aurorion.blockregen.material.builtin.MinecraftMaterial;
+import nl.aurorion.blockregen.material.builtin.MinecraftMaterialProvider;
 import nl.aurorion.blockregen.particle.ParticleManager;
 import nl.aurorion.blockregen.particle.impl.*;
 import nl.aurorion.blockregen.preset.PresetManager;
@@ -24,7 +27,6 @@ import nl.aurorion.blockregen.regeneration.RegenerationEventHandlerImpl;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.util.Versions;
-import nl.aurorion.blockregen.version.NodeDataAdapter;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
 import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.version.VersionManagerImpl;
@@ -40,6 +42,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.logging.Level;
@@ -126,12 +129,6 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         versionManager.load();
 
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeHierarchyAdapter(NodeData.class, new NodeDataAdapter<>())
-                .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()))
-                .setPrettyPrinting();
-        gsonHelper = new GsonHelper(gsonBuilder);
-
         // Add default particles
         particleManager.addParticle("fireworks", new FireWorks(this));
         particleManager.addParticle("flame_crown", new FlameCrown(this));
@@ -142,16 +139,40 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         Message.load();
 
-        // Default material parsers for minecraft materials
-        materialManager.registerParser(null, new MinecraftMaterialParser(this));
-        materialManager.registerParser("minecraft", new MinecraftMaterialParser(this));
-
         // Register all default conditions
         DefaultConditions.all().forEach(pair -> presetManager.getConditions().addProvider(pair.getFirst(), pair.getSecond()));
 
         checkPlaceholderAPI();
 
+        MinecraftMaterialProvider minecraftMaterialProvider = new MinecraftMaterialProvider(this);
+
+        // Default material parsers for minecraft materials
+        materialManager.register(null, minecraftMaterialProvider);
+        materialManager.register("minecraft", minecraftMaterialProvider);
+
         compatibilityManager.discover(false);
+
+        // Has to be after compatible plugins so they can register material parsers and loaders.
+
+        GsonBuilder innerGsonBuilder = new GsonBuilder()
+                .registerTypeHierarchyAdapter(NodeData.class, new SubclassAdapter<>(this, new GsonBuilder().setPrettyPrinting().create()))
+                .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()));
+
+        innerGsonBuilder.registerTypeAdapter(MinecraftMaterial.class, minecraftMaterialProvider);
+
+        for (Map.Entry<String, MaterialProvider> entry : materialManager.getProviders().entrySet()) {
+            MaterialProvider provider = entry.getValue();
+            innerGsonBuilder.registerTypeAdapter(provider.getClazz(), provider);
+            log.fine(() -> "Registered instance creator for " + provider.getClazz().getSimpleName());
+        }
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeHierarchyAdapter(NodeData.class, new SubclassAdapter<>(this, new GsonBuilder().setPrettyPrinting().create()))
+                .registerTypeHierarchyAdapter(BlockRegenMaterial.class, new SubclassAdapter<>(this, innerGsonBuilder.setPrettyPrinting().create()))
+                .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()))
+                .setPrettyPrinting();
+
+        gsonHelper = new GsonHelper(gsonBuilder);
 
         presetManager.load();
         regionManager.load();

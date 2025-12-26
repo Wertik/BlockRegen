@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.material;
+package nl.aurorion.blockregen.compatibility.material;
 
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
@@ -6,6 +6,7 @@ import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.block.CustomBlock;
 import net.Indyuce.mmoitems.api.util.MushroomState;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
 
 import java.util.Optional;
@@ -13,7 +14,7 @@ import java.util.Optional;
 @Log
 public class MMOIItemsMaterial implements BlockRegenMaterial {
 
-    private final BlockRegenPlugin plugin;
+    private final transient BlockRegenPlugin plugin;
 
     private final int id;
 
@@ -43,7 +44,7 @@ public class MMOIItemsMaterial implements BlockRegenMaterial {
 
     @Override
     public String toString() {
-        return "MMOIItemsMaterial{" +
+        return "MMOItemsMaterial{" +
                 "id=" + id +
                 '}';
     }

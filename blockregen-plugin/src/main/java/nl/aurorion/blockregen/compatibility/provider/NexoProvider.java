@@ -1,18 +1,25 @@
-package nl.aurorion.blockregen.compatibility.impl;
+package nl.aurorion.blockregen.compatibility.provider;
 
-import nl.aurorion.blockregen.conditional.Condition;
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.api.NexoItems;
-import nl.aurorion.blockregen.ParseException;
+import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.compatibility.material.NexoMaterial;
+import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
-import nl.aurorion.blockregen.material.NexoMaterial;
-import nl.aurorion.blockregen.material.parser.MaterialParser;
+import nl.aurorion.blockregen.material.MaterialProvider;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public class NexoProvider extends CompatibilityProvider implements MaterialParser {
+import java.lang.reflect.Type;
+
+public class NexoProvider extends CompatibilityProvider implements MaterialProvider {
+
     public NexoProvider(BlockRegenPlugin plugin) {
         super(plugin, "nexo");
         setFeatures("materials", "conditions");
@@ -45,5 +52,28 @@ public class NexoProvider extends CompatibilityProvider implements MaterialParse
             throw new ParseException(String.format("'%s' is not a Nexo block.", input));
         }
         return new NexoMaterial(this.plugin, input);
+    }
+
+    @Override
+    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+        if (!NexoBlocks.isCustomBlock(block)) {
+            return null;
+        }
+
+        CustomBlockMechanic customBlockMechanic = NexoBlocks.customBlockMechanic(block.getBlockData());
+        if (customBlockMechanic == null) {
+            return null;
+        }
+        return new NexoMaterial(plugin, customBlockMechanic.getItemID());
+    }
+
+    @Override
+    public @NonNull Class<?> getClazz() {
+        return NexoMaterial.class;
+    }
+
+    @Override
+    public BlockRegenMaterial createInstance(Type type) {
+        return new NexoMaterial(plugin, null);
     }
 }

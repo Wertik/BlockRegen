@@ -5,15 +5,18 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MaterialManager;
-import nl.aurorion.blockregen.material.MinecraftMaterial;
-import nl.aurorion.blockregen.material.parser.MaterialParser;
+import nl.aurorion.blockregen.material.MaterialProvider;
+import nl.aurorion.blockregen.material.builtin.MinecraftMaterial;
 import nl.aurorion.blockregen.mock.MockBlockRegenPlugin;
 import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -51,7 +54,7 @@ public class MaterialParsingTests {
         }
     }
 
-    static class MockMaterialParser implements MaterialParser {
+    static class MockMaterialParser implements MaterialProvider {
 
         @Getter
         @Setter
@@ -75,12 +78,27 @@ public class MaterialParsingTests {
         public boolean containsColon() {
             return this.containsColon;
         }
+
+        @Override
+        public @NonNull Class<?> getClazz() {
+            return MockMaterial.class;
+        }
+
+        @Override
+        public BlockRegenMaterial createInstance(Type type) {
+            return new MockMaterial("id");
+        }
+
+        @Override
+        public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+            return null;
+        }
     }
 
     public MaterialParsingTests() {
-        MaterialParser mockParser = new MockMaterialParser(false);
-        materialManager.registerParser(null, mockParser);
-        materialManager.registerParser("mock", mockParser);
+        MaterialProvider mockProvider = new MockMaterialParser(false);
+        materialManager.register(null, mockProvider);
+        materialManager.register("mock", mockProvider);
     }
 
     @Test
@@ -233,9 +251,9 @@ public class MaterialParsingTests {
     @Test
     public void parsesMaterialsWithColon() {
         // Expect to return namespace:first for the material id.
-        ((MockMaterialParser) Objects.requireNonNull(materialManager.getParser("mock"))).setContainsColon(true);
+        ((MockMaterialParser) Objects.requireNonNull(materialManager.getProvider("mock"))).setContainsColon(true);
         PlacementMaterial placementMaterial = materialManager.parsePlacementMaterial("mock:namespace:first;mock:namespace:second");
-        ((MockMaterialParser) Objects.requireNonNull(materialManager.getParser("mock"))).setContainsColon(false);
+        ((MockMaterialParser) Objects.requireNonNull(materialManager.getProvider("mock"))).setContainsColon(false);
 
         assertEquals(2, placementMaterial.getValuedMaterials().size());
 
@@ -255,9 +273,9 @@ public class MaterialParsingTests {
     @Test
     public void parsesMaterialsWithColonAndChance() {
         // Expect to return namespace:first for the material id.
-        ((MockMaterialParser) Objects.requireNonNull(materialManager.getParser("mock"))).setContainsColon(true);
+        ((MockMaterialParser) Objects.requireNonNull(materialManager.getProvider("mock"))).setContainsColon(true);
         PlacementMaterial placementMaterial = materialManager.parsePlacementMaterial("mock:namespace:first:40;mock:namespace:second:60");
-        ((MockMaterialParser) Objects.requireNonNull(materialManager.getParser("mock"))).setContainsColon(false);
+        ((MockMaterialParser) Objects.requireNonNull(materialManager.getProvider("mock"))).setContainsColon(false);
 
         assertEquals(2, placementMaterial.getValuedMaterials().size());
 

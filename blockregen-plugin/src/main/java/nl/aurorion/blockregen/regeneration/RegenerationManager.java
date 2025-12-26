@@ -4,16 +4,20 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.AutoSaveTask;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
 import nl.aurorion.blockregen.region.struct.RegenerationArea;
-import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,11 +85,14 @@ public class RegenerationManager {
         Objects.requireNonNull(block);
         Objects.requireNonNull(preset);
 
-        // Read the original material
-        NodeData nodeData = plugin.getVersionManager().createNodeData();
-        nodeData.load(block);
+        BlockRegenMaterial material = plugin.getMaterialManager().loadMaterial(block);
 
-        RegenerationProcess process = new RegenerationProcess(block, nodeData, preset);
+        if (material == null) {
+            // todo: well what now, the preset probably already matched?
+            throw new IllegalStateException("Shouldn't return null...");
+        }
+
+        RegenerationProcess process = new RegenerationProcess(block, preset, material);
 
         process.setWorldName(block.getWorld().getName());
         if (region != null) {
@@ -172,9 +179,19 @@ public class RegenerationManager {
     }
 
     public void save(boolean sync) {
+        final File dataFile = new File(plugin.getDataFolder(), "/Data.json");
 
         if (cache.isEmpty()) {
             log.fine(() -> "No processes to save.");
+            try {
+                Files.write(dataFile.toPath(), "[]\n".getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+            } catch (IOException e) {
+                log.severe(() -> "Failed to create empty Data.json.");
+
+                // Try to force delete.
+                //noinspection ResultOfMethodCallIgnored
+                dataFile.delete();
+            }
             return;
         }
 
@@ -185,7 +202,7 @@ public class RegenerationManager {
 
         final List<RegenerationProcess> finalCache = new ArrayList<>(cache.values());
 
-        CompletableFuture<Void> future = plugin.getGsonHelper().save(finalCache, plugin.getDataFolder().getPath() + "/Data.json")
+        CompletableFuture<Void> future = plugin.getGsonHelper().save(finalCache, dataFile.toPath())
                 .exceptionally(e -> {
                     log.severe("Could not save processes: " + e.getMessage());
                     e.printStackTrace();

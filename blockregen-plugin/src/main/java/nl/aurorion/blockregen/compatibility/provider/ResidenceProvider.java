@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.compatibility.impl;
+package nl.aurorion.blockregen.compatibility.provider;
 
 import com.bekvon.bukkit.residence.api.ResidenceApi;
 import com.bekvon.bukkit.residence.containers.Flags;

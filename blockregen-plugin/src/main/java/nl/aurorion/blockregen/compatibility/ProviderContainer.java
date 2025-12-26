@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ProviderContainer<T extends CompatibilityProvider> {
@@ -30,9 +31,20 @@ public class ProviderContainer<T extends CompatibilityProvider> {
         this.supplier = provider;
     }
 
-    public void load() throws IllegalStateException {
-        this.instance = supplier.get();
-        instance.onLoad();
+    public void load() throws ProviderLoadException {
+        try {
+            this.instance = supplier.get();
+            instance.onLoad();
+        } catch (Exception e) {
+            this.instance = null;
+            throw new ProviderLoadException("Failed to load provider for plugin " + this.pluginName, e);
+        }
+    }
+
+    public void ifLoaded(Consumer<T> consumer) {
+        if (this.isLoaded()) {
+            consumer.accept(this.instance);
+        }
     }
 
     public T get() {

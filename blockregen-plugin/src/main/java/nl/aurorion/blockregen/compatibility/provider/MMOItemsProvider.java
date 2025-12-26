@@ -1,24 +1,28 @@
-package nl.aurorion.blockregen.compatibility.impl;
+package nl.aurorion.blockregen.compatibility.provider;
 
-import nl.aurorion.blockregen.conditional.Condition;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.Type;
 import net.Indyuce.mmoitems.api.block.CustomBlock;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
-import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.compatibility.material.MMOIItemsMaterial;
+import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
-import nl.aurorion.blockregen.material.MMOIItemsMaterial;
-import nl.aurorion.blockregen.material.parser.MaterialParser;
+import nl.aurorion.blockregen.material.MaterialProvider;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MMOItemsProvider extends CompatibilityProvider implements MaterialParser {
+public class MMOItemsProvider extends CompatibilityProvider implements MaterialProvider {
     public MMOItemsProvider(BlockRegenPlugin plugin) {
         super(plugin, "mmoitems");
         setFeatures("materials", "conditions");
@@ -102,5 +106,22 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
         }
 
         return new MMOIItemsMaterial(plugin, id);
+    }
+
+    @Override
+    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+        Optional<CustomBlock> fromBlock = MMOItems.plugin.getCustomBlocks().getFromBlock(block.getBlockData());
+        return fromBlock.map(customBlock -> new MMOIItemsMaterial(plugin, customBlock.getId())).orElse(null);
+
+    }
+
+    @Override
+    public @NonNull Class<?> getClazz() {
+        return MMOIItemsMaterial.class;
+    }
+
+    @Override
+    public BlockRegenMaterial createInstance(java.lang.reflect.Type type) {
+        return new MMOIItemsMaterial(plugin, -1);
     }
 }
