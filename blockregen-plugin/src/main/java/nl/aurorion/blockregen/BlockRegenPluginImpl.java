@@ -26,7 +26,7 @@ import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
 import nl.aurorion.blockregen.regeneration.RegenerationEventHandlerImpl;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
-import nl.aurorion.blockregen.util.Versions;
+import nl.aurorion.blockregen.util.BukkitVersions;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
 import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.version.VersionManagerImpl;
@@ -125,7 +125,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         files.load();
         configureLogger();
 
-        log.info("Running on version " + Versions.CURRENT_VERSION);
+        log.info("Running on version " + BukkitVersions.CURRENT_VERSION);
 
         versionManager.load();
 
@@ -292,7 +292,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         // BlockPhysicsEvent#getSourceBlock is only present on >1.13.2
         // On lower versions simply disable all the features related to physics.
-        if (Versions.isCurrentAbove("1.13.2", true)) {
+        if (BukkitVersions.isCurrentAbove("1.13.2", true)) {
             physicsListener.load();
             pluginManager.registerEvents(physicsListener, this);
         } else {

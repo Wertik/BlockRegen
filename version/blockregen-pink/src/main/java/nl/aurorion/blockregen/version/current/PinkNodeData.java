@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.version.current;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.util.Versions;
+import nl.aurorion.blockregen.util.BukkitVersions;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.FlowerBed;
@@ -14,7 +14,7 @@ import org.bukkit.block.data.type.PinkPetals;
 @Setter
 public class PinkNodeData extends LatestNodeData {
 
-    private final static boolean FLOWER_BED = Versions.isCurrentAbove("1.21.5", true);
+    private final static boolean FLOWER_BED = BukkitVersions.isCurrentAbove("1.21.5", true);
 
     private Integer flowerAmount;
 

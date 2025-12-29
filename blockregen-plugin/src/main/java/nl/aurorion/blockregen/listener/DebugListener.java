@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.util.Versions;
+import nl.aurorion.blockregen.util.BukkitVersions;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventPriority;
@@ -45,49 +45,46 @@ public class DebugListener implements Listener {
     public void register() {
         setRegistered(true);
 
-        this.plugin.getServer().getPluginManager().registerEvent(BlockBreakEvent.class, this, EventPriority.MONITOR, (listener, event) -> {
-            suppressThrows(() -> {
-                if (!(event instanceof BlockBreakEvent)) {
-                    return;
-                }
-                BlockBreakEvent blockBreakEvent = (BlockBreakEvent) event;
-                log.fine(String.format("BlockBreakEvent: %s, %s", blockBreakEvent.isCancelled(), blockBreakEvent.getBlock().getType()));
-            });
-        }, this.plugin);
-
-        this.plugin.getServer().getPluginManager().registerEvent(EntitySpawnEvent.class, this, EventPriority.MONITOR, (listener, event) -> {
-            suppressThrows(() -> {
-                if (!(event instanceof EntitySpawnEvent)) {
-                    return;
-                }
-                EntitySpawnEvent entitySpawnEvent = (EntitySpawnEvent) event;
-
-                Entity entity = entitySpawnEvent.getEntity();
-
-                if (!(entity instanceof Item)) {
-                    return;
-                }
-
-                Item item = ((Item) entity);
-                ItemStack itemStack = item.getItemStack();
-
-                log.fine(String.format("EntitySpawnEvent: %s, %sx%d", entitySpawnEvent.isCancelled(), itemStack.getType(), itemStack.getAmount()));
-            });
-        }, this.plugin);
-
-        // BlockDropItemEvent added in 1.13
-        if (Versions.isCurrentAbove("1.13", true)) {
-            this.plugin.getServer().getPluginManager().registerEvent(BlockDropItemEvent.class, this, EventPriority.MONITOR, (listener, event) -> {
-                suppressThrows(() -> {
-                    if (!(event instanceof BlockDropItemEvent)) {
+        this.plugin.getServer().getPluginManager().registerEvent(BlockBreakEvent.class, this, EventPriority.MONITOR,
+                (listener, event) -> suppressThrows(() -> {
+                    if (!(event instanceof BlockBreakEvent)) {
                         return;
                     }
-                    BlockDropItemEvent blockDropItemEvent = (BlockDropItemEvent) event;
-                    log.fine(String.format("BlockDropItemEvent: %s, %s [%s]", blockDropItemEvent.isCancelled(), blockDropItemEvent.getBlockState().getType(), blockDropItemEvent.getItems().stream().map(
-                            (i) -> i.getItemStack().getType() + "x" + i.getItemStack().getAmount()
-                    ).collect(Collectors.joining(","))));
-                });
-            }, this.plugin);
+                    BlockBreakEvent blockBreakEvent = (BlockBreakEvent) event;
+                    log.fine(String.format("BlockBreakEvent: %s, %s", blockBreakEvent.isCancelled(), blockBreakEvent.getBlock().getType()));
+                }), this.plugin);
+
+        this.plugin.getServer().getPluginManager().registerEvent(EntitySpawnEvent.class, this, EventPriority.MONITOR,
+                (listener, event) -> suppressThrows(() -> {
+                    if (!(event instanceof EntitySpawnEvent)) {
+                        return;
+                    }
+                    EntitySpawnEvent entitySpawnEvent = (EntitySpawnEvent) event;
+
+                    Entity entity = entitySpawnEvent.getEntity();
+
+                    if (!(entity instanceof Item)) {
+                        return;
+                    }
+
+                    Item item = ((Item) entity);
+                    ItemStack itemStack = item.getItemStack();
+
+                    log.fine(String.format("EntitySpawnEvent: %s, %sx%d", entitySpawnEvent.isCancelled(), itemStack.getType(), itemStack.getAmount()));
+                }), this.plugin);
+
+        // BlockDropItemEvent added in 1.13
+        if (BukkitVersions.isCurrentAbove("1.13", true)) {
+            this.plugin.getServer().getPluginManager().registerEvent(BlockDropItemEvent.class, this, EventPriority.MONITOR,
+                    (listener, event) -> suppressThrows(() -> {
+                        if (!(event instanceof BlockDropItemEvent)) {
+                            return;
+                        }
+                        BlockDropItemEvent blockDropItemEvent = (BlockDropItemEvent) event;
+                        log.fine(String.format("BlockDropItemEvent: %s, %s [%s]", blockDropItemEvent.isCancelled(), blockDropItemEvent.getBlockState().getType(), blockDropItemEvent.getItems().stream().map(
+                                (i) -> i.getItemStack().getType() + "x" + i.getItemStack().getAmount()
+                        ).collect(Collectors.joining(","))));
+                    }), this.plugin);
         }
     }
 

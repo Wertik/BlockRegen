@@ -6,7 +6,7 @@ import com.cryptomorin.xseries.particles.XParticle;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.particle.Particle;
 import nl.aurorion.blockregen.particle.ParticleShapes;
-import nl.aurorion.blockregen.util.Versions;
+import nl.aurorion.blockregen.util.BukkitVersions;
 import nl.aurorion.blockregen.version.VersionedEffect;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -29,7 +29,7 @@ public class FlameCrown implements Particle {
 
         Location center = location.clone().add(0.5, 1.2, 0.5);
 
-        boolean isLegacy = Versions.isCurrentBelow("1.8", true);
+        boolean isLegacy = BukkitVersions.isCurrentBelow("1.8", true);
 
         double radius = 0.5;
         double rate = 10;

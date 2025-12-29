@@ -5,9 +5,8 @@ import com.cryptomorin.xseries.particles.Particles;
 import com.cryptomorin.xseries.particles.XParticle;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.particle.Particle;
-import nl.aurorion.blockregen.util.Versions;
+import nl.aurorion.blockregen.util.BukkitVersions;
 import nl.aurorion.blockregen.version.VersionedEffect;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +27,7 @@ public class FireCube implements Particle {
             return;
         }
 
-        boolean isLegacy = Versions.isCurrentBelow("1.8", true);
+        boolean isLegacy = BukkitVersions.isCurrentBelow("1.8", true);
 
         Location start = location.clone();
         Location end = location.clone().add(1.2, 1.2, 1.2);

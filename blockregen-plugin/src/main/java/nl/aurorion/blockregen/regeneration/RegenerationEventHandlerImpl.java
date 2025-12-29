@@ -372,7 +372,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         List<ItemStack> vanillaDrops = new ArrayList<>(block.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
         // Cancels item drops below 1.8.
-        if (Versions.isCurrentBelow("1.8", true)) {
+        if (BukkitVersions.isCurrentBelow("1.8", true)) {
             block.setType(Material.AIR);
         }
 

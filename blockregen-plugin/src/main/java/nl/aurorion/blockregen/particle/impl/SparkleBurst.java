@@ -6,7 +6,7 @@ import com.cryptomorin.xseries.particles.XParticle;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.particle.Particle;
 import nl.aurorion.blockregen.particle.ParticleShapes;
-import nl.aurorion.blockregen.util.Versions;
+import nl.aurorion.blockregen.util.BukkitVersions;
 import nl.aurorion.blockregen.version.VersionedEffect;
 import org.bukkit.Location;
 import org.jspecify.annotations.NonNull;
@@ -26,7 +26,7 @@ public class SparkleBurst implements Particle {
 
         Location center = location.clone().add(0.5, 0.5, 0.5);
 
-        if (Versions.isCurrentBelow("1.8", true)) {
+        if (BukkitVersions.isCurrentBelow("1.8", true)) {
             ParticleShapes.circle(center, radius, rate, (loc) -> {
                 plugin.getVersionManager().getMethods().playEffect(loc, VersionedEffect.FIREWORK);
             });
