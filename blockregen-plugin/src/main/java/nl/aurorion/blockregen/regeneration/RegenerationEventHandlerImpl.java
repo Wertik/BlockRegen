@@ -116,8 +116,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
         log.fine(() -> String.format("Handling %s.", Locations.locationToString(block.getLocation())));
 
-        BlockRegenMaterial material = plugin.getMaterialManager().getMaterial(block);
-        BlockPreset preset = material == null ? null : plugin.getPresetManager().getPreset(material, area);
+        BlockPreset preset = plugin.getPresetManager().getPreset(block, area);
 
         boolean isConfigured = preset != null;
 
@@ -201,30 +200,28 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         BlockRegenMaterial aboveMaterial = plugin.getMaterialManager().getMaterial(above);
         log.fine(() -> "Above: " + aboveMaterial);
 
-        BlockPreset abovePreset = aboveMaterial == null ? null : plugin.getPresetManager().getPreset(aboveMaterial, area);
-        if (abovePreset != null && abovePreset.isHandleCrops()) {
-            XMaterial aboveType = plugin.getBlockType(above);
+        BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, area);
+        if (aboveMaterial != null && abovePreset != null && abovePreset.isHandleCrops()) {
+            XMaterial aboveType = aboveMaterial.getType();
 
-            if (aboveType != null) {
-                if (Blocks.isMultiblockCrop(aboveType)) {
-                    // Multiblock crops (cactus, sugarcane,...)
-                    handleMultiblockCrop(above, player, abovePreset, area, vanillaExperience);
-                } else if (XBlock.isCrop(aboveType) || Blocks.reliesOnBlockBelow(aboveType)) {
-                    // Single crops (wheat, carrots,...)
-                    log.fine(() -> "Handling block above...");
+            if (Blocks.isMultiblockCrop(aboveType)) {
+                // Multiblock crops (cactus, sugarcane,...)
+                handleMultiblockCrop(above, player, abovePreset, area, vanillaExperience);
+            } else if (XBlock.isCrop(aboveType) || Blocks.reliesOnBlockBelow(aboveType)) {
+                // Single crops (wheat, carrots,...)
+                log.fine(() -> "Handling block above...");
 
-                    List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
+                List<ItemStack> vanillaDrops = new ArrayList<>(above.getDrops(plugin.getVersionManager().getMethods().getItemInMainHand(player)));
 
-                    RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, aboveMaterial, abovePreset, area);
-                    process.start();
+                RegenerationProcess process = plugin.getRegenerationManager().createProcess(above, aboveMaterial, abovePreset, area);
+                process.start();
 
-                    // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
-                    handleRewards(above.getState(), abovePreset, player, vanillaDrops, 0);
-                }
+                // Note: none of the blocks seem to drop experience when broken, should be safe to assume 0
+                handleRewards(above.getState(), abovePreset, player, vanillaDrops, 0);
             }
         }
 
-        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, material, preset, area);
+        RegenerationProcess process = plugin.getRegenerationManager().createProcess(block, preset, area);
         handleBreak(process, preset, block, player, vanillaExperience);
     }
 

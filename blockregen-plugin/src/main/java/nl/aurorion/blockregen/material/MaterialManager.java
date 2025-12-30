@@ -30,15 +30,13 @@ public class MaterialManager {
 
     private final LinkedHashMap<String, MaterialProvider> registeredProviders = new LinkedHashMap<>();
 
-    private final Set<BlockRegenMaterial> cachedMaterials = new HashSet<>();
     private final Map<String, BlockRegenMaterial> cachedMaterialInputs = new HashMap<>();
 
     public MaterialManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
     }
 
-    private <T extends BlockRegenMaterial> T cacheEntry(T value, @Nullable String input) {
-        cachedMaterials.add(value);
+    private <T extends BlockRegenMaterial> T cacheEntry(String input, T value) {
         if (input != null) {
             cachedMaterialInputs.put(input, value);
         }
@@ -99,16 +97,6 @@ public class MaterialManager {
 
     @Nullable
     public BlockRegenMaterial getMaterial(@NotNull Block block) {
-
-        for (BlockRegenMaterial material : this.cachedMaterials) {
-            if (material.check(block)) {
-                log.fine(() -> "Material cache hit " + material);
-                return material;
-            }
-        }
-
-        log.fine(() -> "Material cache miss");
-
         Iterator<Map.Entry<String, MaterialProvider>> it = reversedEntryIterator();
         while (it.hasNext()) {
             Map.Entry<String, MaterialProvider> entry = it.next();
@@ -120,7 +108,7 @@ public class MaterialManager {
             }
 
             log.fine(() -> "Loaded material '" + material + "' with loader '" + entry.getKey() + "'");
-            return cacheEntry(material, null);
+            return material;
         }
 
         return null;
@@ -386,7 +374,7 @@ public class MaterialManager {
             return cached;
         }
 
-        return cacheEntry(provider.parseMaterial(input), input);
+        return cacheEntry(input, provider.parseMaterial(input));
     }
 
     @NotNull

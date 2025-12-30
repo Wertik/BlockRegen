@@ -29,6 +29,10 @@ public class Blocks {
         XMaterial type = plugin.getVersionManager().getMethods().getType(block);
         switch (type) {
             case TALL_GRASS:
+            case LILAC:
+            case ROSE_BUSH:
+            case SUNFLOWER:
+            case PEONY:
             case LARGE_FERN:
                 return true;
             default:
@@ -43,6 +47,11 @@ public class Blocks {
             case BAMBOO:
             case KELP_PLANT:
             case KELP:
+            case LILAC:
+            case ROSE_BUSH:
+            case SUNFLOWER:
+            case PEONY:
+            case PITCHER_PLANT:
             case TALL_SEAGRASS:
             case LARGE_FERN:
             case SUGAR_CANE:
