@@ -2,7 +2,21 @@ name: BlockRegen
 main: nl.aurorion.blockregen.BlockRegenPluginImpl
 version: ${project.version}
 authors: [ Aurorion, Wertik1206 ]
-softdepend: [ Mutliverse-Core, Residence, Vault, WorldEdit, Towny, Jobs, GriefPrevention, PlaceholderAPI, WorldGuard ]
+softdepend:
+  - Mutliverse-Core
+  - Residence
+  - Vault
+  - WorldEdit
+  - Towny
+  - Jobs
+  - GriefPrevention
+  - PlaceholderAPI
+  - WorldGuard
+  - Nexo
+  - ItemsAdder
+  - Oraxen
+  - MythicMobs
+  - MMOItems
 api-version: "1.13"
 commands:
   blockregen:
