@@ -27,6 +27,8 @@ import nl.aurorion.blockregen.regeneration.RegenerationEventHandlerImpl;
 import nl.aurorion.blockregen.regeneration.RegenerationManager;
 import nl.aurorion.blockregen.region.RegionManager;
 import nl.aurorion.blockregen.util.BukkitVersions;
+import nl.aurorion.blockregen.util.GsonHelper;
+import nl.aurorion.blockregen.util.SubclassAdapter;
 import nl.aurorion.blockregen.version.NodeDataInstanceCreator;
 import nl.aurorion.blockregen.version.VersionManager;
 import nl.aurorion.blockregen.version.VersionManagerImpl;

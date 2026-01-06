@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen;
+package nl.aurorion.blockregen.util;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;

@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.mock;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.Getter;
 import nl.aurorion.blockregen.ConsoleHandler;
-import nl.aurorion.blockregen.GsonHelper;
+import nl.aurorion.blockregen.util.GsonHelper;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.regeneration.RegenerationEventHandler;
 import nl.aurorion.blockregen.version.VersionManager;

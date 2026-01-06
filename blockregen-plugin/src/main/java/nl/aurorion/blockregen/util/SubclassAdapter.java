@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen;
+package nl.aurorion.blockregen.util;
 
 import com.google.gson.*;
 import lombok.extern.java.Log;
