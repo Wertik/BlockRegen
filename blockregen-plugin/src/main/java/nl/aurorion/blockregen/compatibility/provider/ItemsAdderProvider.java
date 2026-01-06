@@ -15,7 +15,6 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Type;
@@ -35,7 +34,7 @@ public class ItemsAdderProvider extends CompatibilityProvider implements ItemPro
             String id = (String) node;
 
             if (CustomStack.getInstance(id) == null) {
-                throw new ParseException("Invalid ItemsAdder item '" + id + "'.");
+                throw new ParseException("Invalid ItemsAdder item '" + id + "'.", true);
             }
 
             return Condition.of((ctx) -> {
@@ -50,21 +49,21 @@ public class ItemsAdderProvider extends CompatibilityProvider implements ItemPro
      * @throws ParseException If parsing fails.
      */
     @Override
-    public @NotNull BlockRegenMaterial parseMaterial(String input) {
+    public @NotNull BlockRegenMaterial parseMaterial(@NotNull String input) {
         if (!CustomBlock.isInRegistry(input)) {
-            throw new ParseException(String.format("'%s' is not a valid ItemsAdder custom block.", input));
+            throw new ParseException(String.format("'%s' is not a valid ItemsAdder custom block.", input), true);
         }
         return new ItemsAdderMaterial(input);
     }
 
     @Override
-    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+    public @Nullable BlockRegenMaterial load(@NotNull Block block) {
         CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
         return customBlock == null ? null : new ItemsAdderMaterial(customBlock.getNamespacedID());
     }
 
     @Override
-    public ItemStack createItem(@NonNull String id, @NonNull Function<String, String> parser, int amount) {
+    public ItemStack createItem(@NotNull String id, @NotNull Function<String, String> parser, int amount) {
         CustomStack builder = CustomStack.getInstance(id);
         builder.setDisplayName(parser.apply(builder.getDisplayName()));
         ItemStack item = builder.getItemStack();
@@ -80,7 +79,7 @@ public class ItemsAdderProvider extends CompatibilityProvider implements ItemPro
     }
 
     @Override
-    public boolean exists(@NonNull String id) {
+    public boolean exists(@NotNull String id) {
         return CustomStack.isInRegistry(id);
     }
 
@@ -90,7 +89,7 @@ public class ItemsAdderProvider extends CompatibilityProvider implements ItemPro
     }
 
     @Override
-    public @NonNull Class<?> getClazz() {
+    public @NotNull Class<?> getClazz() {
         return ItemsAdderMaterial.class;
     }
 

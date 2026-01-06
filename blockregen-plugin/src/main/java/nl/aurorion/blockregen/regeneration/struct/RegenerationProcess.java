@@ -259,7 +259,12 @@ public class RegenerationProcess {
             }
         }
 
-        original.place(block);
+        try {
+            original.place(block);
+        } catch (Exception e) {
+            log.fine("Failed to revert process " + this);
+        }
+
         log.fine(() -> String.format("Reverted block for %s", this));
     }
 
@@ -326,14 +331,14 @@ public class RegenerationProcess {
     // Convert stored Location pointer to the Block at the location.
     public boolean convertLocation() {
         if (location == null) {
-            log.severe("Could not load location for process " + this);
+            log.warning("Could not load location for process " + this);
             return false;
         }
 
         Block block = this.location.toBlock();
 
         if (block == null) {
-            log.severe("Could not load location for process " + this + ", world is invalid or not loaded.");
+            log.warning("Could not load location for process " + this + ", world is invalid or not loaded.");
             return false;
         }
 
@@ -347,7 +352,7 @@ public class RegenerationProcess {
         BlockPreset preset = plugin.getPresetManager().getPreset(presetName);
 
         if (preset == null) {
-            log.severe("Could not load process " + this + ", it's preset '" + presetName + "' is invalid.");
+            log.warning("Could not load process " + this + ", it's preset '" + presetName + "' is invalid.");
             return false;
         }
 

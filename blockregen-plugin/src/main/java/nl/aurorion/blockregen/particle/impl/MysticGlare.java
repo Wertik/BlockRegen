@@ -9,7 +9,7 @@ import nl.aurorion.blockregen.particle.ParticleShapes;
 import nl.aurorion.blockregen.util.BukkitVersions;
 import nl.aurorion.blockregen.version.VersionedEffect;
 import org.bukkit.Location;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public class MysticGlare implements Particle {
 
@@ -20,7 +20,7 @@ public class MysticGlare implements Particle {
     }
 
     @Override
-    public void display(@NonNull Location location) {
+    public void display(@NotNull Location location) {
         double rate = 10;
         double radius = 0.5;
 

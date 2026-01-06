@@ -17,7 +17,7 @@ public interface MaterialProvider extends InstanceCreator<BlockRegenMaterial> {
      * @throws ParseException if the provided {@code input} is not a valid oraxen block id
      */
     @NotNull
-    BlockRegenMaterial parseMaterial(String input);
+    BlockRegenMaterial parseMaterial(@NotNull String input);
 
     // Return null if the block isn't recognized by this loader.
     @Nullable

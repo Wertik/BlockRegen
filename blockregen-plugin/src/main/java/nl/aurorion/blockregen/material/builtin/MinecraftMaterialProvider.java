@@ -12,7 +12,6 @@ import nl.aurorion.blockregen.util.Parsing;
 import nl.aurorion.blockregen.version.api.NodeData;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Type;
@@ -30,7 +29,7 @@ public class MinecraftMaterialProvider implements MaterialProvider {
      * @throws ParseException If the parsing fails.
      */
     @Override
-    public @NotNull BlockRegenMaterial parseMaterial(String input) {
+    public @NotNull BlockRegenMaterial parseMaterial(@NotNull String input) {
         log.fine(() -> String.format("Parsing MC material from '%s'", input));
 
         boolean loadData = false;
@@ -53,7 +52,7 @@ public class MinecraftMaterialProvider implements MaterialProvider {
     }
 
     @Override
-    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+    public @Nullable BlockRegenMaterial load(@NotNull Block block) {
         log.fine(() -> "Loading MC material from block " + Locations.locationToString(block.getLocation()));
 
         XMaterial material = plugin.getVersionManager().getMethods().getType(block);
@@ -71,7 +70,7 @@ public class MinecraftMaterialProvider implements MaterialProvider {
     }
 
     @Override
-    public @NonNull Class<?> getClazz() {
+    public @NotNull Class<?> getClazz() {
         return MinecraftMaterial.class;
     }
 }

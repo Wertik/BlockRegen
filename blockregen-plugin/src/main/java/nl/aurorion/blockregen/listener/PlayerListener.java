@@ -4,6 +4,7 @@ import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Message;
+import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.builtin.MinecraftMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -49,12 +50,14 @@ public class PlayerListener implements Listener {
         if (plugin.getRegenerationManager().hasDataCheck(player)) {
             event.setCancelled(true);
 
-            BlockRegenMaterial material = plugin.getMaterialManager().getMaterial(event.getClickedBlock());
+            Pair<String, BlockRegenMaterial> result = plugin.getMaterialManager().getMaterial(event.getClickedBlock());
 
-            if (material == null) {
+            if (result == null) {
                 Message.UNKNOWN_MATERIAL.send(player);
                 return;
             }
+
+            BlockRegenMaterial material = result.getSecond();
 
             if (material instanceof MinecraftMaterial) {
                 MinecraftMaterial minecraftMaterial = (MinecraftMaterial) material;
@@ -65,7 +68,7 @@ public class PlayerListener implements Listener {
                     );
                 }
             } else {
-                Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", material.getConfigurationString()));
+                Message.DATA_CHECK.mapAndSend(player, str -> str.replace("%block%", result.getFirst() + ":" + material.getConfigurationString()));
             }
             return;
         }

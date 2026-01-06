@@ -7,7 +7,7 @@ import org.bukkit.block.Block;
 public interface BlockRegenMaterial {
 
     /**
-     * Return true if the block matches this material, false otherwise.
+     * Return true if the block matches this block, false otherwise.
      */
     boolean check(Block block);
 

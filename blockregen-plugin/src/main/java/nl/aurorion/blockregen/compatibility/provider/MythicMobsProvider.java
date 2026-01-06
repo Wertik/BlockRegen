@@ -7,7 +7,7 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -22,7 +22,7 @@ public class MythicMobsProvider extends CompatibilityProvider implements ItemPro
     }
 
     @Override
-    public ItemStack createItem(@NonNull String id, @NonNull Function<String, String> parser, int amount) {
+    public ItemStack createItem(@NotNull String id, @NotNull Function<String, String> parser, int amount) {
         Optional<MythicItem> item = MythicBukkit.inst().getItemManager().getItem(id);
 
         if (!item.isPresent()) {
@@ -39,7 +39,7 @@ public class MythicMobsProvider extends CompatibilityProvider implements ItemPro
     }
 
     @Override
-    public boolean exists(@NonNull String id) {
+    public boolean exists(@NotNull String id) {
         return MythicBukkit.inst().getItemManager().getItem(id).isPresent();
     }
 }

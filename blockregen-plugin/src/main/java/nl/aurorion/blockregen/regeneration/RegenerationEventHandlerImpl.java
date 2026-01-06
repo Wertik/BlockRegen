@@ -5,6 +5,7 @@ import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.Message;
+import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
 import nl.aurorion.blockregen.compatibility.provider.GriefPreventionProvider;
@@ -197,7 +198,8 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         // Crop possibly above this block.
         Block above = block.getRelative(BlockFace.UP);
 
-        BlockRegenMaterial aboveMaterial = plugin.getMaterialManager().getMaterial(above);
+        Pair<String, BlockRegenMaterial> aboveResult = plugin.getMaterialManager().getMaterial(above);
+        BlockRegenMaterial aboveMaterial = aboveResult == null ? null : aboveResult.getSecond();
         log.fine(() -> "Above: " + aboveMaterial);
 
         BlockPreset abovePreset = plugin.getPresetManager().getPreset(above, area);

@@ -15,7 +15,6 @@ import nl.aurorion.blockregen.material.MaterialProvider;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Type;
@@ -36,7 +35,7 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
             String id = (String) node;
 
             if (!OraxenItems.exists(id)) {
-                throw new ParseException("Invalid Oraxen item '" + id + "'");
+                throw new ParseException("Invalid Oraxen item '" + id + "'", true);
             }
 
             return Condition.of((ctx) -> {
@@ -51,15 +50,15 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
      * @throws ParseException If the parsing fails.
      */
     @Override
-    public @NotNull BlockRegenMaterial parseMaterial(String input) {
+    public @NotNull BlockRegenMaterial parseMaterial(@NotNull String input) {
         if (!OraxenBlocks.isOraxenBlock(input)) {
-            throw new ParseException(String.format("'%s' is not an Oraxen block.", input));
+            throw new ParseException(String.format("'%s' is not an Oraxen block.", input), true);
         }
         return new OraxenMaterial(input);
     }
 
     @Override
-    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+    public @Nullable BlockRegenMaterial load(@NotNull Block block) {
         BlockMechanic blockMechanic = OraxenBlocks.getBlockMechanic(block);
         if (blockMechanic == null) {
             return null;
@@ -68,12 +67,12 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
     }
 
     @Override
-    public @NonNull Class<?> getClazz() {
+    public @NotNull Class<?> getClazz() {
         return OraxenMaterial.class;
     }
 
     @Override
-    public ItemStack createItem(@NonNull String id, @NonNull Function<String, String> parser, int amount) {
+    public ItemStack createItem(@NotNull String id, @NotNull Function<String, String> parser, int amount) {
         ItemBuilder builder = OraxenItems.getItemById(id);
         builder.setDisplayName(parser.apply(builder.getDisplayName()));
         builder.setLore(builder.getLore().stream()
@@ -84,7 +83,7 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
     }
 
     @Override
-    public boolean exists(@NonNull String id) {
+    public boolean exists(@NotNull String id) {
         return OraxenItems.exists(id);
     }
 

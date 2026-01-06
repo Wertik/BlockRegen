@@ -117,7 +117,7 @@ public class CompatibilityManager {
 
         if (reloadPresets && shouldReloadPresets) {
             log.info("Reloading presets due to newly discovered supported plugins...");
-            plugin.getPresetManager().load();
+            plugin.getPresetManager().initialLoad();
         }
     }
 }

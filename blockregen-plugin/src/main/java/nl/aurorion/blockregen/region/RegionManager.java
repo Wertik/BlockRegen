@@ -92,71 +92,6 @@ public class RegionManager {
         return new RegenerationWorld(name, worldName);
     }
 
-    public void reattemptLoad() {
-        if (failedRegions.isEmpty()) {
-            return;
-        }
-
-        log.info("Reattempting to load regions...");
-        int count = failedRegions.size();
-        failedRegions.removeIf(rawRegion -> rawRegion.isReattempt() && loadRegion(rawRegion));
-        log.info("Loaded " + (count - failedRegions.size()) + " of failed regions.");
-    }
-
-    @Nullable
-    private RawRegion loadRaw(@NotNull ConfigurationSection section) {
-        String name = section.getName();
-
-        String minString = section.getString("Min");
-        String maxString = section.getString("Max");
-
-        boolean all = section.getBoolean("All", true);
-        List<String> presets = section.getStringList("Presets");
-        int priority = section.getInt("Priority", 1);
-
-        Boolean disableOtherBreak = ConfigFile.parseOptionalBoolean(section.get("Disable-Other-Break"));
-
-        RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority, disableOtherBreak);
-
-        if (Strings.isNullOrEmpty(minString) || Strings.isNullOrEmpty(maxString)) {
-            this.failedRegions.add(rawRegion);
-            log.severe("Could not load region " + name + ", invalid location strings.");
-            return null;
-        }
-
-        if (!Locations.isLocationLoaded(minString) || !Locations.isLocationLoaded(maxString)) {
-            rawRegion.setReattempt(true);
-            this.failedRegions.add(rawRegion);
-            log.info("World for region " + name + " is not loaded. Reattempting after complete server load.");
-            return null;
-        }
-
-        return rawRegion;
-    }
-
-    private void loadWorldRegion(ConfigurationSection section, String name) {
-        String worldName = section.getString("worldName");
-
-        RegenerationWorld world = new RegenerationWorld(name, worldName);
-        world.setPriority(section.getInt("Priority", 1));
-        world.setAll(section.getBoolean("All", true));
-
-        List<String> presets = section.getStringList("Presets");
-
-        for (String presetName : presets) {
-            BlockPreset preset = plugin.getPresetManager().getPreset(presetName);
-
-            if (preset == null) {
-                log.warning(String.format("Preset %s isn't loaded, but is included in region %s.", presetName, world.getName()));
-            }
-
-            world.addPreset(presetName);
-        }
-
-        log.fine(() -> String.format("Loaded regeneration world %s", world));
-        this.loadedAreas.add(world);
-    }
-
     public void load() {
         this.loadedAreas.clear();
         plugin.getFiles().getRegions().load();
@@ -194,6 +129,21 @@ public class RegionManager {
         log.info("Loaded " + this.loadedAreas.size() + " region(s)...");
     }
 
+    public boolean isRetry() {
+        return !this.failedRegions.isEmpty();
+    }
+
+    public void reattemptLoad() {
+        if (failedRegions.isEmpty()) {
+            return;
+        }
+
+        log.info("Reattempting to load regions...");
+        int count = failedRegions.size();
+        failedRegions.removeIf(rawRegion -> rawRegion.isReattempt() && loadRegion(rawRegion));
+        log.info("Loaded " + (count - failedRegions.size()) + " of failed regions.");
+    }
+
     private boolean loadRegion(RawRegion rawRegion) {
         RegenerationRegion region = rawRegion.build();
 
@@ -217,6 +167,60 @@ public class RegionManager {
         this.sort();
         log.fine(() -> "Loaded region " + region);
         return true;
+    }
+
+    @Nullable
+    private RawRegion loadRaw(@NotNull ConfigurationSection section) {
+        String name = section.getName();
+
+        String minString = section.getString("Min");
+        String maxString = section.getString("Max");
+
+        boolean all = section.getBoolean("All", true);
+        List<String> presets = section.getStringList("Presets");
+        int priority = section.getInt("Priority", 1);
+
+        Boolean disableOtherBreak = ConfigFile.parseOptionalBoolean(section.get("Disable-Other-Break"));
+
+        RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority, disableOtherBreak);
+
+        if (Strings.isNullOrEmpty(minString) || Strings.isNullOrEmpty(maxString)) {
+            this.failedRegions.add(rawRegion);
+            log.severe("Could not load region " + name + ", invalid location strings.");
+            return null;
+        }
+
+        if (!Locations.isLocationLoaded(minString) || !Locations.isLocationLoaded(maxString)) {
+            rawRegion.setReattempt(true);
+            this.failedRegions.add(rawRegion);
+            log.info("World for region " + name + " is not loaded. Reattempting after complete server load.");
+            return null;
+        }
+
+        return rawRegion;
+    }
+
+    private void loadWorldRegion(@NotNull ConfigurationSection section, @NotNull String name) {
+        String worldName = section.getString("worldName");
+
+        RegenerationWorld world = new RegenerationWorld(name, worldName);
+        world.setPriority(section.getInt("Priority", 1));
+        world.setAll(section.getBoolean("All", true));
+
+        List<String> presets = section.getStringList("Presets");
+
+        for (String presetName : presets) {
+            BlockPreset preset = plugin.getPresetManager().getPreset(presetName);
+
+            if (preset == null) {
+                log.warning(String.format("Preset %s isn't loaded, but is included in region %s.", presetName, world.getName()));
+            }
+
+            world.addPreset(presetName);
+        }
+
+        log.fine(() -> String.format("Loaded regeneration world %s", world));
+        this.loadedAreas.add(world);
     }
 
     // Only attempt to reload the presets configured as they could've changed.

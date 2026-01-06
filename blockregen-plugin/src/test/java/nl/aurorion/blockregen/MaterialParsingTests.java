@@ -12,7 +12,6 @@ import nl.aurorion.blockregen.preset.material.PlacementMaterial;
 import nl.aurorion.blockregen.preset.material.TargetMaterial;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -75,7 +74,7 @@ public class MaterialParsingTests {
          * @throws ParseException If the parsing fails.
          */
         @Override
-        public @NotNull BlockRegenMaterial parseMaterial(String input) {
+        public @NotNull BlockRegenMaterial parseMaterial(@NotNull String input) {
             return new MockMaterial(input);
         }
 
@@ -85,7 +84,7 @@ public class MaterialParsingTests {
         }
 
         @Override
-        public @NonNull Class<?> getClazz() {
+        public @NotNull Class<?> getClazz() {
             return MockMaterial.class;
         }
 
@@ -95,7 +94,7 @@ public class MaterialParsingTests {
         }
 
         @Override
-        public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+        public @Nullable BlockRegenMaterial load(@NotNull Block block) {
             return null;
         }
     }

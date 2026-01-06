@@ -15,7 +15,6 @@ import nl.aurorion.blockregen.material.MaterialProvider;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -55,7 +54,7 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
             MMOItem item = MMOItems.plugin.getMMOItem(type, id);
 
             if (item == null) {
-                throw new ParseException("Invalid MMOItems item '" + type + ":" + id + "'.");
+                throw new ParseException("Invalid MMOItems item '" + type + ":" + id + "'.", true);
             }
 
             return Condition.of((ctx) -> {
@@ -91,7 +90,7 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
      * @throws ParseException If parsing fails.
      */
     @Override
-    public @NotNull BlockRegenMaterial parseMaterial(String input) {
+    public @NotNull BlockRegenMaterial parseMaterial(@NotNull String input) {
         int id;
         try {
             id = Integer.parseInt(input);
@@ -102,21 +101,21 @@ public class MMOItemsProvider extends CompatibilityProvider implements MaterialP
         CustomBlock customBlock = MMOItems.plugin.getCustomBlocks().getBlock(id);
 
         if (customBlock == null) {
-            throw new ParseException("Invalid MMOItems block '" + input + "'");
+            throw new ParseException("Invalid MMOItems block '" + input + "'", true);
         }
 
         return new MMOItemsMaterial(id);
     }
 
     @Override
-    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+    public @Nullable BlockRegenMaterial load(@NotNull Block block) {
         Optional<CustomBlock> fromBlock = MMOItems.plugin.getCustomBlocks().getFromBlock(block.getBlockData());
         return fromBlock.map(customBlock -> new MMOItemsMaterial(customBlock.getId())).orElse(null);
 
     }
 
     @Override
-    public @NonNull Class<?> getClazz() {
+    public @NotNull Class<?> getClazz() {
         return MMOItemsMaterial.class;
     }
 

@@ -96,7 +96,7 @@ public class MaterialManager {
     }
 
     @Nullable
-    public BlockRegenMaterial getMaterial(@NotNull Block block) {
+    public Pair<String, BlockRegenMaterial> getMaterial(@NotNull Block block) {
         Iterator<Map.Entry<String, MaterialProvider>> it = reversedEntryIterator();
         while (it.hasNext()) {
             Map.Entry<String, MaterialProvider> entry = it.next();
@@ -108,7 +108,7 @@ public class MaterialManager {
             }
 
             log.fine(() -> "Loaded material '" + material + "' with loader '" + entry.getKey() + "'");
-            return material;
+            return new Pair<>(entry.getKey(), material);
         }
 
         return null;

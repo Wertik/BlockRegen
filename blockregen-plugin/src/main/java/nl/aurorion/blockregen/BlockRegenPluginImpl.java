@@ -176,7 +176,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         gsonHelper = new GsonHelper(gsonBuilder);
 
-        presetManager.load();
+        presetManager.initialLoad();
         regionManager.load();
         regenerationManager.load();
 
@@ -246,7 +246,7 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         Message.load();
 
         files.getBlockList().load();
-        presetManager.load();
+        presetManager.initialLoad();
 
         physicsListener.load();
 

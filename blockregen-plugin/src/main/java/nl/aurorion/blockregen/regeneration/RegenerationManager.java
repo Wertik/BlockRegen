@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.AutoSaveTask;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
 import nl.aurorion.blockregen.regeneration.struct.RegenerationProcess;
@@ -33,6 +34,7 @@ public class RegenerationManager {
     @Getter
     private AutoSaveTask autoSaveTask;
 
+    @Getter
     private boolean retry = false;
 
     private final Set<UUID> bypass = new HashSet<>();
@@ -97,14 +99,14 @@ public class RegenerationManager {
         Objects.requireNonNull(block);
         Objects.requireNonNull(preset);
 
-        BlockRegenMaterial material = plugin.getMaterialManager().getMaterial(block);
+        Pair<String, BlockRegenMaterial> result = plugin.getMaterialManager().getMaterial(block);
 
-        if (material == null) {
+        if (result == null) {
             // todo: well what now, the preset probably already matched?
             throw new IllegalStateException("Shouldn't return null...");
         }
 
-        RegenerationProcess process = new RegenerationProcess(block, preset, material);
+        RegenerationProcess process = new RegenerationProcess(block, preset, result.getSecond());
 
         process.setWorldName(block.getWorld().getName());
         if (region != null) {
@@ -227,47 +229,38 @@ public class RegenerationManager {
         log.fine(() -> "Saved " + finalCache.size() + " regeneration processes..");
     }
 
+    private boolean convertProcess(@NotNull RegenerationProcess process) {
+        return process.convertLocation() && process.convertPreset();
+    }
+
+    private CompletableFuture<List<RegenerationProcess>> loadFromStorage() {
+        return plugin.getGsonHelper().loadListAsync(plugin.getDataFolder().getPath() + "/Data.json", RegenerationProcess.class);
+    }
+
     public void load() {
-        plugin.getGsonHelper().loadListAsync(plugin.getDataFolder().getPath() + "/Data.json", RegenerationProcess.class)
-                .thenAcceptAsync(loadedProcesses ->
-                        Bukkit.getScheduler().runTask(plugin, () -> {
-                            cache.clear();
+        loadFromStorage().thenAcceptAsync(loadedProcesses ->
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    cache.clear();
 
-                            if (loadedProcesses == null) {
-                                return;
+                    if (loadedProcesses == null) {
+                        return;
+                    }
+
+                    if (plugin.getPresetManager().isRetry() && this.retry) {
+                        log.warning("Some process couldn't be loaded, but might be salvageable. Trying again after a complete server load...");
+                    } else {
+                        // Start em
+                        for (RegenerationProcess loadedProcess : loadedProcesses) {
+                            if (loadedProcess != null && convertProcess(loadedProcess)) {
+                                loadedProcess.start();
                             }
-
-                            for (RegenerationProcess process : loadedProcesses) {
-                                if (process == null) {
-                                    log.warning("Failed to load a process from storage. Report this to the maintainer of the plugin.");
-                                    continue;
-                                }
-
-                                if (!process.convertLocation()) {
-                                    this.retry = true;
-                                    log.warning("Failed to prepare process '" + process.getPresetName() + "'.");
-                                    break;
-                                }
-
-                                if (!process.convertPreset()) {
-                                    this.retry = true;
-                                    log.warning("Failed to prepare process '" + process.getId() + "'.");
-                                    break;
-                                }
-                                log.fine(() -> "Prepared regeneration process " + process);
-                            }
-
-                            if (!this.retry) {
-                                // Start em
-                                loadedProcesses.forEach(RegenerationProcess::start);
-                                log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
-                            } else {
-                                log.info("Some processes couldn't load, trying again after a complete server load.");
-                            }
-                        })).exceptionally(e -> {
-                    log.log(Level.SEVERE, "Could not load processes: " + e.getMessage(), e);
-                    return null;
-                });
+                        }
+                        log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
+                    }
+                })).exceptionally(e -> {
+            log.log(Level.SEVERE, "Could not load processes: " + e.getMessage(), e);
+            return null;
+        });
     }
 
     public void reattemptLoad() {
@@ -275,9 +268,26 @@ public class RegenerationManager {
             return;
         }
 
-        load();
-
         this.retry = false;
+
+        loadFromStorage().thenAcceptAsync(loadedProcesses -> {
+            cache.clear();
+
+            if (loadedProcesses == null) {
+                throw new RuntimeException("Could not load processes from storage.");
+            }
+
+            // We can throw away processes that are not valid. Should do no harm.
+            for (RegenerationProcess loadedProcess : loadedProcesses) {
+                if (loadedProcess != null && convertProcess(loadedProcess)) {
+                    loadedProcess.start();
+                }
+            }
+            log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
+        }).exceptionally(e -> {
+            log.log(Level.SEVERE, "Could not load processes: " + e.getMessage(), e);
+            return null;
+        });
     }
 
     @NotNull

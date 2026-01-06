@@ -13,7 +13,6 @@ import nl.aurorion.blockregen.material.MaterialProvider;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Type;
@@ -32,7 +31,7 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
             String id = (String) node;
 
             if (!NexoItems.exists(id)) {
-                throw new ParseException("Invalid Nexo item '" + id + "'");
+                throw new ParseException("Invalid Nexo item '" + id + "'", true);
             }
 
             return Condition.of((ctx) -> {
@@ -47,15 +46,15 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
      * @throws ParseException If parsing fails.
      */
     @Override
-    public @NotNull BlockRegenMaterial parseMaterial(String input) {
+    public @NotNull BlockRegenMaterial parseMaterial(@NotNull String input) {
         if (!NexoBlocks.isCustomBlock(input)) {
-            throw new ParseException(String.format("'%s' is not a Nexo block.", input));
+            throw new ParseException(String.format("'%s' is not a Nexo block.", input), true);
         }
         return new NexoMaterial(input);
     }
 
     @Override
-    public @Nullable BlockRegenMaterial load(@NonNull Block block) {
+    public @Nullable BlockRegenMaterial load(@NotNull Block block) {
         if (!NexoBlocks.isCustomBlock(block)) {
             return null;
         }
@@ -68,7 +67,7 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
     }
 
     @Override
-    public @NonNull Class<?> getClazz() {
+    public @NotNull Class<?> getClazz() {
         return NexoMaterial.class;
     }
 

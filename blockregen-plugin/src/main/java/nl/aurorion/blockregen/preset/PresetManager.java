@@ -82,38 +82,20 @@ public class PresetManager {
         return Collections.unmodifiableMap(presets);
     }
 
-    public void loadSection(ConfigurationSection section) {
-        for (String key : section.getKeys(false)) {
-            log.fine(key);
-            if (Objects.equals(key, "Blocks")) {
-                continue;
-            }
+    public void initialLoad() {
+        this.retry = false;
 
-            try {
-                ConfigurationSection blockSection = section.getConfigurationSection(key);
-                if (blockSection == null) {
-                    log.warning(String.format("Key '%s' is not a valid block section.", key));
-                    continue;
-                }
-                load(blockSection);
-            } catch (Exception e) {
-                log.log(Level.WARNING, String.format("Could not load preset '%s': %s", key, e.getMessage()), e);
+        load();
 
-                // only attempt retrying the load of presets if it makes sense
-                // - compatibility plugin hasn't loaded data yet => retry because of external materials
-                if (e instanceof ParseException) {
-                    ParseException parseException = (ParseException) e;
-                    if (parseException.isShouldRetry()) {
-                        this.retry = true;
-                    }
-                }
-            }
+        if (this.retry) {
+            log.warning("Some presets were not loaded but could be recovered. Retrying after the server loads...");
+        } else {
+            log.info("Loaded " + presets.size() + " block preset(s)...");
+            log.info("Added " + plugin.getEventManager().getLoadedEvents().size() + " event(s)...");
         }
     }
 
-    public void load() {
-        this.retry = false;
-
+    private void load() {
         presets.clear();
 
         // Clear all events before loading.
@@ -130,13 +112,6 @@ public class PresetManager {
         }
 
         loadSection(blocklist);
-
-        if (this.retry) {
-            log.info("Some presets were not loaded. Retrying after the server loads...");
-        }
-
-        log.info("Loaded " + presets.size() + " block preset(s)...");
-        log.info("Added " + plugin.getEventManager().getLoadedEvents().size() + " event(s)...");
     }
 
     public void reattemptLoad() {
@@ -146,16 +121,44 @@ public class PresetManager {
 
         this.retry = false;
 
-        log.info("Reloading presets...");
         load();
+
+        log.info("Loaded " + presets.size() + " block preset(s)...");
+        log.info("Added " + plugin.getEventManager().getLoadedEvents().size() + " event(s)...");
+    }
+
+    public void loadSection(@NotNull ConfigurationSection section) {
+        for (String key : section.getKeys(false)) {
+            if (Objects.equals(key, "Blocks")) {
+                continue;
+            }
+
+            try {
+                ConfigurationSection blockSection = section.getConfigurationSection(key);
+                if (blockSection == null) {
+                    log.warning(String.format("Key '%s' is not a valid block section.", key));
+                    continue;
+                }
+                loadPreset(blockSection);
+            } catch (Exception e) {
+                // only attempt retrying the load of presets if it makes sense
+                // - compatibility plugin hasn't loaded data yet => retry because of external materials
+                if (e instanceof ParseException) {
+                    ParseException parseException = (ParseException) e;
+                    if (parseException.isShouldRetry()) {
+                        this.retry = true;
+                    }
+                }
+
+                log.log(Level.WARNING, String.format("Could not load preset '%s': %s", key, e.getMessage()), e);
+            }
+        }
     }
 
     /**
      * @throws ParseException If parsing fails.
      */
-    public void load(@NotNull ConfigurationSection section) {
-        Objects.requireNonNull(section);
-
+    public void loadPreset(@NotNull ConfigurationSection section) {
         String name = section.getName();
 
         BlockPreset preset = new BlockPreset(name);
@@ -243,6 +246,7 @@ public class PresetManager {
 
         // Conditions
         PresetConditions conditions = new PresetConditions();
+
         // Tools
         String toolsRequired = section.getString("tool-required");
         if (!Strings.isNullOrEmpty(toolsRequired)) {
