@@ -13,6 +13,7 @@ import nl.aurorion.blockregen.region.struct.RegenerationRegion;
 import nl.aurorion.blockregen.region.struct.RegenerationWorld;
 import nl.aurorion.blockregen.util.Colors;
 import nl.aurorion.blockregen.util.Locations;
+import nl.aurorion.blockregen.util.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,43 +29,85 @@ import java.util.stream.Collectors;
 
 public class Commands implements CommandExecutor {
 
-    private static final String HELP = "&8&m        &r &3BlockRegen &f%version% &8&m        &r"
-            + "\n&3/%label% reload &8- &7Reload the plugin."
-            + "\n&3/%label% debug &8- &7Turn on debug. Receive debug messages in chat."
-            + "\n&3/%label% bypass &8- &7Bypass block regeneration."
-            + "\n&3/%label% check &8- &7Check the correct material name to use. Just hit a block."
-            + "\n&3/%label% tools &8- &7Gives you tools for regions."
-            + "\n&3/%label% regions &8- &7List regions."
-            + "\n&3/%label% region set <region> &8- &7Create a region from your selection."
-            + "\n&3/%label% region world <region> <worldName> &8- &7Create a region for the world."
-            + "\n&3/%label% region all <region> &8- &7Switch 'all presets' mode."
-            + "\n&3/%label% region break <region> <true/false/unset> &8- &7Set 'disable other break'."
-            + "\n&3/%label% region add <region> <preset> &8- &7Add a preset to the region."
-            + "\n&3/%label% region remove <region> <preset> &8- &7Remove a preset from region."
-            + "\n&3/%label% region clear <region> &8- &7Clear all presets from the region."
-            + "\n&3/%label% region priority <region> <priority> &8- &7Set the priority of the region."
-            + "\n&3/%label% region copy <region-from> <region-to> &8- &7Copy configured presets from one region to another."
-            + "\n&3/%label% region delete <region> &8- &7Delete a region."
-            + "\n&3/%label% regen (-p <preset>) (-r <region>) (-w <world>) &8- &7Regenerate presets based on argument switches."
-            + "\n&3/%label% events &8- &7Event management."
-            + "\n&3/%label% stats &8- &7Print statistics about currently running regeneration processes."
-            + "\n&3/%label% discord &8- &7BlockRegen discord invite. Ask for support there.";
+    private static final String HEADER = "&8&m        &r &3BlockRegen &f%version% &8&m        &r\n";
+
+    enum SubCommandHelp {
+        RELOAD("&3/%label% reload &8- &7Reload the plugin."),
+        DEBUG("&3/%label% debug &8- &7Turn on debug. Receive debug messages in chat."),
+        BYPASS("&3/%label% bypass &8- &7Bypass block regeneration."),
+        CHECK("&3/%label% check &8- &7Check the correct material name to use. Just hit a block."),
+        TOOLS("&3/%label% tools &8- &7Gives you tools for regions."),
+        REGIONS("blockregen.region", "&3/%label% regions &8- &7List regions."),
+        REGION_SET("blockregen.region", "&3/%label% region set <region> &8- &7Create a region from your selection."),
+        REGION_WORLD("blockregen.region", "&3/%label% region world <region> <worldName> &8- &7Create a region for the world."),
+        REGION_ALL("blockregen.region", "&3/%label% region all <region> &8- &7Switch 'all presets' mode."),
+        REGION_BREAK("blockregen.region", "&3/%label% region break <region> <true/false/unset> &8- &7Set 'disable other break'."),
+        REGION_ADD("blockregen.region", "&3/%label% region add <region> <preset> &8- &7Add a preset to the region."),
+        REGION_REMOVE("blockregen.region", "&3/%label% region remove <region> <preset> &8- &7Remove a preset from region."),
+        REGION_CLEAR("blockregen.region", "&3/%label% region clear <region> &8- &7Clear all presets from the region."),
+        REGION_PRIORITY("blockregen.region", "&3/%label% region priority <region> <priority> &8- &7Set the priority of the region."),
+        REGION_COPY("blockregen.region", "&3/%label% region copy <region-from> <region-to> &8- &7Copy configured presets from one region to another."),
+        REGION_DELETE("blockregen.region", "&3/%label% region delete <region> &8- &7Delete a region."),
+        REGEN("&3/%label% regen (-p <preset>) (-r <region>) (-w <world>) &8- &7Regenerate presets based on argument switches."),
+        EVENTS("&3/%label% events &8- &7Event management."),
+        STATS("&3/%label% stats &8- &7Print statistics about currently running regeneration processes."),
+        DISCORD("&3/%label% discord &8- &7BlockRegen discord invite. Ask for support there.");
+
+        private final String permission;
+        private final String usage;
+
+        SubCommandHelp(String usage) {
+            this.permission = "blockregen." + this.name().toLowerCase();
+            this.usage = usage;
+        }
+
+        SubCommandHelp(String permission, String usage) {
+            this.permission = permission;
+            this.usage = usage;
+        }
+
+        @NotNull
+        public static String composeHelp(@NotNull CommandSender sender) {
+            StringBuilder help = new StringBuilder();
+            boolean empty = true;
+
+            for (SubCommandHelp subCommandHelp : SubCommandHelp.values()) {
+                if (sender.hasPermission(subCommandHelp.permission)) {
+                    help.append(subCommandHelp.usage).append("\n");
+                    empty = false;
+                }
+            }
+
+            // Shouldn't really happen.
+            return empty ? "&7Unfortunately you cannot really do anything." : help.toString();
+        }
+    }
 
     private final BlockRegenPlugin plugin;
 
+    private final String[] adminPermissions;
+
     public Commands(BlockRegenPlugin plugin) {
         this.plugin = plugin;
+        this.adminPermissions = Arrays.stream(SubCommandHelp.values()).map(c -> c.permission).toArray(String[]::new);
     }
 
-    private void sendHelp(CommandSender sender, String label) {
-        sender.sendMessage(Colors.color(HELP
-                .replace("%version%", plugin.getDescription().getVersion())
-                .replace("%label%", label)));
+    private void sendHelp(@NotNull CommandSender sender, @NotNull String label) {
+        sender.sendMessage(Colors.color(
+                HEADER.concat(SubCommandHelp.composeHelp(sender))
+                        .replace("%version%", plugin.getDescription().getVersion())
+                        .replace("%label%", label)
+                        .trim()));
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        // in case it failed to load (shouldn't), just pass through
+        if (this.adminPermissions.length != 0 && !Permissions.hasAny(sender, this.adminPermissions)) {
+            Message.NO_PERM.send(sender);
+            return false;
+        }
+
         if (args.length == 0) {
             sendHelp(sender, label);
             return false;
@@ -566,7 +609,7 @@ public class Commands implements CommandExecutor {
                 break;
             }
             case "stats": {
-                if (!sender.hasPermission("blockregen.admin")) {
+                if (!sender.hasPermission("blockregen.stats")) {
                     Message.NO_PERM.send(sender);
                     return false;
                 }
@@ -654,7 +697,7 @@ public class Commands implements CommandExecutor {
                 }
                 break;
             case "discord":
-                if (!sender.hasPermission("blockregen.admin")) {
+                if (!sender.hasPermission("blockregen.discord")) {
                     Message.NO_PERM.send(sender);
                     return false;
                 }

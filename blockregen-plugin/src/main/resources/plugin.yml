@@ -21,7 +21,8 @@ api-version: "1.13"
 commands:
   blockregen:
     aliases: [ br, bregen, blockr, breg, brg ]
-    description: Main plugin command
+    description: Main plugin command.
+
 permissions:
   blockregen.admin:
     description: Gives access to admin commands.
@@ -35,9 +36,11 @@ permissions:
       blockregen.region: true
       blockregen.regen: true
       blockregen.events: true
+      blockregen.discord: true
+      blockregen.stats: true
 
   blockregen.tools:
-    description: Allows player to get tools.
+    description: Allows player to get selection tools.
   blockregen.debug:
     description: Allows player to turn on debug.
   blockregen.bypass:
@@ -52,6 +55,10 @@ permissions:
     description: Allows player to regenerate running processes.
   blockregen.events:
     description: Allows access to event commands.
+  blockregen.stats:
+    description: Allows view of regeneration statistics.
+  blockregen.discord:
+    description: Allows view of the discord link.
 
   blockregen.region.*:
     default: true
