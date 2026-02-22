@@ -2,7 +2,7 @@ package nl.aurorion.blockregen.preset.condition;
 
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -136,14 +136,14 @@ public class Conditions {
      * @return A new ConditionContext containing the merged variables.
      */
     @NotNull
-    public static ConditionContext mergeContexts(ConditionContext... contexts) {
+    public static Context mergeContexts(Context... contexts) {
         Map<String, Object> result = new HashMap<>();
 
-        for (ConditionContext context : contexts) {
+        for (Context context : contexts) {
             Map<String, Object> vars = context.values();
             result.putAll(vars);
         }
-        return ConditionContext.of(result);
+        return Context.of(result);
     }
 
     /**

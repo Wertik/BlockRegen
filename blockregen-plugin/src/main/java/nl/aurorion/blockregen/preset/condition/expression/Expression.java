@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
 import com.google.common.base.Strings;
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
@@ -49,7 +49,7 @@ public class Expression {
     /**
      * @throws ParseException If the comparator cannot get objects of comparable types.
      * */
-    public boolean evaluate(@NotNull ConditionContext ctx) {
+    public boolean evaluate(@NotNull Context ctx) {
         if (isConstant()) {
             return this.staticResult;
         }

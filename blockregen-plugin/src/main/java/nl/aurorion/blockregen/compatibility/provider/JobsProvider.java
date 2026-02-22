@@ -7,7 +7,7 @@ import com.gamingmesh.jobs.container.Job;
 import com.gamingmesh.jobs.container.JobProgression;
 import com.gamingmesh.jobs.container.JobsPlayer;
 import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.BlockRegenPlugin;
@@ -37,7 +37,7 @@ public class JobsProvider extends CompatibilityProvider {
         }).extender((ctx) -> {
             Player player = (Player) ctx.mustVar("player");
             JobsPlayer jobsPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
-            return ConditionContext.of("jobs.player", jobsPlayer);
+            return Context.of("jobs.player", jobsPlayer);
         });
     }
 

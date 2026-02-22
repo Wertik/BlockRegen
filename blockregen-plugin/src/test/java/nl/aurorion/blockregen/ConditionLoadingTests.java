@@ -2,7 +2,6 @@ package nl.aurorion.blockregen;
 
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.conditional.ConditionContext;
 import nl.aurorion.blockregen.preset.condition.ConditionProvider;
 import nl.aurorion.blockregen.preset.condition.ConditionRelation;
 import nl.aurorion.blockregen.preset.condition.Conditions;
@@ -49,9 +48,9 @@ public class ConditionLoadingTests {
 
         assertEquals("above", condition.alias());
 
-        ConditionContext ctx = ConditionContext.of("value", 3);
+        Context ctx = Context.of("value", 3);
         assertTrue(condition.matches(ctx));
-        ctx = ConditionContext.of("value", 1);
+        ctx = Context.of("value", 1);
         assertFalse(condition.matches(ctx));
     }
 
@@ -64,9 +63,9 @@ public class ConditionLoadingTests {
 
         assertEquals("!above", condition.alias());
 
-        ConditionContext ctx = ConditionContext.of("value", 1);
+        Context ctx = Context.of("value", 1);
         assertTrue(condition.matches(ctx));
-        ctx = ConditionContext.of("value", 4);
+        ctx = Context.of("value", 4);
         assertFalse(condition.matches(ctx));
     }
 
@@ -79,9 +78,9 @@ public class ConditionLoadingTests {
 
         assertEquals("(!below and below)", condition.alias());
 
-        assertFalse(condition.matches(ConditionContext.of("value", 1)));
-        assertTrue(condition.matches(ConditionContext.of("value", 3)));
-        assertFalse(condition.matches(ConditionContext.of("value", 6)));
+        assertFalse(condition.matches(Context.of("value", 1)));
+        assertTrue(condition.matches(Context.of("value", 3)));
+        assertFalse(condition.matches(Context.of("value", 6)));
     }
 
     @Test
@@ -99,13 +98,13 @@ public class ConditionLoadingTests {
 
         assertEquals("(above and above)", condition.alias());
 
-        ConditionContext ctx = ConditionContext.of("value", 4);
+        Context ctx = Context.of("value", 4);
         assertFalse(condition.matches(ctx));
 
-        ctx = ConditionContext.of("value", 5);
+        ctx = Context.of("value", 5);
         assertFalse(condition.matches(ctx));
 
-        ctx = ConditionContext.of("value", 15);
+        ctx = Context.of("value", 15);
         assertTrue(condition.matches(ctx));
     }
 
@@ -117,13 +116,13 @@ public class ConditionLoadingTests {
 
         assertEquals("(below or above)", condition.alias());
 
-        ConditionContext ctx = ConditionContext.of("value", 1);
+        Context ctx = Context.of("value", 1);
         assertTrue(condition.matches(ctx));
 
-        ctx = ConditionContext.of("value", 5);
+        ctx = Context.of("value", 5);
         assertFalse(condition.matches(ctx));
 
-        ctx = ConditionContext.of("value", 15);
+        ctx = Context.of("value", 15);
         assertTrue(condition.matches(ctx));
     }
 
@@ -136,16 +135,16 @@ public class ConditionLoadingTests {
 
         assertEquals("(below and (below or equals))", condition.alias());
 
-        ConditionContext ctx = ConditionContext.of("value", 1);
+        Context ctx = Context.of("value", 1);
         assertTrue(condition.matches(ctx));
 
-        ctx = ConditionContext.of("value", 3);
+        ctx = Context.of("value", 3);
         assertTrue(condition.matches(ctx));
 
-        ctx = ConditionContext.of("value", 4);
+        ctx = Context.of("value", 4);
         assertFalse(condition.matches(ctx));
 
-        ctx = ConditionContext.of("value", 6);
+        ctx = Context.of("value", 6);
         assertFalse(condition.matches(ctx));
     }
 
@@ -159,9 +158,9 @@ public class ConditionLoadingTests {
 
         assertEquals("(above and below)", condition.alias());
 
-        assertFalse(condition.matches(ConditionContext.of("value", 1)));
-        assertTrue(condition.matches(ConditionContext.of("value", 6)));
-        assertFalse(condition.matches(ConditionContext.of("value", 16)));
+        assertFalse(condition.matches(Context.of("value", 1)));
+        assertTrue(condition.matches(Context.of("value", 6)));
+        assertFalse(condition.matches(Context.of("value", 16)));
     }
 
     @Test()
@@ -176,7 +175,7 @@ public class ConditionLoadingTests {
                         return (double) ctx.mustVar("sqrt") > (int) node;
                     });
                 })
-                .extender((ctx) -> ConditionContext.of("sqrt", Math.sqrt((int) ctx.mustVar("value"))));
+                .extender((ctx) -> Context.of("sqrt", Math.sqrt((int) ctx.mustVar("value"))));
 
         ConditionProvider baseProvider = GenericConditionProvider.empty()
                 .addProvider("below", (key, node) -> {
@@ -191,9 +190,9 @@ public class ConditionLoadingTests {
 
         assertEquals("(above and below)", condition.alias());
 
-        assertFalse(condition.matches(ConditionContext.of("value", 1)));
-        assertTrue(condition.matches(ConditionContext.of("value", 6)));
-        assertFalse(condition.matches(ConditionContext.of("value", 16)));
+        assertFalse(condition.matches(Context.of("value", 1)));
+        assertTrue(condition.matches(Context.of("value", 6)));
+        assertFalse(condition.matches(Context.of("value", 16)));
     }
 
     @Test
@@ -203,9 +202,9 @@ public class ConditionLoadingTests {
         FileConfiguration conf = YamlConfiguration.loadConfiguration(new StringReader(input));
         Condition condition = Conditions.fromMap(Objects.requireNonNull(conf.getValues(false)), ConditionRelation.AND, conditionProvider);
 
-        assertFalse(condition.matches(ConditionContext.of("value", 1)));
-        assertTrue(condition.matches(ConditionContext.of("value", 3)));
-        assertFalse(condition.matches(ConditionContext.of("value", 6)));
+        assertFalse(condition.matches(Context.of("value", 1)));
+        assertTrue(condition.matches(Context.of("value", 3)));
+        assertFalse(condition.matches(Context.of("value", 6)));
     }
 
     @Test
@@ -215,20 +214,20 @@ public class ConditionLoadingTests {
                 (ctx) -> {
                     // Take value and sqrt it
                     int v = (int) ctx.mustVar("value");
-                    return ConditionContext.of("sqrt", Math.sqrt(v));
+                    return Context.of("sqrt", Math.sqrt(v));
                 }
         );
 
         assertEquals("sqrt > 2", condition.alias());
-        assertTrue(condition.matches(ConditionContext.of("value", 9)));
+        assertTrue(condition.matches(Context.of("value", 9)));
     }
 
     @Test
     public void mergesContexts() {
-        ConditionContext context = ConditionContext.of("value", 1);
-        ConditionContext context1 = ConditionContext.of("random", 2);
+        Context context = Context.of("value", 1);
+        Context context1 = Context.of("random", 2);
 
-        ConditionContext merged = Conditions.mergeContexts(context, context1);
+        Context merged = Conditions.mergeContexts(context, context1);
 
         assertEquals(1, merged.mustVar("value"));
         assertEquals(2, merged.mustVar("random"));
@@ -236,10 +235,10 @@ public class ConditionLoadingTests {
 
     @Test
     public void mergesContextsOverridesValues() {
-        ConditionContext context = ConditionContext.of("value", 1);
-        ConditionContext context1 = ConditionContext.of("value", 2);
+        Context context = Context.of("value", 1);
+        Context context1 = Context.of("value", 2);
 
-        ConditionContext merged = Conditions.mergeContexts(context, context1);
+        Context merged = Conditions.mergeContexts(context, context1);
 
         assertEquals(2, merged.mustVar("value"));
     }

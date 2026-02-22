@@ -8,7 +8,7 @@ import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Pair;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.preset.FixedNumberValue;
 import nl.aurorion.blockregen.preset.NumberValue;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
@@ -70,7 +70,7 @@ public class DefaultConditions {
                                         }
                                     }
 
-                                    return ConditionContext.empty()
+                                    return Context.empty()
                                             .with("material", material)
                                             .with("enchants", item == null ? new HashMap<>() : item.getEnchantments());
                                 }), ConditionRelation.AND)

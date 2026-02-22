@@ -11,7 +11,7 @@ import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
 import nl.aurorion.blockregen.compatibility.provider.GriefPreventionProvider;
 import nl.aurorion.blockregen.compatibility.provider.ResidenceProvider;
 import nl.aurorion.blockregen.compatibility.provider.TownyProvider;
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -154,7 +154,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             return;
         }
 
-        ConditionContext ctx = ConditionContext.empty()
+        Context ctx = Context.empty()
                 .with("player", player)
                 .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
                 .with("block", block);
@@ -390,10 +390,11 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         Function<String, String> parser = (str) -> Text.parse(str, player, block);
 
         // Conditions
-        ConditionContext ctx = ConditionContext.empty()
+        Context context = Context.empty()
                 .with("player", player)
                 .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
-                .with("block", block);
+                .with("block", block)
+                .with("parser", parser);
 
         // Run rewards async
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -410,12 +411,12 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
                 experience.addAndGet(vanillaExperience);
             } else {
                 for (DropItem drop : preset.getRewards().getDrops()) {
-                    log.fine(drop.getCondition() + " " + drop.getCondition().matches(ctx));
-                    if (!drop.getCondition().matches(ctx) || !drop.shouldDrop()) {
+                    log.fine(drop.getCondition() + " " + drop.getCondition().matches(context));
+                    if (!drop.getCondition().matches(context) || !drop.shouldDrop()) {
                         continue;
                     }
 
-                    ItemStack itemStack = drop.toItemStack(parser);
+                    ItemStack itemStack = drop.toItemStack(context);
 
                     if (itemStack == null) {
                         continue;
@@ -454,8 +455,8 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
                     DropItem eventDrop = presetEvent.getItem();
 
                     // Event item
-                    if (eventDrop != null && eventDrop.shouldDrop() && eventDrop.getCondition().matches(ctx)) {
-                        ItemStack eventStack = eventDrop.toItemStack(parser);
+                    if (eventDrop != null && eventDrop.shouldDrop() && eventDrop.getCondition().matches(context)) {
+                        ItemStack eventStack = eventDrop.toItemStack(context);
 
                         if (eventStack != null) {
                             drops.put(eventStack, eventDrop.isDropNaturally());
@@ -464,11 +465,11 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
                     // Add items from presetEvent
                     for (DropItem drop : presetEvent.getRewards().getDrops()) {
-                        if (!drop.shouldDrop() || !drop.getCondition().matches(ctx)) {
+                        if (!drop.shouldDrop() || !drop.getCondition().matches(context)) {
                             continue;
                         }
 
-                        ItemStack item = drop.toItemStack(parser);
+                        ItemStack item = drop.toItemStack(context);
 
                         if (item != null) {
                             drops.put(item, drop.isDropNaturally());

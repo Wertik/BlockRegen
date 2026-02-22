@@ -1,4 +1,4 @@
-package nl.aurorion.blockregen.conditional;
+package nl.aurorion.blockregen;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ConditionContext {
+public class Context {
     private final Map<String, Object> values;
 
-    ConditionContext(Map<String, Object> values) {
+    Context(Map<String, Object> values) {
         this.values = values;
     }
 
@@ -20,21 +20,21 @@ public class ConditionContext {
         return Collections.unmodifiableMap(this.values);
     }
 
-    public static ConditionContext of(String key, Object value) {
-        return new ConditionContext(new HashMap<String, Object>() {{
+    public static Context of(String key, Object value) {
+        return new Context(new HashMap<String, Object>() {{
             put(key, value);
         }});
     }
 
-    public static ConditionContext of(Map<String, Object> values) {
-        return new ConditionContext(values);
+    public static Context of(Map<String, Object> values) {
+        return new Context(values);
     }
 
-    public static ConditionContext empty() {
-        return new ConditionContext(new HashMap<>());
+    public static Context empty() {
+        return new Context(new HashMap<>());
     }
 
-    public ConditionContext with(String key, Object value) {
+    public Context with(String key, Object value) {
         this.values.put(key, value);
         return this;
     }
@@ -66,7 +66,7 @@ public class ConditionContext {
     }
 
     public Object mustVar(String key) {
-        return must(this.values.get(key));
+        return must(key, this.values.get(key));
     }
 
     public <T> T mustVar(String key, Class<T> as) {
@@ -74,8 +74,8 @@ public class ConditionContext {
     }
 
     @NotNull
-    private static <T> T must(T var) {
-        return Objects.requireNonNull(var, "var");
+    private static <T> T must(String key, T var) {
+        return Objects.requireNonNull(var, "Missing key '" + key + "'.");
     }
 
     public <T> T get(String key, Class<T> clazz) {

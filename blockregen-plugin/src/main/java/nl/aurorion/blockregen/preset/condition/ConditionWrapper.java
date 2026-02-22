@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.preset.condition;
 
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -19,15 +19,15 @@ public class ConditionWrapper extends Condition {
         this.extender = extender;
     }
 
-    private ConditionContext extend(ConditionContext original) {
+    private Context extend(Context original) {
         if (this.extender == null) {
             return original;
         }
 
-        ConditionContext result = original;
+        Context result = original;
 
         try {
-            ConditionContext additional = this.extender.extend(original);
+            Context additional = this.extender.extend(original);
 
             // Just in case somebody returns the original.
             if (additional != result) {
@@ -42,8 +42,8 @@ public class ConditionWrapper extends Condition {
     }
 
     @Override
-    public boolean match(ConditionContext original) {
-        ConditionContext context = this.extend(original);
+    public boolean match(Context original) {
+        Context context = this.extend(original);
         return this.composed.matches(context);
     }
 

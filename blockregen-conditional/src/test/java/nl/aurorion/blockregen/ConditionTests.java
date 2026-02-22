@@ -1,14 +1,13 @@
 package nl.aurorion.blockregen;
 
 import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.conditional.ConditionContext;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConditionTests {
 
-    private static final ConditionContext EMPTY_CONTEXT = ConditionContext.empty();
+    private static final Context EMPTY_CONTEXT = Context.empty();
 
     @Test
     public void evaluatesSingleValueExpressions() {
@@ -35,7 +34,7 @@ public class ConditionTests {
 
     @Test
     public void evaluatesBasedOnContextValues() {
-        ConditionContext context = ConditionContext.of("value", 10);
+        Context context = Context.of("value", 10);
         Condition c1 = Condition.of((ctx) -> {
             return (int) ctx.mustVar("value") > 5;
         });
@@ -49,7 +48,7 @@ public class ConditionTests {
             return true;
         });
 
-        ConditionContext context = ConditionContext.of("hello", "world");
+        Context context = Context.of("hello", "world");
 
         assertTrue(condition.matches(context));
         assertTrue(context.get("from_condition", Boolean.class));
@@ -60,7 +59,7 @@ public class ConditionTests {
         // true and true
         Condition composed = Condition.truthy().and(Condition.truthy());
 
-        ConditionContext context = ConditionContext.empty();
+        Context context = Context.empty();
 
         assertTrue(composed.matches(context));
 

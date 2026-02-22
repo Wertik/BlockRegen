@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.preset.condition;
 
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import org.jetbrains.annotations.NotNull;
 
 public interface ContextExtender {
@@ -12,5 +12,5 @@ public interface ContextExtender {
      * @return Newly provided context.
      */
     @NotNull
-    ConditionContext extend(@NotNull ConditionContext ctx);
+    Context extend(@NotNull Context ctx);
 }

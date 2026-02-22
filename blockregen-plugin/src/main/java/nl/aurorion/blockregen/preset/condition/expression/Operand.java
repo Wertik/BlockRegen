@@ -1,7 +1,7 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
 import com.google.common.base.Strings;
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Operand {
-    Object value(ConditionContext ctx);
+    Object value(Context ctx);
 
     Pattern PLACEHOLDER_PATTERN = Pattern.compile("(%\\S+%)");
 

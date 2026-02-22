@@ -2,6 +2,7 @@ name: BlockRegen
 main: nl.aurorion.blockregen.BlockRegenPluginImpl
 version: ${project.version}
 authors: [ Aurorion, Wertik1206 ]
+contributors: [ czmdav, CinturonCris, OlivierChiasson, gustaavik ]
 softdepend:
   - Mutliverse-Core
   - Residence

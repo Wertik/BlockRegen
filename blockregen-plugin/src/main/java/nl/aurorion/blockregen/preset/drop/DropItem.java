@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.preset.drop;
 
+import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.conditional.Condition;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +34,7 @@ public abstract class DropItem {
     protected Condition condition;
 
     // Serialize this drop into an item stack.
-    public abstract ItemStack toItemStack(Function<String, String> parser);
+    public abstract ItemStack toItemStack(Context context);
 
     public boolean shouldDrop() {
         // x/100% chance to drop

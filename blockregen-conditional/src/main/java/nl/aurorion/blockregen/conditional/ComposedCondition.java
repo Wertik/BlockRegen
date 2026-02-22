@@ -1,6 +1,7 @@
 package nl.aurorion.blockregen.conditional;
 
 import lombok.Getter;
+import nl.aurorion.blockregen.Context;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class ComposedCondition extends Condition {
     }
 
     @Override
-    public boolean match(ConditionContext context) {
+    public boolean match(Context context) {
         if (relation == ConditionRelation.AND) {
             for (Condition condition : conditions) {
                 if (!condition.matches(context)) {

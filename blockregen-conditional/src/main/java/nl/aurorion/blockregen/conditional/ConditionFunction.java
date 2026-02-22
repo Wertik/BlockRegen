@@ -1,5 +1,7 @@
 package nl.aurorion.blockregen.conditional;
 
+import nl.aurorion.blockregen.Context;
+
 public interface ConditionFunction {
-    boolean match(ConditionContext context);
+    boolean match(Context context);
 }

@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.conditional;
 
+import nl.aurorion.blockregen.Context;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +31,7 @@ public abstract class Condition {
     public static Condition of(@NotNull ConditionFunction function) {
         return new Condition() {
             @Override
-            public boolean match(ConditionContext context) {
+            public boolean match(Context context) {
                 return function.match(context);
             }
         };
@@ -40,7 +41,7 @@ public abstract class Condition {
     public static Condition of(@NotNull ConditionFunction function, String alias) {
         return new Condition(alias) {
             @Override
-            public boolean match(ConditionContext context) {
+            public boolean match(Context context) {
                 return function.match(context);
             }
         };
@@ -70,9 +71,9 @@ public abstract class Condition {
         return new ComposedCondition(ConditionRelation.AND, conditions);
     }
 
-    public abstract boolean match(ConditionContext context);
+    public abstract boolean match(Context context);
 
-    public boolean matches(ConditionContext context) {
+    public boolean matches(Context context) {
         return this.negate ^ this.match(context);
     }
 

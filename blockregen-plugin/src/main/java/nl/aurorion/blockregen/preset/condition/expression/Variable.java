@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import nl.aurorion.blockregen.BlockRegenPlugin;
@@ -18,7 +18,7 @@ public class Variable implements Operand {
     }
 
     @Override
-    public Object value(ConditionContext ctx) {
+    public Object value(Context ctx) {
         String result = Text.parse(content, ctx.values().values().toArray());
         if (BlockRegenPlugin.getInstance().isUsePlaceholderAPI()) {
             result = PlaceholderAPI.setPlaceholders((Player) ctx.mustVar("player"), result);

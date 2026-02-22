@@ -12,6 +12,11 @@
     <artifactId>blockregen-conditional</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>nl.aurorion.blockregen</groupId>
+            <artifactId>blockregen-common</artifactId>
+            <version>3.31.3</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest-library -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

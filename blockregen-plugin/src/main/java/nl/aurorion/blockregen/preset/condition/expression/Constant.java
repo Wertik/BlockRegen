@@ -1,6 +1,6 @@
 package nl.aurorion.blockregen.preset.condition.expression;
 
-import nl.aurorion.blockregen.conditional.ConditionContext;
+import nl.aurorion.blockregen.Context;
 import lombok.Getter;
 
 public class Constant implements Operand {
@@ -12,7 +12,7 @@ public class Constant implements Operand {
     }
 
     @Override
-    public Object value(ConditionContext ctx) {
+    public Object value(Context ctx) {
         return this.value;
     }
 

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
+import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.util.Colors;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
@@ -50,9 +51,10 @@ public class MinecraftDropItem extends DropItem {
      *
      * @return Created item stack.
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     @Override
-    public ItemStack toItemStack(Function<String, String> parser) {
+    public ItemStack toItemStack(Context context) {
         int amount = this.amount.getInt();
         if (amount <= 0) {
             return null;
@@ -71,6 +73,8 @@ public class MinecraftDropItem extends DropItem {
         if (itemMeta == null) {
             return null;
         }
+
+        final Function<String, String> parser = (Function<String, String>) context.mustVar("parser");
 
         if (displayName != null) {
             itemMeta.setDisplayName(Colors.color(parser.apply(displayName)));
