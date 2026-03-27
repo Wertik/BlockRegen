@@ -7,8 +7,10 @@ import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,10 +34,25 @@ public class MythicMobsProvider extends CompatibilityProvider implements ItemPro
         MythicItem mythicItem = item.get();
         BukkitItemStack itemStack = (BukkitItemStack) mythicItem.generateItemStack(amount);
 
-        itemStack.setLore(mythicItem.getLore().stream().map(parser).collect(Collectors.toList()));
-        itemStack.setName(parser.apply(mythicItem.getDisplayName()));
+        // Get the fully rendered Bukkit ItemStack (with CustomModelData and all MythicMobs metadata intact).
+        // Modify only name/lore through Bukkit's ItemMeta to avoid wiping CustomModelData,
+        // which happened when calling BukkitItemStack.setName/setLore directly.
+        ItemStack bukkitStack = itemStack.getItemStack();
+        ItemMeta meta = bukkitStack.getItemMeta();
+        if (meta != null) {
+            if (meta.hasDisplayName()) {
+                meta.setDisplayName(parser.apply(meta.getDisplayName()));
+            }
+            if (meta.hasLore()) {
+                List<String> lore = meta.getLore();
+                if (lore != null) {
+                    meta.setLore(lore.stream().map(parser).collect(Collectors.toList()));
+                }
+            }
+            bukkitStack.setItemMeta(meta);
+        }
 
-        return itemStack.getItemStack();
+        return bukkitStack;
     }
 
     @Override
