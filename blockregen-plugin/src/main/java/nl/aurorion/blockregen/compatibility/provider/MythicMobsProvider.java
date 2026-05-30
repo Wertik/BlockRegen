@@ -6,10 +6,15 @@ import io.lumine.mythic.core.items.MythicItem;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,12 +35,48 @@ public class MythicMobsProvider extends CompatibilityProvider implements ItemPro
         }
 
         MythicItem mythicItem = item.get();
+
+        // MythicMobs item generation is not thread-safe and must run on the main thread.
+        // If called from an async context (e.g. BlockRegen's reward processing), dispatch
+        // to the main thread and block until the result is ready.
+        if (!Bukkit.isPrimaryThread()) {
+            CompletableFuture<ItemStack> future = new CompletableFuture<>();
+            Bukkit.getScheduler().runTask(plugin, () -> future.complete(buildItemStack(mythicItem, parser, amount)));
+            try {
+                return future.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return null;
+            } catch (ExecutionException e) {
+                return null;
+            }
+        }
+
+        return buildItemStack(mythicItem, parser, amount);
+    }
+
+    private ItemStack buildItemStack(MythicItem mythicItem, Function<String, String> parser, int amount) {
         BukkitItemStack itemStack = (BukkitItemStack) mythicItem.generateItemStack(amount);
 
-        itemStack.setLore(mythicItem.getLore().stream().map(parser).collect(Collectors.toList()));
-        itemStack.setName(parser.apply(mythicItem.getDisplayName()));
+        // Get the fully rendered Bukkit ItemStack (with CustomModelData and all MythicMobs metadata intact).
+        // Modify only name/lore through Bukkit's ItemMeta to avoid wiping CustomModelData,
+        // which happened when calling BukkitItemStack.setName/setLore directly.
+        ItemStack bukkitStack = itemStack.getItemStack();
+        ItemMeta meta = bukkitStack.getItemMeta();
+        if (meta != null) {
+            if (meta.hasDisplayName()) {
+                meta.setDisplayName(parser.apply(meta.getDisplayName()));
+            }
+            if (meta.hasLore()) {
+                List<String> lore = meta.getLore();
+                if (lore != null) {
+                    meta.setLore(lore.stream().map(parser).collect(Collectors.toList()));
+                }
+            }
+            bukkitStack.setItemMeta(meta);
+        }
 
-        return itemStack.getItemStack();
+        return bukkitStack;
     }
 
     @Override
