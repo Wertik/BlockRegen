@@ -30,4 +30,10 @@ public class VersionsTests {
         assertEquals(-1, Versions.compareVersions("1.9.12", "1.10"));
         assertEquals(0, Versions.compareVersions("1.9.0", "1.9"));
     }
+
+    @Test
+    public void extractsMajorMinorServerVersion() {
+        assertEquals("1.20", Versions.extractMajorMinorVersion("1.20.1-R0.1-SNAPSHOT"));
+        assertEquals("26.1", Versions.extractMajorMinorVersion("26.1.2.build.2581-experimental"));
+    }
 }
