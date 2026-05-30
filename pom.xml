@@ -23,10 +23,27 @@
         <maven.compiler.release>8</maven.compiler.release>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
+        <lombok.version>1.18.46</lombok.version>
+        <project.dependencies.jobs.version>5.2.4.0</project.dependencies.jobs.version>
+        <project.dependencies.residence.version>5.1.6.0</project.dependencies.residence.version>
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
@@ -42,6 +59,42 @@
                             <processAllModules>true</processAllModules>
                             <processProject>true</processProject>
                             <oldVersion>${project.version}</oldVersion>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.1.2</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>jobs</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>blockregen-plugin/lib/Jobs${project.dependencies.jobs.version}.jar</file>
+                            <groupId>com.gamingmesh.jobs</groupId>
+                            <artifactId>Jobs</artifactId>
+                            <version>${project.dependencies.jobs.version}</version>
+                            <packaging>jar</packaging>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>residence</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>blockregen-plugin/lib/Residence${project.dependencies.residence.version}.jar</file>
+                            <groupId>com.bekvon.bukkit</groupId>
+                            <artifactId>Residence</artifactId>
+                            <version>${project.dependencies.residence.version}</version>
+                            <packaging>jar</packaging>
                         </configuration>
                     </execution>
                 </executions>
@@ -94,7 +147,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -107,7 +160,7 @@
         <dependency>
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
-            <version>13.6.0</version>
+            <version>13.7.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
