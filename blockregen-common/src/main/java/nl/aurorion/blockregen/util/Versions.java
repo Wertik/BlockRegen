@@ -3,7 +3,21 @@ package nl.aurorion.blockregen.util;
 import nl.aurorion.blockregen.ParseException;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Versions {
+
+    private static final Pattern MAJOR_MINOR_VERSION_PATTERN = Pattern.compile("^(\\d+\\.\\d+)");
+
+    @NotNull
+    public static String extractMajorMinorVersion(@NotNull String version) {
+        Matcher matcher = MAJOR_MINOR_VERSION_PATTERN.matcher(version);
+        if (!matcher.find()) {
+            throw new ParseException("Invalid server version '" + version + "'");
+        }
+        return matcher.group(1);
+    }
 
     public static int compareVersions(@NotNull String version1, @NotNull String version2) {
         return compareVersions(version1, version2, -1);
