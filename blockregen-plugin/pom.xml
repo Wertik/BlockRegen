@@ -13,11 +13,6 @@
 
     <name>BlockRegen</name>
 
-    <properties>
-        <project.dependencies.jobs.version>5.2.4.0</project.dependencies.jobs.version>
-        <project.dependencies.residence.version>5.1.6.0</project.dependencies.residence.version>
-    </properties>
-
     <build>
         <finalName>${project.name}-${project.version}</finalName>
         <resources>
@@ -59,41 +54,6 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <id>jobs</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <file>lib/Jobs${project.dependencies.jobs.version}.jar</file>
-                            <groupId>com.gamingmesh.jobs</groupId>
-                            <artifactId>Jobs</artifactId>
-                            <version>${project.dependencies.jobs.version}</version>
-                            <packaging>jar</packaging>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>residence</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <file>lib/Residence${project.dependencies.residence.version}.jar</file>
-                            <groupId>com.bekvon.bukkit</groupId>
-                            <artifactId>Residence</artifactId>
-                            <version>${project.dependencies.residence.version}</version>
-                            <packaging>jar</packaging>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
