@@ -34,9 +34,6 @@ public class EcoItemsProvider extends CompatibilityProvider implements ItemProvi
         ItemStack bukkitStack = ecoItem.getItemStack();
         bukkitStack.setAmount(amount);
 
-        // Get the fully rendered Bukkit ItemStack (with CustomModelData and all MythicMobs metadata intact).
-        // Modify only name/lore through Bukkit's ItemMeta to avoid wiping CustomModelData,
-        // which happened when calling BukkitItemStack.setName/setLore directly.
         ItemMeta meta = bukkitStack.getItemMeta();
         if (meta != null) {
             if (meta.hasDisplayName()) {
