@@ -1,8 +1,8 @@
 name: BlockRegen
 main: nl.aurorion.blockregen.BlockRegenPluginImpl
 version: ${project.version}
-authors: [ Aurorion, Wertik1206 ]
-contributors: [ czmdav, CinturonCris, OlivierChiasson, gustaavik ]
+authors: [Aurorion, Wertik1206]
+contributors: [czmdav, CinturonCris, OlivierChiasson, gustaavik]
 softdepend:
   - Mutliverse-Core
   - Residence
@@ -18,10 +18,11 @@ softdepend:
   - Oraxen
   - MythicMobs
   - MMOItems
+  - EcoItems
 api-version: "1.13"
 commands:
   blockregen:
-    aliases: [ br, bregen, blockr, breg, brg ]
+    aliases: [br, bregen, blockr, breg, brg]
     description: Main plugin command.
 
 permissions:

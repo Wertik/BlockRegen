@@ -323,5 +323,24 @@
             <version>5.11.1</version>
             <scope>provided</scope>
         </dependency>
+        <!-- EcoItems -->
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>EcoItems</artifactId>
+            <version>6.7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>eco</artifactId>
+            <version>7.6.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>libreforge</artifactId>
+            <version>5.6.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
