@@ -43,40 +43,42 @@ public class MMOItemsProvider extends CompatibilityProvider implements ItemProvi
     public void onLoad() {
         // Register conditions provider.
         // https://docs.phoenixdevt.fr/mmoitems/api/main.html#checking-if-an-itemstack-is-from-mi
-        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", ((key, node) -> {
-            final MMOItem item = getMMOItem((String) node);
+        for (String prefix : getPrefixes()) {
+            plugin.getPresetManager().getConditions().addProvider(prefix + "/tool", ((key, node) -> {
+                final MMOItem item = getMMOItem((String) node);
 
-            if (item == null) {
-                throw new ParseException("Invalid MMOItems item '" + node + "'.", true);
-            }
-
-            return Condition.of((ctx) -> {
-                ItemStack tool = (ItemStack) ctx.mustVar("tool");
-                NBTItem nbtItem = NBTItem.get(tool);
-
-                if (nbtItem == null) {
-                    return false;
+                if (item == null) {
+                    throw new ParseException("Invalid MMOItems item '" + node + "'.", true);
                 }
 
-                if (!nbtItem.hasType() || !nbtItem.hasTag("MMOITEMS_ITEM_ID")) {
-                    return false;
-                }
+                return Condition.of((ctx) -> {
+                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    NBTItem nbtItem = NBTItem.get(tool);
 
-                String toolType = nbtItem.getType();
+                    if (nbtItem == null) {
+                        return false;
+                    }
 
-                if (!toolType.equalsIgnoreCase(item.getType().getName())) {
-                    return false;
-                }
+                    if (!nbtItem.hasType() || !nbtItem.hasTag("MMOITEMS_ITEM_ID")) {
+                        return false;
+                    }
 
-                String toolId = nbtItem.getString("MMOITEMS_ITEM_ID");
+                    String toolType = nbtItem.getType();
 
-                if (!toolId.equalsIgnoreCase(item.getId())) {
-                    return false;
-                }
+                    if (!toolType.equalsIgnoreCase(item.getType().getName())) {
+                        return false;
+                    }
 
-                return true;
-            });
-        }));
+                    String toolId = nbtItem.getString("MMOITEMS_ITEM_ID");
+
+                    if (!toolId.equalsIgnoreCase(item.getId())) {
+                        return false;
+                    }
+
+                    return true;
+                });
+            }));
+        }
     }
 
     /**

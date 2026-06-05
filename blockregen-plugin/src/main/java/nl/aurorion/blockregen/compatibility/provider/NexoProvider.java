@@ -27,19 +27,21 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
     @Override
     public void onLoad() {
         // Register conditions provider.
-        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", ((key, node) -> {
-            String id = (String) node;
+        for (String prefix : getPrefixes()) {
+            plugin.getPresetManager().getConditions().addProvider(prefix + "/tool", ((key, node) -> {
+                String id = (String) node;
 
-            if (!NexoItems.exists(id)) {
-                throw new ParseException("Invalid Nexo item '" + id + "'", true);
-            }
+                if (!NexoItems.exists(id)) {
+                    throw new ParseException("Invalid Nexo item '" + id + "'", true);
+                }
 
-            return Condition.of((ctx) -> {
-                ItemStack tool = (ItemStack) ctx.mustVar("tool");
-                String toolId = NexoItems.idFromItem(tool);
-                return id.equals(toolId);
-            });
-        }));
+                return Condition.of((ctx) -> {
+                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    String toolId = NexoItems.idFromItem(tool);
+                    return id.equals(toolId);
+                });
+            }));
+        }
     }
 
     /**

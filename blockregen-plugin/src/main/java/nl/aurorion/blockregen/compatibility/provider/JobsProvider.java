@@ -28,17 +28,19 @@ public class JobsProvider extends CompatibilityProvider {
 
     @Override
     public void onLoad() {
-        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/levels", (key, node) -> {
-            String v = (String) node;
+        for (String prefix : getPrefixes()) {
+            plugin.getPresetManager().getConditions().addProvider( prefix + "/levels", (key, node) -> {
+                String v = (String) node;
 
-            Expression expression = Expression.withCustomOperands(JobsProvider::getJobOperand, v);
-            log.fine(() -> "Loaded jobs expression " + expression);
-            return Condition.of(expression::evaluate).alias(v);
-        }).extender((ctx) -> {
-            Player player = (Player) ctx.mustVar("player");
-            JobsPlayer jobsPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
-            return Context.of("jobs.player", jobsPlayer);
-        });
+                Expression expression = Expression.withCustomOperands(JobsProvider::getJobOperand, v);
+                log.fine(() -> "Loaded jobs expression " + expression);
+                return Condition.of(expression::evaluate).alias(v);
+            }).extender((ctx) -> {
+                Player player = (Player) ctx.mustVar("player");
+                JobsPlayer jobsPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
+                return Context.of("jobs.player", jobsPlayer);
+            });
+        }
     }
 
     @NotNull

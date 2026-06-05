@@ -30,19 +30,21 @@ public class ItemsAdderProvider extends CompatibilityProvider implements ItemPro
 
     @Override
     public void onLoad() {
-        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", (key, node) -> {
-            String id = (String) node;
+        for (String prefix : getPrefixes()) {
+            plugin.getPresetManager().getConditions().addProvider(prefix + "/tool", (key, node) -> {
+                String id = (String) node;
 
-            if (CustomStack.getInstance(id) == null) {
-                throw new ParseException("Invalid ItemsAdder item '" + id + "'.", true);
-            }
+                if (CustomStack.getInstance(id) == null) {
+                    throw new ParseException("Invalid ItemsAdder item '" + id + "'.", true);
+                }
 
-            return Condition.of((ctx) -> {
-                ItemStack tool = (ItemStack) ctx.mustVar("tool");
-                CustomStack toolBuilder = CustomStack.byItemStack(tool);
-                return toolBuilder != null && toolBuilder.getNamespacedID().equalsIgnoreCase(id);
+                return Condition.of((ctx) -> {
+                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    CustomStack toolBuilder = CustomStack.byItemStack(tool);
+                    return toolBuilder != null && toolBuilder.getNamespacedID().equalsIgnoreCase(id);
+                });
             });
-        });
+        }
     }
 
     /**

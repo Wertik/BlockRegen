@@ -31,19 +31,21 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
     @Override
     public void onLoad() {
         // Register conditions provider.
-        plugin.getPresetManager().getConditions().addProvider(getPrefix() + "/tool", ((key, node) -> {
-            String id = (String) node;
+        for (String prefix : getPrefixes()) {
+            plugin.getPresetManager().getConditions().addProvider(prefix + "/tool", ((key, node) -> {
+                String id = (String) node;
 
-            if (!OraxenItems.exists(id)) {
-                throw new ParseException("Invalid Oraxen item '" + id + "'", true);
-            }
+                if (!OraxenItems.exists(id)) {
+                    throw new ParseException("Invalid Oraxen item '" + id + "'", true);
+                }
 
-            return Condition.of((ctx) -> {
-                ItemStack tool = (ItemStack) ctx.mustVar("tool");
-                String toolId = OraxenItems.getIdByItem(tool);
-                return id.equals(toolId);
-            });
-        }));
+                return Condition.of((ctx) -> {
+                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    String toolId = OraxenItems.getIdByItem(tool);
+                    return id.equals(toolId);
+                });
+            }));
+        }
     }
 
     /**

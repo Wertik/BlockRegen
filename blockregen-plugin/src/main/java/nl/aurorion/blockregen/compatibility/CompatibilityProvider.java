@@ -13,15 +13,16 @@ public abstract class CompatibilityProvider {
     private String[] features;
 
     @Getter
-    private String prefix;
+    private final String[] prefixes;
 
     public CompatibilityProvider(BlockRegenPlugin plugin) {
         this.plugin = plugin;
+        this.prefixes = new String[0];
     }
 
-    public CompatibilityProvider(BlockRegenPlugin plugin, String prefix) {
+    public CompatibilityProvider(BlockRegenPlugin plugin, String... prefixes) {
         this.plugin = plugin;
-        this.prefix = prefix;
+        this.prefixes = prefixes;
     }
 
     public void setFeatures(String... features) {

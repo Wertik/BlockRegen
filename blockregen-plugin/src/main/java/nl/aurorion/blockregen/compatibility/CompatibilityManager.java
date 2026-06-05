@@ -106,13 +106,19 @@ public class CompatibilityManager {
 
             CompatibilityProvider compatibilityProvider = provider.get();
 
-            if (compatibilityProvider instanceof MaterialProvider && compatibilityProvider.getPrefix() != null) {
-                plugin.getMaterialManager().register(compatibilityProvider.getPrefix(), (MaterialProvider) compatibilityProvider);
+            if (compatibilityProvider instanceof MaterialProvider && compatibilityProvider.getPrefixes().length != 0) {
+                for (String prefix : compatibilityProvider.getPrefixes()) {
+                    plugin.getMaterialManager().register(prefix, (MaterialProvider) compatibilityProvider);
+                    log.fine(() -> "Loaded material provider " + compatibilityProvider.getClass().getSimpleName() + " with prefix " + prefix);
+                }
                 reloadPresets = true;
             }
 
-            if (compatibilityProvider instanceof ItemProvider && compatibilityProvider.getPrefix() != null) {
-                plugin.getItemManager().registerProvider(compatibilityProvider.getPrefix(), (ItemProvider) compatibilityProvider);
+            if (compatibilityProvider instanceof ItemProvider && compatibilityProvider.getPrefixes().length != 0) {
+                for (String prefix : compatibilityProvider.getPrefixes()) {
+                    plugin.getItemManager().registerProvider(prefix, (ItemProvider) compatibilityProvider);
+                    log.fine(() -> "Loaded item provider " + compatibilityProvider.getClass().getSimpleName() + " with prefix " + prefix);
+                }
                 reloadPresets = true;
             }
             log.info("Loaded support for " + container.getPluginName() + "!" + (compatibilityProvider.getFeatures() == null ? "" : " Features: &a" + String.join("&7, &a", compatibilityProvider.getFeatures()) + "&7."));

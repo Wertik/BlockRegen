@@ -433,8 +433,8 @@ public class PresetManager {
                 throw new ParseException("Invalid prefix '" + prefix + "'");
             }
 
-            if (!provider.exists(parts[1])) {
-                throw new ParseException("External item '" + id + "' doesn't exist with the providing plugin.");
+            if (!provider.exists(id)) {
+                throw new ParseException("External item '" + id + "' doesn't exist with the provider " + provider.getClass().getSimpleName());
             }
 
             DropItem drop = new ExternalDropItem(provider, id);

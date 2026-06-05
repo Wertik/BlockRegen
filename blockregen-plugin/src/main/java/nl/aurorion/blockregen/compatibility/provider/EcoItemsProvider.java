@@ -1,5 +1,6 @@
 package nl.aurorion.blockregen.compatibility.provider;
 
+import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -15,18 +16,20 @@ import java.util.stream.Collectors;
 import com.willfp.ecoitems.items.EcoItem;
 import com.willfp.ecoitems.items.EcoItems;
 
+@Log
 public class EcoItemsProvider extends CompatibilityProvider implements ItemProvider {
 
     public EcoItemsProvider(BlockRegenPlugin plugin) {
-        super(plugin, "eco");
-
+        super(plugin, "eco", "ecoitems");
         setFeatures("drops");
     }
 
     @Override
     public ItemStack createItem(@NotNull String id, @NotNull Function<String, String> parser, int amount) {
         EcoItem ecoItem = EcoItems.INSTANCE.getByID(id);
-        if(ecoItem == null) return null;
+        if (ecoItem == null) {
+            return null;
+        }
         return buildItemStack(ecoItem, parser, amount);
     }
 
@@ -53,6 +56,7 @@ public class EcoItemsProvider extends CompatibilityProvider implements ItemProvi
 
     @Override
     public boolean exists(@NotNull String id) {
+        log.fine(() -> "get by id " + id);
         return EcoItems.INSTANCE.getByID(id) != null;
     }
 }
