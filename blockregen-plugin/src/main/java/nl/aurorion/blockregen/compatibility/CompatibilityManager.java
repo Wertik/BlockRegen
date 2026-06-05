@@ -32,6 +32,8 @@ public class CompatibilityManager {
     private final ProviderContainer<MMOItemsProvider> mmoItems;
     @Getter
     private final ProviderContainer<MythicMobsProvider> mythicMobs;
+    @Getter
+    private final ProviderContainer<EcoItemsProvider> ecoItems;
 
     @Getter
     private final ProviderContainer<GriefPreventionProvider> griefPrevention;
@@ -54,6 +56,7 @@ public class CompatibilityManager {
         this.nexo = createProvider("Nexo", () -> new NexoProvider(plugin));
         this.mmoItems = createProvider("MMOItems", () -> new MMOItemsProvider(plugin));
         this.mythicMobs = createProvider("MythicMobs", () -> new MythicMobsProvider(plugin));
+        this.ecoItems = createProvider("EcoItems", () -> new EcoItemsProvider(plugin));
 
         this.griefPrevention = createProvider("GriefPrevention", () -> new GriefPreventionProvider(plugin));
         this.residence = createProvider("Residence", () -> new ResidenceProvider(plugin));

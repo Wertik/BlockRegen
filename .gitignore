@@ -5,3 +5,4 @@
 /*/target/
 /version/*/target/
 *.up
+.vscode/
