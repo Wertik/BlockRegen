@@ -5,7 +5,7 @@
 
     <groupId>nl.aurorion.blockregen</groupId>
     <artifactId>BlockRegen</artifactId>
-    <version>3.31.3</version>
+    <version>3.32.0-SNAPSHOT</version>
     <modules>
         <module>blockregen-version</module>
         <module>blockregen-common</module>
@@ -127,6 +127,11 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+        <!-- Eco, libreforge, EcoItems -->
+        <repository>
+            <id>auxilor</id>
+            <url>https://repo.auxilor.io/repository/maven-public/</url>
         </repository>
     </repositories>
 

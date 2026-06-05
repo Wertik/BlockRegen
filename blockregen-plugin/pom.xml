@@ -5,7 +5,7 @@
     <parent>
         <artifactId>BlockRegen</artifactId>
         <groupId>nl.aurorion.blockregen</groupId>
-        <version>3.31.3</version>
+        <version>3.32.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,7 +30,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.2</version>
                 <configuration>
                     <minimizeJar>true</minimizeJar>
                     <relocations>
@@ -100,43 +100,43 @@
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-common</artifactId>
-            <version>3.31.3</version>
+            <version>3.32.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-conditional</artifactId>
-            <version>3.31.3</version>
+            <version>3.32.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-version</artifactId>
-            <version>3.31.3</version>
+            <version>3.32.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-legacy</artifactId>
-            <version>3.31.3</version>
+            <version>3.32.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-ancient</artifactId>
-            <version>3.31.3</version>
+            <version>3.32.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-modern</artifactId>
-            <version>3.31.3</version>
+            <version>3.32.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-pink</artifactId>
-            <version>3.31.3</version>
+            <version>3.32.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <!-- Spigot API -->
@@ -333,12 +333,26 @@
         <dependency>
             <groupId>com.willfp</groupId>
             <artifactId>eco</artifactId>
-            <version>7.6.2</version>
+            <version>7.6.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.willfp</groupId>
             <artifactId>libreforge</artifactId>
+            <version>5.6.0</version>
+            <classifier>all</classifier>
+            <scope>provided</scope>
+            <!-- not found in the repo -->
+            <exclusions>
+                <exclusion>
+                    <groupId>libreforge.core</groupId>
+                    <artifactId>common</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>libreforge-loader</artifactId>
             <version>5.6.0</version>
             <scope>provided</scope>
         </dependency>

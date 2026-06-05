@@ -18,7 +18,7 @@ import com.willfp.ecoitems.items.EcoItems;
 public class EcoItemsProvider extends CompatibilityProvider implements ItemProvider {
 
     public EcoItemsProvider(BlockRegenPlugin plugin) {
-        super(plugin, "ecoitems");
+        super(plugin, "eco");
 
         setFeatures("drops");
     }
