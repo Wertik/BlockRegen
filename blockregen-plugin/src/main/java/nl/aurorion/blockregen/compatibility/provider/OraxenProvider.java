@@ -3,7 +3,7 @@ package nl.aurorion.blockregen.compatibility.provider;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
-import io.th0rgal.oraxen.mechanics.provided.gameplay.block.BlockMechanic;
+import io.th0rgal.oraxen.mechanics.Mechanic;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.ParseException;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
@@ -61,11 +61,11 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
 
     @Override
     public @Nullable BlockRegenMaterial load(@NotNull Block block) {
-        BlockMechanic blockMechanic = OraxenBlocks.getBlockMechanic(block);
-        if (blockMechanic == null) {
+        Mechanic mechanic = OraxenBlocks.getOraxenBlock(block.getLocation());
+        if (mechanic == null) {
             return null;
         }
-        return new OraxenMaterial(blockMechanic.getItemID());
+        return new OraxenMaterial(mechanic.getItemID());
     }
 
     @Override
