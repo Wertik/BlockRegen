@@ -4,7 +4,6 @@ import com.cryptomorin.xseries.XMaterial;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.mechanics.Mechanic;
 import lombok.Getter;
-import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
