@@ -3,15 +3,11 @@ package nl.aurorion.blockregen.regeneration;
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegenPlugin;
-import nl.aurorion.blockregen.Message;
-import nl.aurorion.blockregen.Pair;
-import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.*;
 import nl.aurorion.blockregen.api.BlockRegenBlockBreakEvent;
 import nl.aurorion.blockregen.compatibility.provider.GriefPreventionProvider;
 import nl.aurorion.blockregen.compatibility.provider.ResidenceProvider;
 import nl.aurorion.blockregen.compatibility.provider.TownyProvider;
-import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.event.struct.PresetEvent;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.preset.BlockPreset;
@@ -155,9 +151,9 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         }
 
         Context ctx = Context.empty()
-                .with("player", player)
-                .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
-                .with("block", block);
+                .with(RegenerationContextKey.PLAYER, player)
+                .with(RegenerationContextKey.TOOL, plugin.getVersionManager().getMethods().getItemInMainHand(player))
+                .with(RegenerationContextKey.BLOCK, block);
 
         // Check advanced conditions
         try {
@@ -391,10 +387,10 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
 
         // Conditions
         Context context = Context.empty()
-                .with("player", player)
-                .with("tool", plugin.getVersionManager().getMethods().getItemInMainHand(player))
-                .with("block", block)
-                .with("parser", parser);
+                .with(RegenerationContextKey.PLAYER, player)
+                .with(RegenerationContextKey.TOOL, plugin.getVersionManager().getMethods().getItemInMainHand(player))
+                .with(RegenerationContextKey.BLOCK, block)
+                .with(RegenerationContextKey.PARSER, parser);
 
         // Run rewards async
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {

@@ -20,9 +20,9 @@ public class Context {
         return Collections.unmodifiableMap(this.values);
     }
 
-    public static Context of(String key, Object value) {
+    public static Context of(ContextKey key, Object value) {
         return new Context(new HashMap<String, Object>() {{
-            put(key, value);
+            put(key.key(), value);
         }});
     }
 
@@ -34,17 +34,17 @@ public class Context {
         return new Context(new HashMap<>());
     }
 
-    public Context with(String key, Object value) {
-        this.values.put(key, value);
+    public Context with(ContextKey key, Object value) {
+        this.values.put(key.key(), value);
         return this;
     }
 
-    public void set(String key, Object value) {
-        this.values.put(key, value);
+    public void set(ContextKey key, Object value) {
+        this.values.put(key.key(), value);
     }
 
-    public Object get(String key) {
-        return this.values.get(key);
+    public Object get(ContextKey key) {
+        return this.values.get(key.key());
     }
 
     @SuppressWarnings("unchecked")
@@ -65,20 +65,20 @@ public class Context {
         }
     }
 
-    public Object mustVar(String key) {
-        return must(key, this.values.get(key));
+    public Object mustVar(@NotNull ContextKey key) {
+        return must(key, this.values.get(key.key()));
     }
 
-    public <T> T mustVar(String key, Class<T> as) {
+    public <T> T mustVar(@NotNull ContextKey key, Class<T> as) {
         return castOrThrow(this.mustVar(key), as);
     }
 
     @NotNull
-    private static <T> T must(String key, T var) {
+    private static <T> T must(@NotNull ContextKey key, T var) {
         return Objects.requireNonNull(var, "Missing key '" + key + "'.");
     }
 
-    public <T> T get(String key, Class<T> clazz) {
-        return castOrNull(this.values.get(key), clazz);
+    public <T> T get(@NotNull ContextKey key, Class<T> clazz) {
+        return castOrNull(this.values.get(key.key()), clazz);
     }
 }

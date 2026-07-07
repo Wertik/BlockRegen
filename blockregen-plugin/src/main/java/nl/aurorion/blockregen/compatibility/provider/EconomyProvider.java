@@ -5,6 +5,7 @@ import lombok.extern.java.Log;
 import net.milkbowl.vault.economy.Economy;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.compatibility.ProviderFeatureFlag;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
@@ -16,7 +17,7 @@ public class EconomyProvider extends CompatibilityProvider {
 
     public EconomyProvider(BlockRegenPlugin plugin) {
         super(plugin);
-        setFeatures("rewards");
+        setFeatures(ProviderFeatureFlag.REWARDS);
     }
 
     public void depositPlayer(OfflinePlayer player, double money) {

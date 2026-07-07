@@ -5,7 +5,9 @@ import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.RegenerationContextKey;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.compatibility.ProviderFeatureFlag;
 import nl.aurorion.blockregen.compatibility.material.NexoMaterial;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
@@ -21,7 +23,7 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
 
     public NexoProvider(BlockRegenPlugin plugin) {
         super(plugin, "nexo");
-        setFeatures("materials", "conditions");
+        setFeatures(ProviderFeatureFlag.CONDITIONS, ProviderFeatureFlag.MATERIALS);
     }
 
     @Override
@@ -36,7 +38,7 @@ public class NexoProvider extends CompatibilityProvider implements MaterialProvi
                 }
 
                 return Condition.of((ctx) -> {
-                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    ItemStack tool = ctx.mustVar(RegenerationContextKey.TOOL, ItemStack.class);
                     String toolId = NexoItems.idFromItem(tool);
                     return id.equals(toolId);
                 });

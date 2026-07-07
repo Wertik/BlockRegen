@@ -4,8 +4,11 @@ import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.RegenerationContextKey;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.compatibility.ProviderFeatureFlag;
 import nl.aurorion.blockregen.compatibility.material.ItemsAdderMaterial;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -15,6 +18,7 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Type;
@@ -25,7 +29,7 @@ import java.util.stream.Collectors;
 public class ItemsAdderProvider extends CompatibilityProvider implements ItemProvider, MaterialProvider {
     public ItemsAdderProvider(BlockRegenPlugin plugin) {
         super(plugin, "ia");
-        setFeatures("materials", "drops", "conditions");
+        setFeatures(ProviderFeatureFlag.CONDITIONS, ProviderFeatureFlag.DROPS, ProviderFeatureFlag.MATERIALS);
     }
 
     @Override
@@ -39,7 +43,7 @@ public class ItemsAdderProvider extends CompatibilityProvider implements ItemPro
                 }
 
                 return Condition.of((ctx) -> {
-                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    ItemStack tool = ctx.mustVar(RegenerationContextKey.TOOL, ItemStack.class);
                     CustomStack toolBuilder = CustomStack.byItemStack(tool);
                     return toolBuilder != null && toolBuilder.getNamespacedID().equalsIgnoreCase(id);
                 });
@@ -65,7 +69,10 @@ public class ItemsAdderProvider extends CompatibilityProvider implements ItemPro
     }
 
     @Override
-    public ItemStack createItem(@NotNull String id, @NotNull Function<String, String> parser, int amount) {
+    public @Nullable ItemStack createItem(@NonNull String id, int amount, @NonNull Context context) {
+        @SuppressWarnings("unchecked")
+        Function<String, String> parser = (Function<String, String>) context.mustVar(RegenerationContextKey.PARSER, Function.class);
+
         CustomStack builder = CustomStack.getInstance(id);
         builder.setDisplayName(parser.apply(builder.getDisplayName()));
         ItemStack item = builder.getItemStack();

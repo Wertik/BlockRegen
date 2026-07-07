@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 import nl.aurorion.blockregen.BlockRegenPluginImpl;
 import nl.aurorion.blockregen.Context;
+import nl.aurorion.blockregen.RegenerationContextKey;
 import nl.aurorion.blockregen.util.Colors;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
@@ -74,7 +75,7 @@ public class MinecraftDropItem extends DropItem {
             return null;
         }
 
-        final Function<String, String> parser = (Function<String, String>) context.mustVar("parser");
+        final Function<String, String> parser = (Function<String, String>) context.mustVar(RegenerationContextKey.PARSER);
 
         if (displayName != null) {
             itemMeta.setDisplayName(Colors.color(parser.apply(displayName)));

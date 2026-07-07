@@ -45,6 +45,9 @@ public class CompatibilityManager {
     @Getter
     private final ProviderContainer<EconomyProvider> economy;
 
+    @Getter
+    private final ProviderContainer<CraftEngineProvider> craftEngine;
+
     public CompatibilityManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
 
@@ -57,6 +60,7 @@ public class CompatibilityManager {
         this.mmoItems = createProvider("MMOItems", () -> new MMOItemsProvider(plugin));
         this.mythicMobs = createProvider("MythicMobs", () -> new MythicMobsProvider(plugin));
         this.ecoItems = createProvider("EcoItems", () -> new EcoItemsProvider(plugin));
+        this.craftEngine = createProvider("CraftEngine", () -> new CraftEngineProvider(plugin));
 
         this.griefPrevention = createProvider("GriefPrevention", () -> new GriefPreventionProvider(plugin));
         this.residence = createProvider("Residence", () -> new ResidenceProvider(plugin));
@@ -121,7 +125,7 @@ public class CompatibilityManager {
                 }
                 reloadPresets = true;
             }
-            log.info("Loaded support for " + container.getPluginName() + "!" + (compatibilityProvider.getFeatures() == null ? "" : " Features: &a" + String.join("&7, &a", compatibilityProvider.getFeatures()) + "&7."));
+            log.info("Loaded support for " + container.getPluginName() + "!" + " Features: &a" + compatibilityProvider.getJoinedFlags() + "&7.");
         }
 
         if (reloadPresets && shouldReloadPresets) {

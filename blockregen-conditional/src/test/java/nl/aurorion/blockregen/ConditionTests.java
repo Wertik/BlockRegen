@@ -34,9 +34,9 @@ public class ConditionTests {
 
     @Test
     public void evaluatesBasedOnContextValues() {
-        Context context = Context.of("value", 10);
+        Context context = Context.of(BaseContextKey.of("value"), 10);
         Condition c1 = Condition.of((ctx) -> {
-            return (int) ctx.mustVar("value") > 5;
+            return (int) ctx.mustVar(BaseContextKey.of("value")) > 5;
         });
         assertTrue(c1.matches(context));
     }
@@ -44,14 +44,14 @@ public class ConditionTests {
     @Test
     public void preservesContext() {
         Condition condition = Condition.of((ctx) -> {
-            ctx.set("from_condition", true);
+            ctx.set(BaseContextKey.of("from_condition"), true);
             return true;
         });
 
-        Context context = Context.of("hello", "world");
+        Context context = Context.of(BaseContextKey.of("hello"), "world");
 
         assertTrue(condition.matches(context));
-        assertTrue(context.get("from_condition", Boolean.class));
+        assertTrue(context.get(BaseContextKey.of("from_condition"), Boolean.class));
     }
 
     @Test

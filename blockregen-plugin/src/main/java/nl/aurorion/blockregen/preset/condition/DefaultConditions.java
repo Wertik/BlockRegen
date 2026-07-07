@@ -4,11 +4,8 @@ import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.common.collect.Lists;
 import lombok.extern.java.Log;
-import nl.aurorion.blockregen.BlockRegenPluginImpl;
-import nl.aurorion.blockregen.Pair;
-import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.*;
 import nl.aurorion.blockregen.conditional.Condition;
-import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.preset.FixedNumberValue;
 import nl.aurorion.blockregen.preset.NumberValue;
 import nl.aurorion.blockregen.preset.condition.expression.Expression;
@@ -30,6 +27,9 @@ import java.util.Random;
 @Log
 public class DefaultConditions {
 
+    public static final ContextKey MATERIAL_KEY = BaseContextKey.of("material");
+    public static final ContextKey ENCHANTS_KEY = BaseContextKey.of("enchants");
+
     @NotNull
     public static Pair<String, GenericConditionProvider.ProviderEntry> tool() {
         return new Pair<>(
@@ -40,7 +40,7 @@ public class DefaultConditions {
                                         (key, node) -> {
                                             XMaterial xMaterial = Parsing.parseMaterial((String) node);
 
-                                            return Condition.of((ctx) -> ctx.get("material") == xMaterial)
+                                            return Condition.of((ctx) -> ctx.get(MATERIAL_KEY) == xMaterial)
                                                     .alias("material == " + xMaterial)
                                                     .pretty(xMaterial.toString());
                                         }, String.class))
@@ -56,7 +56,7 @@ public class DefaultConditions {
                                                     .pretty(Text.capitalize(v));
                                         }, ConditionRelation.AND))
                                 .extender((ctx) -> {
-                                    ItemStack item = ctx.get("tool", ItemStack.class);
+                                    ItemStack item = ctx.get(RegenerationContextKey.TOOL, ItemStack.class);
 
                                     XMaterial material = null;
                                     if (item != null) {
@@ -71,8 +71,8 @@ public class DefaultConditions {
                                     }
 
                                     return Context.empty()
-                                            .with("material", material)
-                                            .with("enchants", item == null ? new HashMap<>() : item.getEnchantments());
+                                            .with(MATERIAL_KEY, material)
+                                            .with(ENCHANTS_KEY, item == null ? new HashMap<>() : item.getEnchantments());
                                 }), ConditionRelation.AND)
         );
     }
@@ -82,7 +82,7 @@ public class DefaultConditions {
     private static Operand getEnchantmentLevel(XEnchantment xEnchantment) {
         Operand op1;
         op1 = ctx -> {
-            Map<Enchantment, Integer> enchants = (Map<Enchantment, Integer>) ctx.mustVar("enchants");
+            Map<Enchantment, Integer> enchants = (Map<Enchantment, Integer>) ctx.mustVar(ENCHANTS_KEY);
             for (Map.Entry<Enchantment, Integer> entry : enchants.entrySet()) {
                 if (entry.getKey() == xEnchantment.get()) {
                     return entry.getValue();

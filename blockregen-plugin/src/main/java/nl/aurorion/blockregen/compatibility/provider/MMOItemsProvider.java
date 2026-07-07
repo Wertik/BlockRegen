@@ -10,7 +10,9 @@ import net.Indyuce.mmoitems.api.player.PlayerData;
 import nl.aurorion.blockregen.BlockRegenPlugin;
 import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.RegenerationContextKey;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.compatibility.ProviderFeatureFlag;
 import nl.aurorion.blockregen.compatibility.material.MMOItemsMaterial;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -25,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class MMOItemsProvider extends CompatibilityProvider implements ItemProvi
 
     public MMOItemsProvider(BlockRegenPlugin plugin) {
         super(plugin, "mmoitems");
-        setFeatures("materials", "conditions", "drops");
+        setFeatures(ProviderFeatureFlag.CONDITIONS, ProviderFeatureFlag.MATERIALS, ProviderFeatureFlag.DROPS);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class MMOItemsProvider extends CompatibilityProvider implements ItemProvi
                 }
 
                 return Condition.of((ctx) -> {
-                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    ItemStack tool = ctx.mustVar(RegenerationContextKey.TOOL, ItemStack.class);
                     NBTItem nbtItem = NBTItem.get(tool);
 
                     if (nbtItem == null) {
@@ -121,8 +122,8 @@ public class MMOItemsProvider extends CompatibilityProvider implements ItemProvi
 
     @Override
     public @Nullable ItemStack createItem(@NonNull String id, int amount, @NonNull Context context) {
-        final Player player = context.get("player", Player.class);
-        final Block block = context.get("block", Block.class);
+        final Player player = context.mustVar(RegenerationContextKey.PLAYER, Player.class);
+        final Block block = context.mustVar(RegenerationContextKey.BLOCK, Block.class);
 
         final MMOItem mmoItem = getMMOItem(id, player);
 
@@ -145,12 +146,6 @@ public class MMOItemsProvider extends CompatibilityProvider implements ItemProvi
         }
 
         return itemStack;
-    }
-
-    @Override
-    public @Nullable ItemStack createItem(@NonNull String id, @NonNull Function<String, String> parser, int amount) {
-        // not called unless the other one is unimplemented
-        return null;
     }
 
     @Override

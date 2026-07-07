@@ -5,8 +5,11 @@ import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
 import io.th0rgal.oraxen.mechanics.Mechanic;
 import nl.aurorion.blockregen.BlockRegenPlugin;
+import nl.aurorion.blockregen.Context;
 import nl.aurorion.blockregen.ParseException;
+import nl.aurorion.blockregen.RegenerationContextKey;
 import nl.aurorion.blockregen.compatibility.CompatibilityProvider;
+import nl.aurorion.blockregen.compatibility.ProviderFeatureFlag;
 import nl.aurorion.blockregen.compatibility.material.OraxenMaterial;
 import nl.aurorion.blockregen.conditional.Condition;
 import nl.aurorion.blockregen.drop.ItemProvider;
@@ -15,6 +18,7 @@ import nl.aurorion.blockregen.material.MaterialProvider;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Type;
@@ -25,7 +29,7 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
 
     public OraxenProvider(BlockRegenPlugin plugin) {
         super(plugin, "oraxen");
-        setFeatures("materials", "drops", "conditions");
+        setFeatures(ProviderFeatureFlag.MATERIALS, ProviderFeatureFlag.DROPS, ProviderFeatureFlag.CONDITIONS);
     }
 
     @Override
@@ -40,7 +44,7 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
                 }
 
                 return Condition.of((ctx) -> {
-                    ItemStack tool = (ItemStack) ctx.mustVar("tool");
+                    ItemStack tool = ctx.mustVar(RegenerationContextKey.TOOL, ItemStack.class);
                     String toolId = OraxenItems.getIdByItem(tool);
                     return id.equals(toolId);
                 });
@@ -74,7 +78,10 @@ public class OraxenProvider extends CompatibilityProvider implements ItemProvide
     }
 
     @Override
-    public ItemStack createItem(@NotNull String id, @NotNull Function<String, String> parser, int amount) {
+    public @Nullable ItemStack createItem(@NonNull String id, int amount, @NonNull Context context) {
+        @SuppressWarnings("unchecked")
+        Function<String, String> parser = (Function<String, String>) context.mustVar(RegenerationContextKey.PARSER, Function.class);
+
         ItemBuilder builder = OraxenItems.getItemById(id);
         builder.setDisplayName(parser.apply(builder.getDisplayName()));
         builder.setLore(builder.getLore().stream()

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>BlockRegen</artifactId>
         <groupId>nl.aurorion.blockregen</groupId>
-        <version>3.32.1</version>
+        <version>3.33.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -93,6 +93,11 @@
             <name>Lumine Releases</name>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
+        <!-- CraftEngine -->
+        <repository>
+            <id>momirealms-repo</id>
+            <url>https://repo.momirealms.net/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -100,43 +105,43 @@
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-common</artifactId>
-            <version>3.32.1</version>
+            <version>3.33.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-conditional</artifactId>
-            <version>3.32.1</version>
+            <version>3.33.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-version</artifactId>
-            <version>3.32.1</version>
+            <version>3.33.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-legacy</artifactId>
-            <version>3.32.1</version>
+            <version>3.33.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-ancient</artifactId>
-            <version>3.32.1</version>
+            <version>3.33.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-modern</artifactId>
-            <version>3.32.1</version>
+            <version>3.33.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>nl.aurorion.blockregen</groupId>
             <artifactId>blockregen-pink</artifactId>
-            <version>3.32.1</version>
+            <version>3.33.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <!-- Spigot API -->
@@ -354,6 +359,18 @@
             <groupId>com.willfp</groupId>
             <artifactId>libreforge-loader</artifactId>
             <version>5.6.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.momirealms</groupId>
+            <artifactId>craft-engine-core</artifactId>
+            <version>26.7</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.momirealms</groupId>
+            <artifactId>craft-engine-bukkit</artifactId>
+            <version>26.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

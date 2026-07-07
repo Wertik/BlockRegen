@@ -19,6 +19,7 @@ softdepend:
   - MythicMobs
   - MMOItems
   - EcoItems
+  - CraftEngine
 api-version: "1.13"
 commands:
   blockregen:
