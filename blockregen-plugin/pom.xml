@@ -260,10 +260,6 @@
                     <artifactId>protectionlib</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>dev.triumphteam</groupId>
-                    <artifactId>triumph-gui</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.bstats</groupId>
                     <artifactId>bstats-bukkit</artifactId>
                 </exclusion>
@@ -311,8 +307,7 @@
         <dependency>
             <groupId>com.nexomc</groupId>
             <artifactId>nexo</artifactId>
-            <classifier>dev</classifier>
-            <version>0.7.0</version>
+            <version>1.25.0</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
