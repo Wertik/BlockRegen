@@ -24,7 +24,7 @@ public class ResidenceProvider extends CompatibilityProvider {
         if (residence != null) {
             ResidencePermissions permissions = residence.getPermissions();
 
-            if (type == RegenerationEventType.BLOCK_BREAK) {
+            if (type == RegenerationEventType.BLOCK_BREAK || type == RegenerationEventType.BUCKET_FILL) {
                 // has neither build nor destroy
                 // let residence run its protection
                 if (!permissions.playerHas(player, Flags.destroy, true) &&

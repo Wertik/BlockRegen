@@ -15,6 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 @Log
@@ -95,5 +96,29 @@ public class RegenerationListener implements Listener {
                 event.setCancelled(true);
             }
         }, RegenerationEventType.BLOCK_BREAK);
+    }
+
+    // Picking up liquids with a bucket. Removes the source block without firing a BlockBreakEvent.
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBucketFill(PlayerBucketFillEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlockClicked();
+
+        plugin.getRegenerationEventHandler().handleEvent(block, player, event, new EventControl<PlayerBucketFillEvent>() {
+            @Override
+            public void cancelDrops() {
+                // The bucket itself is the only 'drop', nothing to clear.
+            }
+
+            @Override
+            public void cancel() {
+                event.setCancelled(true);
+            }
+
+            @Override
+            public int getDefaultExperience() {
+                return 0;
+            }
+        }, RegenerationEventType.BUCKET_FILL);
     }
 }

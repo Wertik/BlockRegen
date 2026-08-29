@@ -135,6 +135,13 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
             return;
         }
 
+        // Liquids picked up with a bucket are only protected, never regenerated.
+        // The server clears the source block after the event, which would fight with the regeneration process.
+        if (type == RegenerationEventType.BUCKET_FILL) {
+            log.fine(() -> String.format("%s has a preset, but bucket fills are not regenerated.", block.getType()));
+            return;
+        }
+
         // Check preset permissions
         if (Permissions.lacksPermission(player, "blockregen.preset", preset.getName())) {
             Message.PERMISSION_BLOCK_ERROR.send(player);
@@ -253,7 +260,7 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
         if (plugin.getConfig().getBoolean("WorldGuard-Support", true)
                 && plugin.getVersionManager().getWorldGuardProvider() != null) {
 
-            if (type == RegenerationEventType.BLOCK_BREAK) {
+            if (type == RegenerationEventType.BLOCK_BREAK || type == RegenerationEventType.BUCKET_FILL) {
                 if (!plugin.getVersionManager().getWorldGuardProvider().canBreak(player, block.getLocation())) {
                     log.fine(() -> "Let WorldGuard handle block break.");
                     return true;

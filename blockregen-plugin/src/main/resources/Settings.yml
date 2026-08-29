@@ -26,7 +26,8 @@ Use-Regions: true
 
 # Don't allow players to break blocks outside those configured for regeneration.
 #
-# Setting this to true protects all other blocks from being broken. No other protection is provided.
+# Setting this to true protects all other blocks from being broken, including liquids picked up with a bucket.
+# No other protection is provided.
 # Setting this to false allows the players to break any other block freely.
 Disable-Other-Break: true
 

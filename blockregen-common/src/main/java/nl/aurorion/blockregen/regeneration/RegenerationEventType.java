@@ -4,6 +4,8 @@ package nl.aurorion.blockregen.regeneration;
 public enum RegenerationEventType {
     BLOCK_BREAK,
     TRAMPLING,
+    // Picking up a liquid (water, lava,...) with a bucket.
+    BUCKET_FILL,
     // 1.16+
     HARVEST
 }
