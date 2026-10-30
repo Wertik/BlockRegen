@@ -107,7 +107,11 @@ public class LatestMethods implements Methods {
 
     @Override
     public @NotNull XMaterial getType(@NotNull Block block) {
-        return XMaterial.matchXMaterial(block.getType());
+        try {
+            return XMaterial.matchXMaterial(block.getType());
+        } catch (Throwable t) {
+            return XMaterial.AIR;
+        }
     }
 
     @Override

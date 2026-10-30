@@ -75,16 +75,11 @@ public class PlayerListener implements Listener {
 
         ItemStack tool = plugin.getVersionManager().getMethods().getItemInMainHand(player);
 
-        XMaterial toolMaterial;
+        XMaterial toolMaterial = null;
         try {
             toolMaterial = XMaterial.matchXMaterial(tool);
-        } catch (IllegalArgumentException e) {
+        } catch (Throwable e) {
             log.fine(() -> String.format("Unknown tool material %s.", tool.getType()));
-            if (!BlockRegenPluginImpl.getInstance().getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
-                log.warning(() -> "Encountered an unsupported material. Hide this error by setting Ignore-Unknown-Materials to true in Settings.yml.");
-                throw e;
-            }
-            return;
         }
 
         // Region selection

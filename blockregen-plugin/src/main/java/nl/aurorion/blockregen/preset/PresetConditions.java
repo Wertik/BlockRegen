@@ -50,7 +50,14 @@ public class PresetConditions {
 
         ItemStack tool = BlockRegenPluginImpl.getInstance().getVersionManager().getMethods().getItemInMainHand(player);
 
-        if (toolsRequired.contains(XMaterial.matchXMaterial(tool)))
+        XMaterial toolMaterial = null;
+        try {
+            toolMaterial = XMaterial.matchXMaterial(tool);
+        } catch (Throwable t) {
+            // ignore unsupported tool material
+        }
+
+        if (toolMaterial != null && toolsRequired.contains(toolMaterial))
             return true;
 
         String requirements = composeToolRequirements();
