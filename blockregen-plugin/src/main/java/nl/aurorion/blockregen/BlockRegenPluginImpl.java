@@ -356,12 +356,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
     public XMaterial getBlockType(@NotNull Block block) {
         try {
             return getVersionManager().getMethods().getType(block);
-        } catch (IllegalArgumentException e) {
+        } catch (Throwable e) {
             log.fine(() -> "Unknown material " + block.getType());
-            if (!getConfig().getBoolean("Ignore-Unknown-Materials", false)) {
-                log.warning(() -> "Encountered an unsupported material. Hide this error by setting Ignore-Unknown-Materials to true in Settings.yml.");
-                throw e;
-            }
             return null;
         }
     }
