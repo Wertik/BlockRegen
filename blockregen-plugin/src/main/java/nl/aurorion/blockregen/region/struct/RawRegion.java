@@ -29,10 +29,13 @@ public class RawRegion {
     private final Boolean disableOtherBreak;
 
     @Getter
+    private final Boolean worldGuardOverride;
+
+    @Getter
     @Setter
     private boolean reattempt = false;
 
-    public RawRegion(String name, String min, String max, List<String> blockPresets, boolean all, int priority, Boolean disableOtherBreak) {
+    public RawRegion(String name, String min, String max, List<String> blockPresets, boolean all, int priority, Boolean disableOtherBreak, Boolean worldGuardOverride) {
         this.name = name;
         this.min = min;
         this.max = max;
@@ -40,6 +43,7 @@ public class RawRegion {
         this.all = all;
         this.priority = priority;
         this.disableOtherBreak = disableOtherBreak;
+        this.worldGuardOverride = worldGuardOverride;
     }
 
     public RegenerationRegion build() {
@@ -55,6 +59,7 @@ public class RawRegion {
 
         RegenerationRegion region = new RegenerationRegion(name, actualMin, actualMax);
         region.setDisableOtherBreak(disableOtherBreak);
+        region.setWorldGuardOverride(worldGuardOverride);
         region.setPriority(priority);
         region.setAll(all);
         return region;

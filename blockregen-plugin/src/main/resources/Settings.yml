@@ -61,6 +61,14 @@ GriefPrevention-Support: true
 # If a block inside a WorldGuard region is broken and is protected against the player breaking it. Nothing will happen.
 WorldGuard-Support: true
 
+# Let players break configured blocks inside BlockRegen regions even where WorldGuard denies breaking.
+#
+# Only blocks with a preset are allowed, and only inside regions. Everything else stays protected by WorldGuard.
+# Use this instead of a WorldGuard region with `block-break: allow`. If BlockRegen fails to load,
+# WorldGuard keeps protecting the whole area instead of leaving it open to griefing.
+# Can be overridden per region with `WorldGuard-Override` in Regions.yml.
+WorldGuard-Override: false
+
 # Setting this to true makes the plugin respect Residence protection.
 # If a block inside a residence is broken and is protected against the player breaking it. Nothing will happen.
 Residence-Support: true

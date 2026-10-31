@@ -181,8 +181,9 @@ public class RegionManager {
         int priority = section.getInt("Priority", 1);
 
         Boolean disableOtherBreak = ConfigFile.parseOptionalBoolean(section.get("Disable-Other-Break"));
+        Boolean worldGuardOverride = ConfigFile.parseOptionalBoolean(section.get("WorldGuard-Override"));
 
-        RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority, disableOtherBreak);
+        RawRegion rawRegion = new RawRegion(name, minString, maxString, presets, all, priority, disableOtherBreak, worldGuardOverride);
 
         if (Strings.isNullOrEmpty(minString) || Strings.isNullOrEmpty(maxString)) {
             this.failedRegions.add(rawRegion);
@@ -206,6 +207,7 @@ public class RegionManager {
         RegenerationWorld world = new RegenerationWorld(name, worldName);
         world.setPriority(section.getInt("Priority", 1));
         world.setAll(section.getBoolean("All", true));
+        world.setWorldGuardOverride(ConfigFile.parseOptionalBoolean(section.get("WorldGuard-Override")));
 
         List<String> presets = section.getStringList("Presets");
 
@@ -262,6 +264,7 @@ public class RegionManager {
             regionSection.set("All", rawRegion.isAll());
             regionSection.set("Presets", rawRegion.getBlockPresets());
             regionSection.set("Disable-Other-Break", rawRegion.getDisableOtherBreak());
+            regionSection.set("WorldGuard-Override", rawRegion.getWorldGuardOverride());
         }
 
         for (RegenerationArea area : new HashSet<>(this.loadedAreas)) {
@@ -307,6 +310,28 @@ public class RegionManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Whether WorldGuard protection should be ignored when breaking this block.
+     * True only for blocks with a preset inside a region with WorldGuard-Override enabled.
+     */
+    public boolean shouldOverrideWorldGuard(@NotNull Block block) {
+        if (!plugin.getConfig().getBoolean("Use-Regions", false)) {
+            return false;
+        }
+
+        RegenerationArea area = getArea(block);
+
+        if (area == null) {
+            return false;
+        }
+
+        boolean override = area.getWorldGuardOverride() != null
+                ? area.getWorldGuardOverride()
+                : plugin.getConfig().getBoolean("WorldGuard-Override", false);
+
+        return override && plugin.getPresetManager().getPreset(block, area) != null;
     }
 
     public void addArea(@NotNull RegenerationArea region) {
