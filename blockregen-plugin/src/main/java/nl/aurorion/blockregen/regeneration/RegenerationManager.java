@@ -15,13 +15,16 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import nl.aurorion.blockregen.util.GsonHelper;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 @Log
@@ -40,6 +43,12 @@ public class RegenerationManager {
     private final Set<UUID> bypass = new HashSet<>();
 
     private final Set<UUID> dataCheck = new HashSet<>();
+
+    private final AtomicBoolean saveScheduled = new AtomicBoolean(false);
+
+    private CompletableFuture<Void> writeChain = CompletableFuture.completedFuture(null);
+
+    private volatile boolean loaded = false;
 
     public RegenerationManager(BlockRegenPlugin plugin) {
         this.plugin = plugin;
@@ -128,6 +137,7 @@ public class RegenerationManager {
 
         cache.put(process.getBlock(), process);
         log.fine(() -> "Registered regeneration process " + process);
+        requestSave();
     }
 
     @Nullable
@@ -143,13 +153,44 @@ public class RegenerationManager {
     public void removeProcess(RegenerationProcess process) {
         if (cache.remove(process.getBlock()) != null) {
             log.fine(() -> String.format("Removed process from cache: %s", process));
+            requestSave();
         } else {
             log.fine(() -> String.format("Process %s not found, not removed.", process));
         }
     }
 
     public void removeProcess(@NotNull Block block) {
-        cache.remove(block);
+        if (cache.remove(block) != null) {
+            requestSave();
+        }
+    }
+
+    /**
+     * Schedule a save shortly after a process was added or removed (Save-On-Change).
+     * <p>
+     * Changes within Save-On-Change-Delay seconds are written together, so mining a vein
+     * doesn't write the file once per block. Without this, a crash or kill loses every block broken
+     * since the last auto-save, and those blocks never regenerate.
+     */
+    public void requestSave() {
+        if (!loaded || !plugin.getConfig().getBoolean("Save-On-Change", true) || !plugin.isEnabled()) {
+            return;
+        }
+
+        if (!saveScheduled.compareAndSet(false, true)) {
+            return;
+        }
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            saveScheduled.set(false);
+            save();
+        }, Math.max(1, plugin.getConfig().getInt("Save-On-Change-Delay", 1)) * 20L);
+    }
+
+    // Writes run one after another, so an older snapshot never overwrites a newer one.
+    private synchronized CompletableFuture<Void> queueWrite(@NotNull Supplier<CompletableFuture<Void>> write) {
+        this.writeChain = this.writeChain.handle((result, e) -> null).thenCompose(v -> write.get());
+        return this.writeChain;
     }
 
     public void startAutoSave() {
@@ -197,14 +238,20 @@ public class RegenerationManager {
 
         if (cache.isEmpty()) {
             log.fine(() -> "No processes to save.");
-            try {
-                Files.write(dataFile.toPath(), "[]\n".getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-            } catch (IOException e) {
-                log.severe(() -> "Failed to create empty Data.json.");
+            CompletableFuture<Void> future = queueWrite(() -> CompletableFuture.runAsync(() -> {
+                try {
+                    GsonHelper.writeAtomically(dataFile.toPath(), "[]\n".getBytes(StandardCharsets.UTF_8));
+                } catch (IOException e) {
+                    log.severe(() -> "Failed to create empty Data.json.");
 
-                // Try to force delete.
-                //noinspection ResultOfMethodCallIgnored
-                dataFile.delete();
+                    // Try to force delete.
+                    //noinspection ResultOfMethodCallIgnored
+                    dataFile.delete();
+                }
+            }));
+
+            if (sync) {
+                future.join();
             }
             return;
         }
@@ -216,7 +263,7 @@ public class RegenerationManager {
 
         final List<RegenerationProcess> finalCache = new ArrayList<>(cache.values());
 
-        CompletableFuture<Void> future = plugin.getGsonHelper().save(finalCache, dataFile.toPath())
+        CompletableFuture<Void> future = queueWrite(() -> plugin.getGsonHelper().save(finalCache, dataFile.toPath()))
                 .exceptionally(e -> {
                     log.log(Level.SEVERE, "Could not save processes: " + e.getMessage(), e);
                     return null;
@@ -238,11 +285,19 @@ public class RegenerationManager {
     }
 
     public void load() {
+        // Don't let Save-On-Change overwrite Data.json before it was read.
+        this.loaded = false;
+
+        if (!new File(plugin.getDataFolder(), "/Data.json").exists()) {
+            this.loaded = true;
+        }
+
         loadFromStorage().thenAcceptAsync(loadedProcesses ->
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     cache.clear();
 
                     if (loadedProcesses == null) {
+                        this.loaded = true;
                         return;
                     }
 
@@ -257,6 +312,10 @@ public class RegenerationManager {
                         }
                         log.info("Loaded " + this.cache.size() + " regeneration process(es)...");
                     }
+
+                    this.loaded = true;
+                    // Processes started above were skipped by Save-On-Change, write them once now.
+                    requestSave();
                 })).exceptionally(e -> {
             log.log(Level.SEVERE, "Could not load processes: " + e.getMessage(), e);
             return null;

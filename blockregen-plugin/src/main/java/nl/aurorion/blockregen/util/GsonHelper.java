@@ -14,10 +14,13 @@ import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -155,10 +158,35 @@ public class GsonHelper {
             String jsonString = gson.toJson(input, type).trim();
 
             try {
-                Files.write(dataPath, jsonString.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+                writeAtomically(dataPath, jsonString.getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    /**
+     * Write the data to a temporary file next to the target first and then move it over the target.
+     * <p>
+     * If the server gets killed mid-write, the target keeps its previous content instead of being left
+     * empty or half-written.
+     */
+    public static void writeAtomically(@NotNull Path target, byte[] data) throws IOException {
+        Path temp = target.resolveSibling(target.getFileName() + ".tmp");
+
+        try (FileChannel channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            while (buffer.hasRemaining()) {
+                channel.write(buffer);
+            }
+            // Make sure the content is on the disk before it replaces the old file.
+            channel.force(true);
+        }
+
+        try {
+            Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }
