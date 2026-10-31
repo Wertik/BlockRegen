@@ -13,6 +13,7 @@ import nl.aurorion.blockregen.listener.DebugListener;
 import nl.aurorion.blockregen.listener.PhysicsListener;
 import nl.aurorion.blockregen.listener.PlayerListener;
 import nl.aurorion.blockregen.listener.RegenerationListener;
+import nl.aurorion.blockregen.listener.WorldGuardOverrideListener;
 import nl.aurorion.blockregen.material.BlockRegenMaterial;
 import nl.aurorion.blockregen.material.MaterialManager;
 import nl.aurorion.blockregen.material.MaterialProvider;
@@ -288,6 +289,22 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         this.teardownLogger();
     }
 
+    // Always registered when WorldGuard is present, the listener checks the config itself, so a reload can turn it on.
+    private void registerWorldGuardOverride() {
+        if (!getServer().getPluginManager().isPluginEnabled("WorldGuard")) {
+            return;
+        }
+
+        try {
+            Class.forName("com.sk89q.worldguard.bukkit.event.block.BreakBlockEvent");
+        } catch (ClassNotFoundException e) {
+            log.fine(() -> "WorldGuard without BreakBlockEvent, WorldGuard-Override is not available.");
+            return;
+        }
+
+        getServer().getPluginManager().registerEvents(new WorldGuardOverrideListener(this), this);
+    }
+
     private void registerListeners() {
         PluginManager pluginManager = this.getServer().getPluginManager();
         pluginManager.registerEvents(regenerationListener, this);
@@ -305,6 +322,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
 
         pluginManager.registerEvents(new PlayerListener(this), this);
         versionManager.registerVersionedListeners();
+
+        registerWorldGuardOverride();
 
         registerDebugListener();
     }

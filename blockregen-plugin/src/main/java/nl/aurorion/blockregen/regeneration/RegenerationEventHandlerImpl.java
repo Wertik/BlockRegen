@@ -254,12 +254,16 @@ public class RegenerationEventHandlerImpl implements RegenerationEventHandler {
                 && plugin.getVersionManager().getWorldGuardProvider() != null) {
 
             if (type == RegenerationEventType.BLOCK_BREAK) {
-                if (!plugin.getVersionManager().getWorldGuardProvider().canBreak(player, block.getLocation())) {
+                // WorldGuard-Override already let the break through, WorldGuard's own query would still deny it.
+                if (!plugin.getRegionManager().shouldOverrideWorldGuard(block)
+                        && !plugin.getVersionManager().getWorldGuardProvider().canBreak(player, block.getLocation())) {
                     log.fine(() -> "Let WorldGuard handle block break.");
                     return true;
                 }
             } else if (type == RegenerationEventType.TRAMPLING) {
-                if (!plugin.getVersionManager().getWorldGuardProvider().canTrample(player, block.getLocation())) {
+                // Same for trampling, block is the crop here.
+                if (!plugin.getRegionManager().shouldOverrideWorldGuard(block)
+                        && !plugin.getVersionManager().getWorldGuardProvider().canTrample(player, block.getLocation())) {
                     log.fine(() -> "Let WorldGuard handle trampling.");
                     return true;
                 }

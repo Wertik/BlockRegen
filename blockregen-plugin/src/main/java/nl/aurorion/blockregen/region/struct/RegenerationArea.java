@@ -29,6 +29,12 @@ public abstract class RegenerationArea {
     // null => take from Settings.yml
     protected Boolean disableOtherBreak = null;
 
+    @Getter
+    @Setter
+    @Nullable
+    // null => take from Settings.yml
+    protected Boolean worldGuardOverride = null;
+
     // After changing the priority, always call RegionManager#sort to resort the regions.
     @Getter
     @Setter
@@ -43,6 +49,7 @@ public abstract class RegenerationArea {
     public void serialize(ConfigurationSection section) {
         section.set("All", this.all);
         section.set("Disable-Other-Break", this.disableOtherBreak);
+        section.set("WorldGuard-Override", this.worldGuardOverride);
         section.set("Presets", new ArrayList<>(this.presets));
         section.set("Priority", this.priority);
     }
