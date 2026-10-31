@@ -70,3 +70,13 @@ Auto-Save:
   Enabled: true
   # Interval in seconds
   Interval: 600
+
+# Save running regeneration processes shortly after a block is broken or regenerated.
+#
+# Without this, a crash or kill loses every block broken since the last auto-save,
+# and those blocks are never regenerated.
+Save-On-Change: true
+
+# Seconds to wait before that save. Every change within this time is written in one go.
+# Higher means fewer writes, but a crash can lose up to this many seconds of broken blocks.
+Save-On-Change-Delay: 1

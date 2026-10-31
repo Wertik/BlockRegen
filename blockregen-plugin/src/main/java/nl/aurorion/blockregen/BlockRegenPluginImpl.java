@@ -171,8 +171,8 @@ public class BlockRegenPluginImpl extends JavaPlugin implements Listener, BlockR
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .registerTypeHierarchyAdapter(NodeData.class, new SubclassAdapter<>(new GsonBuilder().setPrettyPrinting().create()))
                 .registerTypeHierarchyAdapter(BlockRegenMaterial.class, new SubclassAdapter<>(innerGsonBuilder.setPrettyPrinting().create()))
-                .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()))
-                .setPrettyPrinting();
+                .registerTypeAdapter(NodeData.class, new NodeDataInstanceCreator(versionManager.getNodeProvider()));
+        // No pretty printing: Data.json is rewritten on every change (Save-On-Change), compact output is about half the size.
 
         gsonHelper = new GsonHelper(gsonBuilder);
 
